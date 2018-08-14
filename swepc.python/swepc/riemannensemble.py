@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.polynomial.hermite_e as hermite_e
 
 class RiemannEnsemble:
     def __init__(self, basis, solver, quadraturePoints):

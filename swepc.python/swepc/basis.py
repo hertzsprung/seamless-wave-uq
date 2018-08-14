@@ -6,7 +6,6 @@ class GaussianHermiteBasis:
         self.degree = degree
         self.polynomials = [hermite_e.HermiteE.basis(d)
                 for d in range(degree+1)]
-        print(self.polynomials)
         self.weightFunction = lambda xi: 1/np.sqrt(2*np.pi) * np.exp(-xi**2/2)
 
     def __call__(self, xi, coefficients):
