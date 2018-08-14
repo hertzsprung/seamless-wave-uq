@@ -7,7 +7,7 @@ def test_riemannensemble():
     solver = swepc.Roe(g=9.80665)
     riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=2)
 
-    left = swepc.FlowCoeffs([4.0, 0.0], [0.0, 0.0], basis)
+    left = swepc.FlowCoeffs([4.0, 1.0], [0.0, 0.0], basis)
     right = swepc.FlowCoeffs([4.0, 0.0], [0.0, 0.0], basis)
 
     value = riemannEnsemble.integrate(left, right, basis.polynomialOf(degree=1))

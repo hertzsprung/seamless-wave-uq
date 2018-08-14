@@ -8,19 +8,9 @@ class RiemannEnsemble:
         self.points, self.weights = basis.quadrature(quadraturePoints)
 
     def integrate(self, left, right, polynomial):
-        for xi, w in zip(self.points, self.weights):
-            print()
-            print(xi, w) 
-            print(self.basis.weightFunction(xi) * w)
-            print(self.basis.weightFunction(xi) * w * polynomial(xi))
-            print(left(xi), right(xi))
-            print(self.solver.flux(left(xi), right(xi)))
-        print("===")
-
-        print([w * self.solver.flux(left(xi), right(xi)) * 
-            polynomial(xi) * self.basis.weightFunction(xi)
-            for xi, w in zip(self.points, self.weights)])
+        #for xi, w in zip(self.points, self.weights):
+        #    print(xi, w*self.basis.weightFunction(xi)*polynomial(xi), left(xi), right(xi))
 
         return np.sum([w * self.solver.flux(left(xi), right(xi)) * 
             polynomial(xi) * self.basis.weightFunction(xi)
-            for xi, w in zip(self.points, self.weights)], axis=0)
+            for xi, w in zip(self.points, self.weights)])
