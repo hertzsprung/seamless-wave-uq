@@ -4,47 +4,64 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 g = 9.80665
-basis = swepc.GaussianHermiteBasis(degree=1)
-solver = swepc.Roe(g)
-riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=4)
-flux = swepc.Flux(basis, riemannEnsemble)
-
-domain = [0.0, 50.0]
 N = 64
+domain = [0.0, 50.0]
 dx = (domain[1] - domain[0])/N
 xs = np.linspace(dx/2, domain[1]-dx/2, N)
-dt = 0.05
-endTime = 40.0
 
-flow = swepc.Flow(N, basis)
+def deterministic():
+    basis = swepc.GaussianHermiteBasis(degree=0)
+    solver = swepc.Roe(g)
+    riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=1)
+    flux = swepc.Flux(basis, riemannEnsemble)
 
-flow.h[:,0] = 6.0
-flow.h[N//2:,0] = 2.0
-flow.h[:,1] = 0.5
+    flow = swepc.Flow(N, basis)
+    flow.h[:,0] = 6.0
+    flow.h[N//2:,0] = 2.0
+
+    return swepc.Simulation(flux), flow
+
+def stochastic():
+    basis = swepc.GaussianHermiteBasis(degree=3)
+    solver = swepc.Roe(g)
+    riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=4)
+    flux = swepc.Flux(basis, riemannEnsemble)
+
+    flow = swepc.Flow(N, basis)
+    flow.h[:,0] = 6.0
+    flow.h[N//2:,0] = 2.0
+    flow.h[:,1] = [2/np.sqrt(2*np.pi)*np.exp(-(0.5*x-12.5)**2/2) for x in xs]
+
+    return swepc.Simulation(flux), flow
+
+deterministicSim, deterministicFlow = deterministic()
+stochasticSim, stochasticFlow = stochastic()
+
+dt = 0.04
+endTime = 2.5
 
 t = 0.0
 while t < endTime:
-    print("#t {0:.3f}".format(t), "cfl", round(dt/dx*flow.maxWaveSpeed(g), 3))
-    print()
+    deterministicSim.timestep(deterministicFlow, dx, dt)
+    stochasticSim.timestep(stochasticFlow, dx, dt)
+
     plt.figure(1)
     plt.clf()
-    plt.plot(xs, flow.h[:,0], color='b')
-    plt.plot(xs, flow.h[:,0] + flow.h[:,1], color='b', linestyle='dashed')
-    plt.plot(xs, flow.h[:,0] - flow.h[:,1], color='b', linestyle='dashed')
-    plt.plot(xs, 10*flow.h[:,1])
-    plt.ylim((0,10))
-    plt.pause(0.001)
+    plt.fill_between(xs, stochasticFlow.h[:,0] - stochasticFlow.h[:,1],
+            stochasticFlow.h[:,0] + stochasticFlow.h[:,1], 
+            color='lightskyblue')
+    plt.plot(xs, stochasticFlow.h[:,0], color='mediumblue', linewidth=3.0)
+    #plt.plot(xs, stochasticFlow.h[:,1]*10+5, color='C1')
+    #plt.plot(xs, stochasticFlow.h[:,2]*10+5, color='C2')
+    #plt.plot(xs, stochasticFlow.h[:,3]*10+5, color='C3')
+    plt.plot(xs, deterministicFlow.h[:,0], color='magenta', linewidth=0.5)
+    plt.ylim((0,8))
+    plt.text(2, 0.75, "$t$ = {0:.3f}".format(t))
+    plt.text(2, 0.25, "$cfl$ = {0:.3f}".format(
+        dt/dx*deterministicFlow.maxWaveSpeed(g)))
+    plt.pause(0.1)
+    #plt.savefig("/tmp/dam/{0:05.3f}.png".format(t))
 
-    f = flux.evaluate(flow)
+    t = t + dt
 
-    for i in range(N):
-        coeffsLeftPlus, coeffsLeftMinus = flow.atFace(i)
-        coeffsRightPlus, coeffsRightMinus = flow.atFace(i+1)
-
-        for l in range(basis.degree+1):
-            flow.update(i, l, -dt/(dx*basis.ensembleSquareOf(degree=l)) * 
-                    (f[i+1,l] - f[i,l]))
-
-    t = t + dt 
-
-
+plt.show(block=True)
