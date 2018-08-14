@@ -7,6 +7,7 @@ g = 9.80665
 basis = swepc.GaussianHermiteBasis(degree=1)
 solver = swepc.Roe(g)
 riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=4)
+flux = swepc.Flux(basis, riemannEnsemble)
 
 domain = [0.0, 50.0]
 N = 64
@@ -18,8 +19,8 @@ endTime = 40.0
 flow = swepc.Flow(N, basis)
 
 flow.h[:,0] = 6.0
-flow.h[N//2:,0] = 3.0
-flow.h[:,1] = 1.0
+flow.h[N//2:,0] = 2.0
+flow.h[:,1] = 0.5
 
 t = 0.0
 while t < endTime:
@@ -30,22 +31,19 @@ while t < endTime:
     plt.plot(xs, flow.h[:,0], color='b')
     plt.plot(xs, flow.h[:,0] + flow.h[:,1], color='b', linestyle='dashed')
     plt.plot(xs, flow.h[:,0] - flow.h[:,1], color='b', linestyle='dashed')
-    #plt.plot(xs, 10*flow.h[:,1])
+    plt.plot(xs, 10*flow.h[:,1])
     plt.ylim((0,10))
     plt.pause(0.001)
+
+    f = flux.evaluate(flow)
 
     for i in range(N):
         coeffsLeftPlus, coeffsLeftMinus = flow.atFace(i)
         coeffsRightPlus, coeffsRightMinus = flow.atFace(i+1)
 
         for l in range(basis.degree+1):
-            fluxL = riemannEnsemble.integrate(coeffsLeftPlus, coeffsLeftMinus,
-                    basis.polynomialOf(degree=l))
-            fluxR = riemannEnsemble.integrate(coeffsRightPlus, coeffsRightMinus,
-                    basis.polynomialOf(degree=l))
-
             flow.update(i, l, -dt/(dx*basis.ensembleSquareOf(degree=l)) * 
-                    (fluxR - fluxL))
+                    (f[i+1,l] - f[i,l]))
 
     t = t + dt 
 
