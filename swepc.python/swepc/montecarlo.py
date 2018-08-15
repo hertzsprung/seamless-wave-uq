@@ -16,8 +16,7 @@ class MonteCarlo:
         for run in range(iterations):
             flow = self.__sample(stochasticFlow, dx, dt, endTime)
             samples_h[run,:] = flow.h[:,0]
-            print("# iteration ", run, ", integral(variance)",
-                    np.sum(np.var(samples_h[:run+1,:], axis=0)))
+            print("# iteration", run)
 
         basis = swepc.GaussianHermiteBasis(degree=1)
         result = swepc.Flow(stochasticFlow.elements, basis)

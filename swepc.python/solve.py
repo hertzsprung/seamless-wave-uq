@@ -43,8 +43,12 @@ stochasticSim, stochasticFlow = stochastic()
 def plot():
     plt.figure(1)
     plt.clf()
-    plt.fill_between(xs, stochasticFlow.h[:,0] - stochasticFlow.h[:,1],
-            stochasticFlow.h[:,0] + stochasticFlow.h[:,1], 
+#    plt.fill_between(xs, stochasticFlow.h[:,0] - stochasticFlow.h[:,1],
+#            stochasticFlow.h[:,0] + stochasticFlow.h[:,1], 
+#            color='lightskyblue')
+    stddev = [np.sqrt(var.h) for var in stochasticFlow.variance()]
+    plt.fill_between(xs, stochasticFlow.h[:,0] - stddev,
+            stochasticFlow.h[:,0] + stddev, 
             color='lightskyblue')
     plt.plot(xs, stochasticFlow.h[:,0], color='mediumblue')
     #plt.plot(xs, deterministicFlow.h[:,0], color='magenta', linewidth=0.5)

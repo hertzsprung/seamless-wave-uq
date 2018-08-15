@@ -31,6 +31,18 @@ class Flow:
             v = max(v, abs(self.q[i,0] / self.h[i,0]) + np.sqrt(g*self.h[i,0]))
         return v
 
+    def variance(self):
+        var = np.empty(self.elements, dtype=FlowValue)
+
+        for i in range(self.elements):
+            var[i] = FlowValue(0.0, 0.0)
+
+            for l in range(1, self.basis.degree+1):
+                var[i].h += self.h[i,l]**2*self.basis.squareNorm[l]
+                var[i].q += self.q[i,l]**2*self.basis.squareNorm[l]
+
+        return var
+
 class FlowCoeffs:
     def __init__(self, h, q, basis):
         self.h = h

@@ -11,6 +11,6 @@ class Simulation:
 
             for l in range(flow.basis.degree+1):
                 flow.update(i, l,
-                        -dt/(dx*flow.basis.ensembleSquareOf(degree=l))
+                        -dt/(dx*flow.basis.squareNorm[l])
                         * (f[i+1,l] - f[i,l]))
 
