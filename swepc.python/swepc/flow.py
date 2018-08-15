@@ -4,8 +4,11 @@ class Flow:
     def __init__(self, elements, basis):
         self.h = np.zeros((elements, basis.degree+1))
         self.q = np.zeros((elements, basis.degree+1))
+        self.z = np.zeros((elements+1, basis.degree+1))
         self.elements = elements
         self.basis = basis
+        self.upstream_q = None
+        self.downstream_h = None
 
     def atFace(self, i):
         if i == 0:
@@ -18,8 +21,18 @@ class Flow:
             leftI = i-1
             rightI = i
 
-        return FlowCoeffs(self.h[leftI], self.q[leftI], self.basis), \
-                FlowCoeffs(self.h[rightI], self.q[rightI], self.basis)
+        left = FlowCoeffs(self.h[leftI], self.q[leftI], self.basis)
+        right = FlowCoeffs(self.h[rightI], self.q[rightI], self.basis)
+
+        if i == 0:
+            if self.upstream_q is not None:
+                left.q = self.upstream_q
+
+        if i == self.elements:
+            if self.downstream_h is not None:
+                right.h = self.downstream_h
+
+        return left, right
 
     def update(self, i, l, increment):
         self.h[i,l] = self.h[i,l] + increment.h
