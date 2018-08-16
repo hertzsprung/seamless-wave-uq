@@ -4,11 +4,15 @@ class Flow:
     def __init__(self, elements, basis):
         self.h = np.zeros((elements, basis.degree+1))
         self.q = np.zeros((elements, basis.degree+1))
-        self.z = np.zeros((elements+1, basis.degree+1))
+        self.z = np.zeros((elements, basis.degree+1))
         self.elements = elements
         self.basis = basis
+        self.upstream_h = None
         self.upstream_q = None
         self.downstream_h = None
+
+    def atElement(self, i):
+        return FlowCoeffs(self.h[i], self.q[i], self.z[i], self.basis)
 
     def atFace(self, i):
         if i == 0:
@@ -21,16 +25,31 @@ class Flow:
             leftI = i-1
             rightI = i
 
-        left = FlowCoeffs(self.h[leftI], self.q[leftI], self.basis)
-        right = FlowCoeffs(self.h[rightI], self.q[rightI], self.basis)
+        left = FlowCoeffs(self.h[leftI], self.q[leftI], self.z[leftI], self.basis)
+        right = FlowCoeffs(self.h[rightI], self.q[rightI], self.z[leftI], self.basis)
 
         if i == 0:
+            if self.upstream_h is not None:
+                left.h = self.upstream_h
             if self.upstream_q is not None:
                 left.q = self.upstream_q
 
         if i == self.elements:
             if self.downstream_h is not None:
                 right.h = self.downstream_h
+
+        return left, right
+
+    def topographyAtFacesOfElement(self, i):
+        if i == 0:
+            left = self.z[i]
+            right = 0.5*(self.z[i] + self.z[i+1])
+        elif i == self.elements-1:
+            left = 0.5*(self.z[i-1] + self.z[i])
+            right = self.z[i]
+        else:
+            left = 0.5*(self.z[i-1] + self.z[i])
+            right = 0.5*(self.z[i] + self.z[i+1])
 
         return left, right
 
@@ -44,22 +63,38 @@ class Flow:
             v = max(v, abs(self.q[i,0] / self.h[i,0]) + np.sqrt(g*self.h[i,0]))
         return v
 
-    def variance(self):
-        var = np.empty(self.elements, dtype=FlowValue)
+    def variance_h(self):
+        var = np.zeros(self.elements)
 
         for i in range(self.elements):
-            var[i] = FlowValue(0.0, 0.0)
-
             for l in range(1, self.basis.degree+1):
-                var[i].h += self.h[i,l]**2*self.basis.squareNorm[l]
-                var[i].q += self.q[i,l]**2*self.basis.squareNorm[l]
+                var[i] += self.h[i,l]**2*self.basis.squareNorm[l]
+
+        return var
+
+    def variance_q(self):
+        var = np.zeros(self.elements)
+
+        for i in range(self.elements):
+            for l in range(1, self.basis.degree+1):
+                var[i] += self.q[i,l]**2*self.basis.squareNorm[l]
+
+        return var
+
+    def variance_z(self):
+        var = np.zeros(self.elements)
+
+        for i in range(self.elements):
+            for l in range(1, self.basis.degree+1):
+                var[i] += self.z[i,l]**2*self.basis.squareNorm[l]
 
         return var
 
 class FlowCoeffs:
-    def __init__(self, h, q, basis):
+    def __init__(self, h, q, z, basis):
         self.h = h
         self.q = q
+        self.z = z
         self.basis = basis
 
     def __call__(self, xi):

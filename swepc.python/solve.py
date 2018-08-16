@@ -7,10 +7,9 @@ g = 9.80665
 N = 64
 domain = [0.0, 25.0]
 dx = (domain[1] - domain[0])/N
-dt = 0.04
-endTime = 40.0
+dt = 0.02
+endTime = 100.0
 
-xFace  = np.linspace(domain[0], domain[1], N+1)
 xCentre = np.linspace(dx/2, domain[1]-dx/2, N)
 
 def stochastic():
@@ -22,35 +21,64 @@ def stochastic():
     flow = swepc.Flow(N, basis)
     flow.upstream_q = [4.42, 0.0]
     flow.downstream_h = [2.0, 0.0]
-    flow.h[:,0] = 2.0
-    flow.z[:,0] = [0.2 - 0.05*(x-10.0)**2 if x > 8.0 and x < 12.0 else 0.0
-            for x in xFace]
 
-    return swepc.Simulation(flux), flow
+    flow.z[:,0] = [0.2 - 0.05*(x-10.0)**2 if x > 8.0 and x < 12.0 else 0.0
+            for x in xCentre]
+    flow.z[:,1] = [0.3/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
+    flow.h[:,0] = [2.0 - z for z in flow.z[:,0]]
+
+    return swepc.Simulation(g, flux), flow
 
 stochasticSim, stochasticFlow = stochastic()
 
-def plot():
-    plt.figure(1)
-    plt.clf()
-    stddev = [np.sqrt(var.h) for var in stochasticFlow.variance()]
-    plt.plot(xFace, stochasticFlow.z[:,0], color='k')
-    plt.fill_between(xCentre, stochasticFlow.h[:,0] - stddev,
-            stochasticFlow.h[:,0] + stddev, 
-            color='lightskyblue')
-    plt.plot(xCentre, stochasticFlow.h[:,0], color='mediumblue')
-    plt.ylim((0,8))
-    plt.text(2, 0.75, "$t$ = {0:.3f}".format(t))
-    plt.text(2, 0.25, "$cfl$ = {0:.3f}".format(
-        dt/dx*stochasticFlow.maxWaveSpeed(g)))
-    plt.pause(0.01)
-    #plt.savefig("/tmp/dam/{0:05.3f}.png".format(t))
+_, axarr = plt.subplots(3, sharex=True, figsize=(12,10))
 
+def plot():
+    stddev_h = [np.sqrt(var) for var in stochasticFlow.variance_h()]
+    stddev_q = [np.sqrt(var) for var in stochasticFlow.variance_q()]
+    stddev_z = [np.sqrt(var) for var in stochasticFlow.variance_z()]
+
+    axarr[0].cla()
+    axarr[0].fill_between(xCentre,
+            stochasticFlow.z[:,0] - stddev_z,
+            stochasticFlow.z[:,0] + stddev_z, 
+            color='lightslategray')
+    axarr[0].plot(xCentre, stochasticFlow.z[:,0], color='k')
+    axarr[0].fill_between(xCentre,
+            stochasticFlow.z[:,0] + stochasticFlow.h[:,0] - stddev_h,
+            stochasticFlow.z[:,0] + stochasticFlow.h[:,0] + stddev_h, 
+            color='lightskyblue')
+    axarr[0].plot(xCentre, stochasticFlow.z[:,0] + stochasticFlow.h[:,0], color='mediumblue')
+    axarr[0].set_ylim((0,3))
+    axarr[0].text(2, 0.75, "$t$ = {0:.3f}".format(t))
+    axarr[0].text(2, 0.25, "$cfl$ = {0:.3f}".format(
+        dt/dx*stochasticFlow.maxWaveSpeed(g)))
+
+    axarr[1].cla()
+    axarr[1].set_ylim((0,6))
+    axarr[1].set_ylabel("q")
+    axarr[1].fill_between(xCentre,
+            stochasticFlow.q[:,0] - stddev_q,
+            stochasticFlow.q[:,0] + stddev_q, 
+            color='plum')
+    axarr[1].plot(xCentre, stochasticFlow.q[:,0], color='purple')
+
+    axarr[2].cla()
+    axarr[2].set_ylim((-0.2,1))
+    axarr[2].set_ylabel("Fr")
+    axarr[2].plot(xCentre, stochasticFlow.q[:,0]/stochasticFlow.h[:,0]/np.sqrt(g*stochasticFlow.h[:,0]), color='C2')
+
+    plt.draw()
+    plt.pause(0.001)
+    #plt.savefig("/tmp/sim/{0:06.3f}.png".format(t))
+
+c = 0
 t = 0.0
 plot()
 while t < endTime:
     stochasticSim.timestep(stochasticFlow, dx, dt)
     t = t + dt
+    c = c + 1
     plot()
 
 plt.show(block=True)
