@@ -5,3 +5,4 @@ from .montecarlo import MonteCarlo
 from .riemannensemble import RiemannEnsemble
 from .roe import Roe
 from .simulation import Simulation
+from .stddev import Stddev

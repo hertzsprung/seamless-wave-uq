@@ -13,16 +13,16 @@ endTime = 100.0
 xCentre = np.linspace(dx/2, domain[1]-dx/2, N)
 
 def stochastic():
-    basis = swepc.GaussianHermiteBasis(degree=3)
+    basis = swepc.GaussianHermiteBasis(degree=1)
     solver = swepc.Roe(g)
-    riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=4)
+    riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=2)
     flux = swepc.Flux(basis, riemannEnsemble)
 
     flow = swepc.Flow(N, basis)
     flow.upstream_q = [4.42, 0.0]
     flow.downstream_h = [2.0, 0.0]
 
-    flow.z[:,0] = [0.2 - 0.05*(x-10.0)**2 if x > 8.0 and x < 12.0 else 0.0
+    flow.z[:,0] = [0.2 - 0.05*(x-10.0)**2 if (x > 8.0 and x < 12.0) else 0.0
             for x in xCentre]
     flow.z[:,1] = [0.3/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
     flow.h[:,0] = [2.0 - z for z in flow.z[:,0]]
@@ -34,19 +34,17 @@ stochasticSim, stochasticFlow = stochastic()
 _, axarr = plt.subplots(3, sharex=True, figsize=(12,10))
 
 def plot():
-    stddev_h = [np.sqrt(var) for var in stochasticFlow.variance_h()]
-    stddev_q = [np.sqrt(var) for var in stochasticFlow.variance_q()]
-    stddev_z = [np.sqrt(var) for var in stochasticFlow.variance_z()]
+    stddev = swepc.Stddev(stochasticFlow)
 
     axarr[0].cla()
     axarr[0].fill_between(xCentre,
-            stochasticFlow.z[:,0] - stddev_z,
-            stochasticFlow.z[:,0] + stddev_z, 
+            stochasticFlow.z[:,0] - stddev.z,
+            stochasticFlow.z[:,0] + stddev.z, 
             color='lightslategray')
     axarr[0].plot(xCentre, stochasticFlow.z[:,0], color='k')
     axarr[0].fill_between(xCentre,
-            stochasticFlow.z[:,0] + stochasticFlow.h[:,0] - stddev_h,
-            stochasticFlow.z[:,0] + stochasticFlow.h[:,0] + stddev_h, 
+            stochasticFlow.z[:,0] + stochasticFlow.h[:,0] - stddev.h,
+            stochasticFlow.z[:,0] + stochasticFlow.h[:,0] + stddev.h, 
             color='lightskyblue')
     axarr[0].plot(xCentre, stochasticFlow.z[:,0] + stochasticFlow.h[:,0], color='mediumblue')
     axarr[0].set_ylim((0,3))
@@ -58,8 +56,8 @@ def plot():
     axarr[1].set_ylim((0,6))
     axarr[1].set_ylabel("q")
     axarr[1].fill_between(xCentre,
-            stochasticFlow.q[:,0] - stddev_q,
-            stochasticFlow.q[:,0] + stddev_q, 
+            stochasticFlow.q[:,0] - stddev.q,
+            stochasticFlow.q[:,0] + stddev.q, 
             color='plum')
     axarr[1].plot(xCentre, stochasticFlow.q[:,0], color='purple')
 
@@ -79,6 +77,7 @@ while t < endTime:
     stochasticSim.timestep(stochasticFlow, dx, dt)
     t = t + dt
     c = c + 1
-    plot()
+    if c % 4 == 0:
+        plot()
 
 plt.show(block=True)

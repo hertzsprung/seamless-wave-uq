@@ -10,6 +10,7 @@ class Flow:
         self.upstream_h = None
         self.upstream_q = None
         self.downstream_h = None
+        self.downstream_subcritical_h = None
 
     def atElement(self, i):
         return FlowCoeffs(self.h[i], self.q[i], self.z[i], self.basis)
@@ -43,15 +44,18 @@ class Flow:
     def topographyAtFacesOfElement(self, i):
         if i == 0:
             left = self.z[i]
-            right = 0.5*(self.z[i] + self.z[i+1])
+            right = self.topographyAtFace(i+1)
         elif i == self.elements-1:
-            left = 0.5*(self.z[i-1] + self.z[i])
+            left = self.topographyAtFace(i)
             right = self.z[i]
         else:
-            left = 0.5*(self.z[i-1] + self.z[i])
-            right = 0.5*(self.z[i] + self.z[i+1])
+            left = self.topographyAtFace(i)
+            right = self.topographyAtFace(i+1)
 
         return left, right
+
+    def topographyAtFace(self, i):
+        return 0.5*(self.z[i-1] + self.z[i])
 
     def update(self, i, l, increment):
         self.h[i,l] = self.h[i,l] + increment.h
@@ -62,33 +66,6 @@ class Flow:
         for i in range(self.elements):
             v = max(v, abs(self.q[i,0] / self.h[i,0]) + np.sqrt(g*self.h[i,0]))
         return v
-
-    def variance_h(self):
-        var = np.zeros(self.elements)
-
-        for i in range(self.elements):
-            for l in range(1, self.basis.degree+1):
-                var[i] += self.h[i,l]**2*self.basis.squareNorm[l]
-
-        return var
-
-    def variance_q(self):
-        var = np.zeros(self.elements)
-
-        for i in range(self.elements):
-            for l in range(1, self.basis.degree+1):
-                var[i] += self.q[i,l]**2*self.basis.squareNorm[l]
-
-        return var
-
-    def variance_z(self):
-        var = np.zeros(self.elements)
-
-        for i in range(self.elements):
-            for l in range(1, self.basis.degree+1):
-                var[i] += self.z[i,l]**2*self.basis.squareNorm[l]
-
-        return var
 
 class FlowCoeffs:
     def __init__(self, h, q, z, basis):
