@@ -2,6 +2,7 @@ import numpy as np
 
 class InitialConditions:
     def __init__(self, elements, degree):
+        self.elements = elements
         self.degree = degree
         self.h = np.zeros((elements, degree+1))
         self.q = np.zeros((elements, degree+1))

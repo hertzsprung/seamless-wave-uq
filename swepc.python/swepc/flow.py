@@ -1,13 +1,13 @@
 import numpy as np
 
 class Flow:
-    def __init__(self, elements, basis, initialConditions, boundaryConditions):
-        self.elements = elements
+    def __init__(self, basis, initialConditions, boundaryConditions):
+        self.elements = initialConditions.elements
         self.basis = basis
 
-        self.h = np.zeros((elements, basis.degree+1))
-        self.q = np.zeros((elements, basis.degree+1))
-        self.z = np.zeros((elements, basis.degree+1))
+        self.h = np.zeros((self.elements, basis.degree+1))
+        self.q = np.zeros((self.elements, basis.degree+1))
+        self.z = np.zeros((self.elements, basis.degree+1))
 
         degree = min(initialConditions.degree, basis.degree)
         self.h[:,:degree+1] = initialConditions.h[:,:degree+1]

@@ -1,5 +1,6 @@
-import numpy as np
 import swepc
+import numpy as np
+import collections
 
 class MonteCarlo:
     def __init__(self, g):
@@ -8,37 +9,53 @@ class MonteCarlo:
         riemannEnsemble = swepc.RiemannEnsemble(self.basis, solver,
                 quadraturePoints=1)
         flux = swepc.Flux(self.basis, riemannEnsemble)
-        self.deterministic = swepc.Simulation(flux) 
+        self.deterministic = swepc.Simulation(g, flux)
 
-    def simulate(self, stochasticFlow, dx, dt, endTime, iterations):
-        samples_h = np.empty((iterations, stochasticFlow.elements))
+    def initialFlows(self, initialConditions, boundaryConditions, iterations):
+        return MonteCarloFlows(
+                self.basis, initialConditions, boundaryConditions, iterations)
 
-        for run in range(iterations):
-            flow = self.__sample(stochasticFlow, dx, dt, endTime)
-            samples_h[run,:] = flow.h[:,0]
-            print("# iteration", run)
-
-        basis = swepc.GaussianHermiteBasis(degree=1)
-        result = swepc.Flow(stochasticFlow.elements, basis)
-        result.h[:,0] = np.mean(samples_h, axis=0)
-        result.h[:,1] = np.std(samples_h, axis=0)
-
-        return result
-
-    def __sample(self, stochasticFlow, dx, dt, endTime):
-        flow = swepc.Flow(stochasticFlow.elements, self.basis)
-        for i in range(flow.elements):
-            flow.h[i,0] = max(1e-4, np.random.normal(
-                    stochasticFlow.h[i,0],
-                    stochasticFlow.h[i,1]))
-
-            flow.q[i,0] = np.random.normal(
-                    stochasticFlow.q[i,0],
-                    stochasticFlow.q[i,1])
-
-        t = 0.0
-        while t < endTime:
+    def timestep(self, flows, dx, dt):
+        for flow in flows:
             self.deterministic.timestep(flow, dx, dt)
-            t = t + dt
 
-        return flow
+class MonteCarloFlows(collections.Sequence):
+    def __init__(self, basis, initialConditions, boundaryConditions, iterations):
+        self.elements = initialConditions.elements
+
+        self.flows = np.empty(iterations, dtype=swepc.Flow)
+        for it in range(iterations):
+            ic = swepc.InitialConditions(initialConditions.elements, degree=1)
+            for i in range(ic.elements):
+                ic.h[i,0] = max(1e-4, np.random.normal(
+                        initialConditions.h[i,0],
+                        initialConditions.h[i,1]))
+
+                ic.q[i,0] = np.random.normal(
+                        initialConditions.q[i,0],
+                        initialConditions.q[i,1])
+
+                ic.z[i,0] = np.random.normal(
+                        initialConditions.z[i,0],
+                        initialConditions.z[i,1])
+
+                self.flows[it] = swepc.Flow(basis, ic, boundaryConditions)
+
+    def __getitem__(self, index):
+        return self.flows[index]
+
+    def __len__(self):
+        return len(self.flows)
+
+class MonteCarloFlowStatistics:
+    def __init__(self, flows):
+        self.h = np.zeros((flows.elements, 2))
+        self.q = np.zeros((flows.elements, 2))
+        self.z = np.zeros((flows.elements, 2))
+
+        self.h[:,0] = np.mean([flow.h[:,0] for flow in flows], axis=0)
+        self.q[:,0] = np.mean([flow.q[:,0] for flow in flows], axis=0)
+        self.z[:,0] = np.mean([flow.z[:,0] for flow in flows], axis=0)
+        self.h[:,1] = np.std([flow.h[:,0] for flow in flows], axis=0)
+        self.q[:,1] = np.std([flow.q[:,0] for flow in flows], axis=0)
+        self.z[:,1] = np.std([flow.z[:,0] for flow in flows], axis=0)
