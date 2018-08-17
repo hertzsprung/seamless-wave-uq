@@ -12,24 +12,27 @@ endTime = 100.0
 
 xCentre = np.linspace(dx/2, domain[1]-dx/2, N)
 
-def stochastic():
-    basis = swepc.GaussianHermiteBasis(degree=1)
+def stochastic(initialConditions, boundaryConditions, degree):
+    basis = swepc.GaussianHermiteBasis(degree)
     solver = swepc.Roe(g)
-    riemannEnsemble = swepc.RiemannEnsemble(basis, solver, quadraturePoints=2)
+    riemannEnsemble = swepc.RiemannEnsemble(
+            basis, solver, quadraturePoints=degree+1)
     flux = swepc.Flux(basis, riemannEnsemble)
-
-    flow = swepc.Flow(N, basis)
-    flow.upstream_q = [4.42, 0.0]
-    flow.downstream_h = [2.0, 0.0]
-
-    flow.z[:,0] = [0.2 - 0.05*(x-10.0)**2 if (x > 8.0 and x < 12.0) else 0.0
-            for x in xCentre]
-    flow.z[:,1] = [0.3/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
-    flow.h[:,0] = [2.0 - z for z in flow.z[:,0]]
+    flow = swepc.Flow(N, basis, initialConditions, boundaryConditions)
 
     return swepc.Simulation(g, flux), flow
 
-stochasticSim, stochasticFlow = stochastic()
+ic = swepc.InitialConditions(N, degree=1)
+ic.z[:,0] = [0.2 - 0.05*(x-10.0)**2 if (x > 8.0 and x < 12.0) else 0.0
+        for x in xCentre]
+ic.z[:,1] = [0.3/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
+ic.h[:,0] = [2.0 - z for z in ic.z[:,0]]
+
+bc = swepc.BoundaryConditions()
+bc.upstream_q = [4.42, 0.0]
+bc.downstream_h = [2.0, 0.0]
+
+stochasticSim, stochasticFlow = stochastic(ic, bc, degree=3)
 
 _, axarr = plt.subplots(3, sharex=True, figsize=(12,10))
 
@@ -77,7 +80,7 @@ while t < endTime:
     stochasticSim.timestep(stochasticFlow, dx, dt)
     t = t + dt
     c = c + 1
-    if c % 4 == 0:
+    if c % 16 == 0:
         plot()
 
 plt.show(block=True)

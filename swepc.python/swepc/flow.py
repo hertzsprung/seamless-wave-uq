@@ -1,16 +1,31 @@
 import numpy as np
 
 class Flow:
-    def __init__(self, elements, basis):
+    def __init__(self, elements, basis, initialConditions, boundaryConditions):
+        self.elements = elements
+        self.basis = basis
+
         self.h = np.zeros((elements, basis.degree+1))
         self.q = np.zeros((elements, basis.degree+1))
         self.z = np.zeros((elements, basis.degree+1))
-        self.elements = elements
-        self.basis = basis
-        self.upstream_h = None
-        self.upstream_q = None
-        self.downstream_h = None
-        self.downstream_subcritical_h = None
+
+        degree = min(initialConditions.degree, basis.degree)
+        self.h[:,:degree+1] = initialConditions.h[:,:degree+1]
+        self.q[:,:degree+1] = initialConditions.q[:,:degree+1]
+        self.z[:,:degree+1] = initialConditions.z[:,:degree+1]
+
+        self.upstream_h = self.__applyBC(boundaryConditions.upstream_h, degree)
+        self.upstream_q = self.__applyBC(boundaryConditions.upstream_q, degree)
+        self.downstream_h = self.__applyBC(boundaryConditions.downstream_h, degree)
+        self.downstream_q = self.__applyBC(boundaryConditions.downstream_q, degree)
+
+    def __applyBC(self, source, degree):
+        if source is not None:
+            target = np.zeros(self.basis.degree+1)
+            target[:degree+1] = source[:degree+1]
+            return target
+        else:
+            return None
 
     def atElement(self, i):
         return FlowCoeffs(self.h[i], self.q[i], self.z[i], self.basis)
@@ -38,6 +53,8 @@ class Flow:
         if i == self.elements:
             if self.downstream_h is not None:
                 right.h = self.downstream_h
+            if self.downstream_q is not None:
+                left.q = self.downstream_q
 
         return left, right
 

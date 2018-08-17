@@ -1,4 +1,5 @@
 from .basis import GaussianHermiteBasis
+from .conditions import BoundaryConditions, InitialConditions
 from .flow import Flow, FlowCoeffs, FlowValue
 from .flux import Flux
 from .montecarlo import MonteCarlo
