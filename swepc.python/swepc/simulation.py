@@ -18,8 +18,10 @@ class Simulation:
                     * (f[i+1,l] - f[i,l] -
                         self.__topography(flow, i, l)))
 
+        return flow
+
     def __topography(self, flow, i, l):
-        coeffs = flow.atElement(i) # gives us h_i
+        coeffs = flow.atElement(i)
         z_left, z_right = flow.topographyAtFacesOfElement(i)
 
         q = 0.0
