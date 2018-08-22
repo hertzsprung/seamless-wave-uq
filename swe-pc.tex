@@ -36,6 +36,13 @@
 	publisher={American Society of Civil Engineers}
 }
 
+@phdthesis{ge2009,
+	title={Polynomial Chaos Representation of Uncertainties in Nonlinear Shallow-Water Equations for Flood Hazard Assessment},
+	author={Liang Ge},
+	year={2009},
+	school={University of Hawai`i at Manoa}
+}
+
 @article{kesserwani2008,
 	title={Riemann solvers with {Runge--Kutta} discontinuous {Galerkin} schemes for the {1D} shallow water equations},
 	author={Kesserwani, G and Ghostine, R and Vazquez, J and Ghenaim, Abdellah and Mos{\'e}, Robert},
@@ -54,7 +61,8 @@
 \newcommand{\eigenval}{\tilde{a}}
 \newcommand{\eigenvect}{\tilde{\vect{e}}}
 \newcommand{\Ensemble}[1]{\left\langle #1 \right\rangle}
-\newcommand{\Mag}[1]{\lvert #1 \rvert}
+\newcommand{\Mag}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\randomroot}{\hat{\xi}}
 \newcommand{\riemannflux}{\widetilde{\vect{F}}}
 \newcommand{\TODO}[1]{\textcolor{purple}{TODO: \emph{#1}}}
 \newcommand{\vect}{\mathbf}
@@ -90,25 +98,29 @@ The numerical flux $\riemannflux_{i-1/2}$ is \citep{kesserwani2008}
 %
 	\eigenval_{i-1/2}^{1,2} &= \tilde{u}_{i-1/2} \pm \tilde{c}_{i-1/2} \\
 	\eigenvect_{i-1/2}^{1,2} &= \left[ 1, \eigenval_{i-1/2}^{1,2} \right]^\intercal \\
-	\tilde{u}_{i-1/2} &= \frac{u_{i-1} \sqrt{g h_{i-1}} + u_i \sqrt{g h_i}}{\sqrt{g h_{i-1}} + \sqrt{g h_i}} \\
+	\tilde{u}_{i-1/2} &= \frac{u_{i-1} \sqrt{g h_{i-1}} + u_i \sqrt{g h_i}}{\sqrt{g h_{i-1}} + \sqrt{g h_i}} 
+	= \frac{u_{i-1} \sqrt{h_{i-1}} + u_i \sqrt{h_i}}{\sqrt{h_{i-1}} + \sqrt{h_i}} \\
 	\tilde{c}_{i-1/2} &= \sqrt{g \tilde{h}_{i-1/2}} \\
 	\tilde{h}_{i-1/2} &= \frac{h_{i-1} + h_i}{2}
 \end{align}
-\TODO{is the equation for $\tilde{c}$ the right one?}
 The average wave strength $\alpha$ is calculated explicitly \citep{delis2000}
 \begin{align}
 	\alpha_{i-1/2}^{1,2} = \frac{\Delta q_{i-1/2} + \left( - \tilde{u}_{i-1/2} \pm \tilde{c}_{i-1/2} \right) \Delta h_{i-1/2}}{\pm 2 \tilde{c}_{i-1/2}}
 \end{align}
-The entropy correction function $\psi(\eigenval)$ is
+The entropy correction function $\psi(\eigenval_{i-1/2}^j)$ is
 \begin{align}
-	\psi(\eigenval) =
+	\psi(\eigenval_{i-1/2}^j) &=
 	\begin{cases}
-		\Mag{\eigenval} & \text{if $\Mag{\eigenval} \geq \delta$,} \\
-		\left( \eigenval^2 + \delta^2 \right) / 2 \delta & \text{otherwise}
+		\Mag{\eigenval_{i-1/2}^j}
+			& \text{if $\Mag{\eigenval_{i-1/2}^j} \geq \delta_{i-1/2}^j$,} \\
+		\left[ \left(\eigenval_{i-1/2}^j\right)^2 +
+		\left(\delta_{i-1/2}^j\right)^2 \right] / 2 \delta_{i-1/2}^j
+			& \text{otherwise}
 	\end{cases}
 %
-	\intertext{where Georges' \TODO{$\delta$} is different from \citet{delis2000}}
-TODO
+\intertext{where $\vect{\delta}_{i-1/2}$ is \TODO{using Georges' formulation or Delis?}}
+%
+	\vect{\delta} &= \left[ \max(0, ) \right]^\intercal
 \end{align}
 
 \subsection*{Stochastic formulation with intrusive polynomial chaos}
@@ -128,7 +140,6 @@ Equation~\eqref{eqn:swe} then becomes
 	\left( \riemannflux_{i+1/2}^{(n)} - \riemannflux_{i-1/2}^{(n)}
 	- \Delta x \vect{S}_i^{(n)} \right) \label{eqn:randomswe}
 \end{align}
-\TODO{the flux term is a nasty thing that I'll figure out shortly.}
 The stochastic source term $\vect{S}$ involves stochastic flow and stochastic topography and so equation~\eqref{eqn:sourceterm} becomes
 \begin{align}
 	\vect{S}_i^{(n)} = \left[ 0, -g \sum_{p=0}^P h_{i,p}^{(n)} \Phi_p \frac{1}{\Delta x} \sum_{p'=0}^P \left( z_{i+1/2, p'} - z_{i-1/2, p'} \right) \Phi_{p'} \right]^\intercal \label{eqn:randomsourceterm}
@@ -150,21 +161,34 @@ Using these properties of the polynomial chaos basis, we project equation~\eqref
 \begin{align}
 	\vect{U}_{i,l}^{(n+1)} = \vect{U}_{i,l}^{(n)} - \frac{\Delta t}{\Delta x \Ensemble{\Phi_l^2}}
 	\left( \Ensemble{ \riemannflux_{i+1/2}^{(n)} \Phi_l} - \Ensemble{\riemannflux_{i-1/2}^{(n)} \Phi_l}
-	- \Delta x \Ensemble{ \vect{S}_i^{(n)} \Phi_l} \right)
+	- \Delta x \Ensemble{ \vect{S}_i^{(n)} \Phi_l} \right) \label{eqn:randomprojectedswe}
 %
 \intertext{where the ensemble average of the source term is obtained from equation~\eqref{eqn:randomsourceterm}}
 %
 	\Ensemble{ \vect{S}_i^{(n)}, \Phi_l} = \left[ 0, - \frac{g}{\Delta x} \sum_{p=0}^P \sum_{p'=0}^P h_{i,p}^{(n)} \left( z_{i+1/2, p'} - z_{i-1/2, p'} \right) \Ensemble{\Phi_p \Phi_{p'} \Phi_l} \right]^\intercal
 \end{align}
-
-\subsection*{Gauss-Hermite quadrature}
-
-Consider some function $f(x)$ at a given physical position $x$, then the ensemble average can be approximated by Gauss-Hermite quadrature,
+The flux term in equation~\eqref{eqn:randomprojectedswe} is approximated by Gauss-Hermite quadrature, 
 \begin{align}
-	\Ensemble{f(x) \Psi_l(\xi)} &= \int_{- \infty}^\infty f(x) \Phi_l W(\xi) \dee \xi \\
-	&\approx \sum_{j=1}^J w_j f(x) \Phi_l(\xi_j) W(\xi_j)
+	\Ensemble{\riemannflux_{i-1/2}(\vect{U}(x, t, \xi)) \: \Phi_l(\xi)} &=
+	\int_{- \infty}^\infty \riemannflux_{i-1/2}
+	\Phi_l W(\xi) \diff \xi \\
+	&\approx \sum_{j=1}^J w_j \riemannflux_{i-1/2}(\vect{U}(x, t, \xi_j))
+	\Phi_l(\xi_j) W(\xi_j)
 \end{align}
 where $w_j$ are the quadrature weights and $\xi_j$ are the quadrature points in random space.
+
+\subsection*{Calculating probability density functions}
+For a given flow variable $u = h$ or $u = q$, the probability density function $f(u)$ can be calculated for a given element $i$ and time $n$,
+\begin{subequations}
+\begin{align}
+	f(u) = \sum_{i=1}^n \Mag{ \sum_{p=0}^P u_{i,p}^{(n)} \frac{\dee \Phi_p}{\dee \xi}(\randomroot_i)}^{-1} W(\randomroot_i)
+%
+	\intertext{where $\randomroot_i$, $i=1, \ldots, n$ are the real roots of the polynomial}
+%
+	u - \sum_{p=0}^P u_{i,p}^{(n)} \Phi_p(\xi) = 0
+\end{align}
+\end{subequations}
+which can be calculated numerically for a given value of $u$.
 
 \bibliographystyle{plainnat}
 \bibliography{swe-pc}
