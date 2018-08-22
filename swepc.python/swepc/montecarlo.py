@@ -1,6 +1,7 @@
 import swepc
 import numpy as np
 import collections
+import multiprocessing as mp
 
 class MonteCarlo:
     def __init__(self, g):
@@ -10,14 +11,23 @@ class MonteCarlo:
                 quadraturePoints=1)
         flux = swepc.Flux(self.basis, riemannEnsemble)
         self.deterministic = swepc.Simulation(g, flux)
+        self.pool = mp.Pool()
 
     def initialFlows(self, initialConditions, boundaryConditions, iterations):
         return MonteCarloFlows(
                 self.basis, initialConditions, boundaryConditions, iterations)
 
     def timestep(self, flows, dx, dt):
-        for flow in flows:
-            self.deterministic.timestep(flow, dx, dt)
+        flows[:] = self.pool.map(MonteCarloTimestep(self.deterministic, dx, dt), flows)
+
+class MonteCarloTimestep:
+    def __init__(self, simulation, dx, dt):
+        self.simulation = simulation
+        self.dx = dx
+        self.dt = dt
+
+    def __call__(self, flow):
+        return self.simulation.timestep(flow, self.dx, self.dt)
 
 class MonteCarloFlows(collections.Sequence):
     def __init__(self, basis, initialConditions, boundaryConditions, iterations):
@@ -34,15 +44,24 @@ class MonteCarloFlows(collections.Sequence):
                 ic.q[i,0] = np.random.normal(
                         initialConditions.q[i,0],
                         initialConditions.q[i,1])
+                #ic.z[i,0] = np.random.normal(
+                #        initialConditions.z[i,0],
+                #        initialConditions.z[i,1])
 
-                ic.z[i,0] = np.random.normal(
-                        initialConditions.z[i,0],
-                        initialConditions.z[i,1])
+            N = 64
+            domain = [0.0, 25.0]
+            dx = (domain[1] - domain[0])/N
+            xCentre = np.linspace(dx/2, domain[1]-dx/2, N)
+            z_max = np.random.normal(2.0, 1.0)
+            ic.z[:,0] = [z_max*(0.2 - 0.05*(x-10.0)**2) if (x > 8.0 and x < 12.0) else 0.0 for x in xCentre]
 
-                self.flows[it] = swepc.Flow(basis, ic, boundaryConditions)
+            self.flows[it] = swepc.Flow(basis, ic, boundaryConditions)
 
     def __getitem__(self, index):
         return self.flows[index]
+
+    def __setitem__(self, index, item):
+        self.flows[index] = item
 
     def __len__(self):
         return len(self.flows)
