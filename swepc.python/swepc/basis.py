@@ -35,6 +35,14 @@ class GaussianHermiteBasis:
         w /= np.sqrt(2*np.pi)
         return xi, w
 
+    def pdf(self, xi):
+        return hermite_e.hermeweight(xi) / np.sqrt(2.0*np.pi)
+
     def polynomialOf(self, degree):
         return self.polynomials[degree]
 
+    def dot(self, coeffs):
+        return hermite_e.HermiteE(coeffs)
+
+    def toPolynomial(self, projection):
+        return hermite_e.herme2poly(projection.coef)
