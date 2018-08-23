@@ -20,4 +20,5 @@ class PDF:
         poly = np.concatenate(([poly[0] + u], poly[1:]))
 
         # np.roots() expects array in reverse order (highest degree first)
-        return [root for root in np.roots(np.flip(poly)) if np.isreal(root)]
+        return [np.real(root)
+                for root in np.roots(np.flip(poly)) if np.isreal(root)]
