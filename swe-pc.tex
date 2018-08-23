@@ -8,7 +8,7 @@
 \usepackage{mathtools}
 \usepackage{xcolor}
 
-\title{Stochastic SWEs}
+\title{Stochastic shallow water formulations}
 \author{James Shaw}
 
 \begin{filecontents}{swe-pc.bib}
@@ -43,6 +43,15 @@
 	school={University of Hawai`i at Manoa}
 }
 
+@inproceedings{hosder2007,
+	title={Efficient sampling for non-intrusive polynomial chaos applications with multiple uncertain input variables},
+	author={Hosder, Serhat and Walters, Robert and Balch, Michael},
+	booktitle={48th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics, and Materials Conference},
+	pages={1939},
+	year={2007},
+	doi={10.2514/6.2007-1939}
+}
+
 @article{kesserwani2008,
 	title={Riemann solvers with {Runge--Kutta} discontinuous {Galerkin} schemes for the {1D} shallow water equations},
 	author={Kesserwani, G and Ghostine, R and Vazquez, J and Ghenaim, Abdellah and Mos{\'e}, Robert},
@@ -71,7 +80,7 @@
 
 \maketitle
 
-Following \citet{ge2008}, we derive the stochastic shallow water equations using intrusive polynomial chaos with Gaussian uncertainties.
+\subsection*{Deterministic FV1 SWE solver}
 
 \begin{align}
 	\frac{\partial \vect{U}}{\partial t} + \frac{\partial \vect{F}}{\partial x} = \vect{S} \label{eqn:swe}
@@ -125,6 +134,7 @@ The entropy correction function $\psi(\eigenval_{i-1/2}^j)$ is
 
 \subsection*{Stochastic formulation with intrusive polynomial chaos}
 
+Following \citet{ge2008}, we derive the stochastic shallow water equations using intrusive polynomial chaos with Gaussian uncertainties.
 We introduce a random variable $\xi$ and express the flow vector as a polynomial in random space,
 \begin{align}
 	\vect{U}(x, t, \xi) = \sum_{p=0}^P \vect{U}_p(x,t) \Phi_p(\xi)
@@ -189,6 +199,37 @@ For a given flow variable $u = h$ or $u = q$, the probability density function $
 \end{align}
 \end{subequations}
 which can be calculated numerically for a given value of $u$.
+
+\subsection*{Nonintrusive formulation}
+
+The nonintrusive formulation samples the deterministic model with a set of $N$ initial conditions.
+The initial conditions $\vect{U}^{(0)}$ are calculated using Gauss-Hermite quadrature points $\xi_j$ such that
+\begin{align}
+	\vect{U}^{(0)}(x, \xi_j) = \sum_{p=0}^P \vect{U}_p^{(0)}(x) \Phi_p(\xi_j)
+\end{align}
+The deterministic solver calculates the solutions $\vect{U}^{(n)}(x, \xi_1), \ldots \vect{U}^{(n)}(x, \xi_N)$.
+Now we can write a matrix equation
+\begin{align}
+	\begin{bmatrix}
+		\Phi_0(\xi_0) & \cdots & \Phi_P(\xi_0) \\
+		\vdots & \ddots & \vdots \\
+		\Phi_0(\xi_0) & \cdots & \Phi_P(\xi_N)
+	\end{bmatrix}
+	\begin{bmatrix}
+		\vect{U}_0^{(n)}(x) \\
+		\vdots \\
+		\vect{U}_P^{(n)}(x)
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		\vect{U}^{(n)}(x, \xi_1) \\
+		\vdots \\
+		\vect{U}^{(n)}(x, \xi_N)
+	\end{bmatrix}
+\end{align}
+For better convergence, the matrix equation can be over-constrained with $N > P$, and the unknown coefficients $\vect{U}_0^{(n)}(x), \ldots, \vect{U}_P^{(n)}(x)$ are found using a least-squares approach \citep{hosder2007}.
+
+In their wave runup test, \citet{ge2009} use a smarter approach using Clenshaw-Curtis quadrature integration, see their equation (4.17).
 
 \bibliographystyle{plainnat}
 \bibliography{swe-pc}
