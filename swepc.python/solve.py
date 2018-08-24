@@ -2,6 +2,7 @@
 import swepc
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 def intrusivePC(initialConditions, boundaryConditions, degree):
     basis = swepc.GaussianHermiteBasis(degree)
@@ -32,19 +33,28 @@ def plotPC():
     axarr[0].text(2, 0.25, "$cfl$ = {0:.3f}".format(
         dt/dx*pcFlow.maxWaveSpeed(g)))
 
-    axarr[1].cla()
-    axarr[1].set_ylim((0,7))
-    axarr[1].set_ylabel("q")
-    axarr[1].fill_between(xCentre,
-            pcFlow.q[:,0] - stddev.q,
-            pcFlow.q[:,0] + stddev.q, 
-            color='plum')
-    axarr[1].plot(xCentre, pcFlow.q[:,0], color='purple')
+    #axarr[1].cla()
+    #axarr[1].set_ylim((0,7))
+    #axarr[1].set_ylabel("q")
+    #axarr[1].fill_between(xCentre,
+    #        pcFlow.q[:,0] - stddev.q,
+    #        pcFlow.q[:,0] + stddev.q, 
+    #        color='plum')
+    #axarr[1].plot(xCentre, pcFlow.q[:,0], color='purple')
 
-    axarr[2].cla()
-    axarr[2].set_ylim((-0.2,1))
-    axarr[2].set_ylabel("Fr")
-    axarr[2].plot(xCentre, pcFlow.q[:,0]/pcFlow.h[:,0]/np.sqrt(g*pcFlow.h[:,0]), color='C2')
+    axarr[1].cla()
+    axarr[1].set_xlabel('h')
+    axarr[1].set_title('PDF')
+    # find h mean for element 29, generate a linspace around that
+    hmean29 = pcFlow.h[29,0]
+    hstddev29 = pcFlow.h[29,1]
+    u = np.linspace(0, 3, 100)
+    pdf = swepc.PDF(pcFlow.basis)(u, pcFlow.h[29,:])
+    axarr[1].plot(u, pdf, label='Polynomial Chaos')
+
+    mcEta29 = [flow.z[29,0] + flow.h[29,0] for flow in mcFlow]
+    sns.kdeplot(mcEta29, ax=axarr[1], label='Monte Carlo')
+    axarr[1].legend(loc=1)
 
     plt.draw()
     plt.pause(0.001)
@@ -95,6 +105,8 @@ def plotMC():
     plt.pause(0.001)
     #plt.savefig("/tmp/sim/{0:06.3f}.png".format(t))
 
+np.seterr(invalid='raise', divide='raise')
+
 g = 9.80665
 N = 64
 domain = [0.0, 25.0]
@@ -114,23 +126,23 @@ bc = swepc.BoundaryConditions()
 bc.upstream_q = [4.42, 0.0]
 bc.downstream_h = [2.0, 0.0]
 
-pcSim, pcFlow = intrusivePC(ic, bc, degree=3)
+pcSim, pcFlow = intrusivePC(ic, bc, degree=1)
 mcSim = swepc.MonteCarlo(g)
 mcFlow = mcSim.initialFlows(ic, bc, iterations=50)
 
-_, axarr = plt.subplots(1, sharex=True, figsize=(6,10))
-axarr = [axarr]
+_, axarr = plt.subplots(2, figsize=(6,6))
+#axarr = [axarr]
 
 c = 0
 t = 0.0
-plotMC()
+#plotMC()
 
 while t < endTime:
-    #pcSim.timestep(pcFlow, dx, dt)
+    pcSim.timestep(pcFlow, dx, dt)
     mcSim.timestep(mcFlow, dx, dt)
     t = t + dt
     c = c + 1
     if c % 8 == 0:
-        plotMC()
+        plotPC()
 
 plt.show(block=True)
