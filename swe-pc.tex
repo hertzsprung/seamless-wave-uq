@@ -75,6 +75,8 @@
 \newcommand{\riemannflux}{\widetilde{\vect{F}}}
 \newcommand{\TODO}[1]{\textcolor{purple}{TODO: \emph{#1}}}
 \newcommand{\vect}{\mathbf}
+\newcommand{\zbar}{\bar{z}}
+\newcommand{\zstar}{z^\star}
 
 \begin{document}
 
@@ -199,6 +201,19 @@ For a given flow variable $u = h$ or $u = q$, the probability density function $
 \end{align}
 \end{subequations}
 which can be calculated numerically for a given value of $u$.
+
+\subsection*{Well-balancing}
+There are two ingredients for well-balancing: a modified source term discretisation, and modified inputs to the Riemann solver.
+
+First, the modified source term.
+
+\begin{align}
+	\zstar_{i-1/2} = \max(z_{i-1}, z_i) \\
+	\zbar_i = \frac{\zstar_{i-1/2} + \zstar_{i+1/2}}{2} \\
+	\Delta \zbar_i = \zstar_{i+1/2} - \zstar_{i-1/2} \\
+	\bar{h}_i = h_i + z_i - \zbar_i \\
+	\vect{S}_i = \left[ 0, -g \bar{h}_i \frac{\Delta \zbar_i}{\Delta x} \right]^\intercal
+\end{align}
 
 \subsection*{Nonintrusive formulation}
 
