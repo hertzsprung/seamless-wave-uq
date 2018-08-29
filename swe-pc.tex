@@ -223,33 +223,21 @@ The deterministic source term $\vect{S}_i$ is
 	- \frac{1}{8} \left( z_{i+1}^2 - z_{i-1}^2 \right)
 	\right\} \right]^\intercal
 \end{align}
-The stochastic source term is then
+The ensemble average is then
 \begin{align}
 	\begin{split}
-	\vect{S}_i &= \left[0, -\frac{g}{\Delta x} \left\{
-	\sum_{p=0}^P \sum_{p'=0}^P
-	\left(\frac{h_{i,p}}{2} + \frac{z_{i,p}}{4} \right) \left( z_{i+1,p'} - z_{i-1,p'}\right) \Phi_p \Phi_{p'} \right.\right.\\
-	&\left.\left. - \frac{1}{8} \left(
-	\sum_{p=0}^P \sum_{p'=0}^P
-	\left( z_{i+1,p}\:z_{i+1,p'} - z_{i-1,p}\:z_{i-1,p'} \right)
-	\Phi_p \Phi_{p'} \right)
-	\right\} \right]^\intercal
-	\end{split}
-%
-\intertext{and the ensemble average is}
-%
-	\begin{split}
-	\Ensemble{\vect{S}_i, \Phi_l} &=
+	\Ensemble{\vect{S}_i \Phi_l} &=
 	\left[0, -\frac{g}{\Delta x} \left\{
 	\sum_{p=0}^P \sum_{p'=0}^P
-	\left(\frac{h_{i,p}}{2} + \frac{z_{i,p}}{4} \right) \left( z_{i+1,p'} - z_{i-1,p'}\right) \Ensemble{\Phi_p \Phi_{p'} \Phi_l} \right.\right.\\
-	&\left.\left. - \frac{1}{8} \left(
-	\sum_{p=0}^P \sum_{p'=0}^P
-	\left( z_{i+1,p}\:z_{i+1,p'} - z_{i-1,p}\:z_{i-1,p'} \right)
-	\Ensemble{\Phi_p \Phi_{p'} \Phi_l} \right)
+	\left[
+	\left(\frac{h_{i,p}}{2} + \frac{z_{i,p}}{4} \right) \left( z_{i+1,p'} - z_{i-1,p'}\right) \right. \right. \right.\\
+	&\left.\left.\left.  - \frac{1}{8}
+	\left( z_{i+1,p}\:z_{i+1,p'} - z_{i-1,p}\:z_{i-1,p'} \right) \right]
+	\Ensemble{\Phi_p \Phi_{p'} \Phi_l}
 	\right\} \right]^\intercal
 	\end{split}
 \end{align}
+\TODO{It might be possible to write this in a more pleasant form.}
 The Riemann solver inputs are $\left[h_{i-1/2,L}, q_{i-1}\right]^\intercal$, $\left[h_{i-1/2,R}, q_i\right]^\intercal$.
 
 \subsection*{Nonintrusive formulation}
