@@ -11,11 +11,11 @@ class Flux:
                 dtype=swepc.FlowValue)
 
         for i in range(flow.elements+1):
-            coeffsPlus, coeffsMinus = flow.atFace(i)
+            left, right = flow.balancedAtFace(i)
 
             for l in range(self.basis.degree+1):
                 flux[i,l] = \
-                        self.riemannEnsemble.integrate(coeffsPlus, coeffsMinus,
+                        self.riemannEnsemble.integrate(left, right,
                         self.basis.polynomialOf(degree=l))
 
         return flux

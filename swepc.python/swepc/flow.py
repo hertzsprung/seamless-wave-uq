@@ -27,6 +27,10 @@ class Flow:
         else:
             return None
 
+    def balancedAtFace(self, i):
+        left, right = self.atFace(i)
+        return left, right
+
     def atElement(self, i):
         return FlowCoeffs(self.h[i], self.q[i], self.z[i], self.basis)
 
@@ -42,7 +46,7 @@ class Flow:
             rightI = i
 
         left = FlowCoeffs(self.h[leftI], self.q[leftI], self.z[leftI], self.basis)
-        right = FlowCoeffs(self.h[rightI], self.q[rightI], self.z[leftI], self.basis)
+        right = FlowCoeffs(self.h[rightI], self.q[rightI], self.z[rightI], self.basis)
 
         if i == 0:
             if self.upstream_h is not None:
@@ -86,9 +90,9 @@ class Flow:
 
 class FlowCoeffs:
     def __init__(self, h, q, z, basis):
-        self.h = h
-        self.q = q
-        self.z = z
+        self.h = np.array(h)
+        self.q = np.array(q)
+        self.z = np.array(z)
         self.basis = basis
 
     def __call__(self, xi):

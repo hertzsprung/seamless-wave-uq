@@ -33,28 +33,28 @@ def plotPC():
     axarr[0].text(2, 0.25, "$cfl$ = {0:.3f}".format(
         dt/dx*pcFlow.maxWaveSpeed(g)))
 
-    #axarr[1].cla()
-    #axarr[1].set_ylim((0,7))
-    #axarr[1].set_ylabel("q")
-    #axarr[1].fill_between(xCentre,
-    #        pcFlow.q[:,0] - stddev.q,
-    #        pcFlow.q[:,0] + stddev.q, 
-    #        color='plum')
-    #axarr[1].plot(xCentre, pcFlow.q[:,0], color='purple')
-
     axarr[1].cla()
-    axarr[1].set_xlabel('h')
-    axarr[1].set_title('PDF')
-    # find h mean for element 29, generate a linspace around that
-    hmean29 = pcFlow.h[29,0]
-    hstddev29 = pcFlow.h[29,1]
-    u = np.linspace(0, 3, 100)
-    pdf = swepc.PDF(pcFlow.basis)(u, pcFlow.h[29,:])
-    axarr[1].plot(u, pdf, label='Polynomial Chaos')
+    axarr[1].set_ylim((-0.1,0.1))
+    axarr[1].set_ylabel("q")
+    axarr[1].fill_between(xCentre,
+            pcFlow.q[:,0] - stddev.q,
+            pcFlow.q[:,0] + stddev.q, 
+            color='plum')
+    axarr[1].plot(xCentre, pcFlow.q[:,0], color='purple')
 
-    mcEta29 = [flow.z[29,0] + flow.h[29,0] for flow in mcFlow]
-    sns.kdeplot(mcEta29, ax=axarr[1], label='Monte Carlo')
-    axarr[1].legend(loc=1)
+    #axarr[1].cla()
+    #axarr[1].set_xlabel('h')
+    #axarr[1].set_title('PDF')
+    ## find h mean for element 29, generate a linspace around that
+    #hmean29 = pcFlow.h[29,0]
+    #hstddev29 = pcFlow.h[29,1]
+    #u = np.linspace(0, 3, 100)
+    #pdf = swepc.PDF(pcFlow.basis)(u, pcFlow.h[29,:])
+    #axarr[1].plot(u, pdf, label='Polynomial Chaos')
+
+    #mcEta29 = [flow.z[29,0] + flow.h[29,0] for flow in mcFlow]
+    #sns.kdeplot(mcEta29, ax=axarr[1], label='Monte Carlo')
+    #axarr[1].legend(loc=1)
 
     plt.draw()
     plt.pause(0.001)
@@ -123,8 +123,6 @@ ic.z[:,1] = [0.6/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
 ic.h[:,0] = [2.0 - z for z in ic.z[:,0]]
 
 bc = swepc.BoundaryConditions()
-bc.upstream_q = [4.42, 0.0]
-bc.downstream_h = [2.0, 0.0]
 
 pcSim, pcFlow = intrusivePC(ic, bc, degree=1)
 mcSim = swepc.MonteCarlo(g)
@@ -139,7 +137,7 @@ t = 0.0
 
 while t < endTime:
     pcSim.timestep(pcFlow, dx, dt)
-    mcSim.timestep(mcFlow, dx, dt)
+    #mcSim.timestep(mcFlow, dx, dt)
     t = t + dt
     c = c + 1
     if c % 8 == 0:
