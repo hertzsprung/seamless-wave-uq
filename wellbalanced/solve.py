@@ -17,8 +17,9 @@ def topography(x):
 
     return z*0.5
 
-def topoGradTerm(i):
-    return -g*(h[i]+z[i]-zAverage[i])*(zFace[i+1] - zFace[i])
+def topoGradTerm(faceFlow, i):
+    hBar = 0.5*(faceFlow[2*i+1].h + faceFlow[2*i+2].h)
+    return -g*hBar*zGrad[i]
 
 g = 9.80665
 domain = [0, 50]
@@ -38,9 +39,10 @@ z[:] = [0.5*(l+r) for l, r in zip(zFace, zFace[1:])]
 zFace = np.zeros(N+1)
 zFace[0] = z[0]
 zFace[-1] = z[-1]
-zFace[1:-1] = [max(l,r) for l, r in zip(z, z[1:])]
-zAverage = np.zeros(N)
-zAverage[:] = [0.5*(l+r) for l, r in zip(zFace, zFace[1:])]
+zFace[1:-1] = [0.5*(l+r) for l, r in zip(z, z[1:])]
+
+zGrad = np.zeros(N)
+zGrad[:] = [r-l for l, r in zip(zFace, zFace[1:])]
 
 h = 2.0 - z
 
@@ -51,29 +53,26 @@ f, axes = plt.subplots(2, sharex=True)
 c = 0
 t = 0.0
 while t < endTime:
+    faceFlow = np.empty(2*(N+1), dtype=swepc.FlowValue)
     flux = np.zeros(N+1, dtype=swepc.FlowValue)
 
     for i in range(N+1):
         if i == 0:
-            left = swepc.FlowValue(h[0], q[0])
-            right = left
+            faceFlow[0] = swepc.FlowValue(h[0], q[0])
+            faceFlow[1] = swepc.FlowValue(h[0], q[0])
         elif i == N:
-            left = swepc.FlowValue(h[-1], q[-1])
-            right = left
+            faceFlow[-2] = swepc.FlowValue(h[-1], q[-1])
+            faceFlow[-1] = swepc.FlowValue(h[-1], q[-1])
         else:
-            left = swepc.FlowValue(h[i-1], q[i-1])
-            left_h = h[i-1]+z[i-1]-zFace[i]
-            left = swepc.FlowValue(left_h, left.u()*left_h)
+            faceFlow[2*i] = swepc.FlowValue(h[i-1] + z[i-1] - zFace[i], q[i-1])
+            faceFlow[2*i+1] = swepc.FlowValue(h[i] + z[i] - zFace[i], q[i])
 
-            right = swepc.FlowValue(h[i], q[i])
-            right_h = h[i]+z[i]-zFace[i]
-            right = swepc.FlowValue(right_h, right.u()*right_h)
-
-        flux[i] = riemann.flux(left, right)
+    for i in range(N+1):
+        flux[i] = riemann.flux(faceFlow[2*i], faceFlow[2*i+1])
 
     for i in range(N):
         h[i] -= dt/dx * (flux[i+1] - flux[i]).h
-        q[i] -= dt/dx * ((flux[i+1] - flux[i]).q - topoGradTerm(i))
+        q[i] -= dt/dx * ((flux[i+1] - flux[i]).q - topoGradTerm(faceFlow, i))
 
     t += dt
     c += 1
