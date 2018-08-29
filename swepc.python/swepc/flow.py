@@ -8,11 +8,16 @@ class Flow:
         self.h = np.zeros((self.elements, basis.degree+1))
         self.q = np.zeros((self.elements, basis.degree+1))
         self.z = np.zeros((self.elements, basis.degree+1))
+        self.zFace = np.zeros((self.elements+1, basis.degree+1))
 
         degree = min(initialConditions.degree, basis.degree)
         self.h[:,:degree+1] = initialConditions.h[:,:degree+1]
         self.q[:,:degree+1] = initialConditions.q[:,:degree+1]
         self.z[:,:degree+1] = initialConditions.z[:,:degree+1]
+
+        self.zFace[0, :] = self.z[0]
+        self.zFace[-1, :] = self.z[-1]
+        self.zFace[1:-1, :] = [0.5*(l+r) for l, r in zip(self.z[:], self.z[1:,:])]
 
         self.upstream_h = self.__applyBC(boundaryConditions.upstream_h, degree)
         self.upstream_q = self.__applyBC(boundaryConditions.upstream_q, degree)
@@ -29,6 +34,8 @@ class Flow:
 
     def balancedAtFace(self, i):
         left, right = self.atFace(i)
+        left.preserveElevationFor(self.zFace[i])
+        right.preserveElevationFor(self.zFace[i])
         return left, right
 
     def atElement(self, i):
@@ -97,6 +104,9 @@ class FlowCoeffs:
 
     def __call__(self, xi):
         return FlowValue(self.basis(xi, self.h), self.basis(xi, self.q))
+
+    def preserveElevationFor(self, z):
+        self.h = self.h + self.z - z
 
 class FlowValue:
     def __init__(self, h, q):

@@ -34,7 +34,7 @@ def plotPC():
         dt/dx*pcFlow.maxWaveSpeed(g)))
 
     axarr[1].cla()
-    axarr[1].set_ylim((-0.1,0.1))
+    #axarr[1].set_ylim((-0.1,0.1))
     axarr[1].set_ylabel("q")
     axarr[1].fill_between(xCentre,
             pcFlow.q[:,0] - stddev.q,
