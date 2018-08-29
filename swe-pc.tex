@@ -204,16 +204,53 @@ which can be calculated numerically for a given value of $u$.
 
 \subsection*{Well-balancing}
 There are two ingredients for well-balancing: a modified source term discretisation, and modified inputs to the Riemann solver.
-
-First, the modified source term.
-
 \begin{align}
-	\zstar_{i-1/2} = \max(z_{i-1}, z_i) \\
-	\zbar_i = \frac{\zstar_{i-1/2} + \zstar_{i+1/2}}{2} \\
-	\Delta \zbar_i = \zstar_{i+1/2} - \zstar_{i-1/2} \\
-	\bar{h}_i = h_i + z_i - \zbar_i \\
-	\vect{S}_i = \left[ 0, -g \bar{h}_i \frac{\Delta \zbar_i}{\Delta x} \right]^\intercal
+	z_{i-1/2} &= \frac{z_{i-1} + z_i}{2} \\
+	\Delta z_i &= z_{i+1/2} - z_{i-1/2} \\
+	\eta_i &= h_i + z_i \\
+	h_{i-1/2,L} &= \eta_{i-1} - z_{i-1/2} \\
+	h_{i-1/2,R} &= \eta_{i} - z_{i-1/2} \\
+	\bar{h}_i &= \frac{h_{i-1/2,R} + h_{i+1/2,L}}{2} \\
 \end{align}
+The deterministic source term $\vect{S}_i$ is
+\begin{align}
+	\vect{S}_i &= \left[ 0, -g \bar{h}_i \frac{\Delta z_i}{\Delta x} \right]^\intercal
+%
+\intertext{which can be written as}
+%
+	\vect{S}_i &= \left[ 0, -\frac{g}{\Delta x} \left\{
+	\left(\frac{h_i}{2} + \frac{z_i}{4} \right) \left( z_{i+1} - z_{i-1}\right)
+	- \frac{1}{8} \left( z_{i+1}^2 - z_{i-1}^2 \right)
+	\right\} \right]^\intercal
+\end{align}
+The stochastic source term is then
+\begin{align}
+	\begin{split}
+	\vect{S}_i &= \left[0, -\frac{g}{\Delta x} \left\{
+	\sum_{p=0}^P \sum_{p'=0}^P
+	\left(\frac{h_{i,p}}{2} + \frac{z_{i,p}}{4} \right) \left( z_{i+1,p'} - z_{i-1,p'}\right) \Phi_p \Phi_{p'} \right.\right.\\
+	&\left.\left. - \frac{1}{8} \left(
+	\sum_{p=0}^P \sum_{p'=0}^P
+	\left( z_{i+1,p}\:z_{i+1,p'} - z_{i-1,p}\:z_{i-1,p'} \right)
+	\Phi_p \Phi_{p'} \right)
+	\right\} \right]^\intercal
+	\end{split}
+%
+\intertext{and the ensemble average is}
+%
+	\begin{split}
+	\Ensemble{\vect{S}_i, \Phi_l} &=
+	\left[0, -\frac{g}{\Delta x} \left\{
+	\sum_{p=0}^P \sum_{p'=0}^P
+	\left(\frac{h_{i,p}}{2} + \frac{z_{i,p}}{4} \right) \left( z_{i+1,p'} - z_{i-1,p'}\right) \Ensemble{\Phi_p \Phi_{p'} \Phi_l} \right.\right.\\
+	&\left.\left. - \frac{1}{8} \left(
+	\sum_{p=0}^P \sum_{p'=0}^P
+	\left( z_{i+1,p}\:z_{i+1,p'} - z_{i-1,p}\:z_{i-1,p'} \right)
+	\Ensemble{\Phi_p \Phi_{p'} \Phi_l} \right)
+	\right\} \right]^\intercal
+	\end{split}
+\end{align}
+The Riemann solver inputs are $\left[h_{i-1/2,L}, q_{i-1}\right]^\intercal$, $\left[h_{i-1/2,R}, q_i\right]^\intercal$.
 
 \subsection*{Nonintrusive formulation}
 
