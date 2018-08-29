@@ -39,6 +39,11 @@ class Flow:
         return left, right
 
     def atElement(self, i):
+        if i < 0:
+            i = 0
+        elif i >= self.elements:
+            i = self.elements-1
+
         return FlowCoeffs(self.h[i], self.q[i], self.z[i], self.basis)
 
     def atFace(self, i):
