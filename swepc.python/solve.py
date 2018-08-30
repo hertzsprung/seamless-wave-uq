@@ -29,12 +29,11 @@ def plotPC():
             pcFlow.z[:,0] + pcFlow.h[:,0] + stddev.h, 
             color='lightskyblue')
     axarr[0].plot(xCentre, pcFlow.z[:,0] + pcFlow.h[:,0], color='mediumblue')
-    axarr[0].text(2, 0.75, "$t$ = {0:.3f}".format(t))
-    axarr[0].text(2, 0.25, "$cfl$ = {0:.3f}".format(
-        dt/dx*pcFlow.maxWaveSpeed(g)))
+    axarr[0].annotate("$t$ = {0:.3f}".format(t), (0, 0.9), xycoords='axes fraction')
+    axarr[0].annotate("$cfl$ = {0:.3f}".format(dt/dx*pcFlow.maxWaveSpeed(g)), (0, 0.8), xycoords='axes fraction')
 
     axarr[1].cla()
-    axarr[1].set_ylim((-5e-4,5e-4))
+    axarr[1].set_ylim((-1e-3,1e-3))
     axarr[1].set_ylabel("q")
     axarr[1].fill_between(xCentre,
             pcFlow.q[:,0] - stddev.q,
@@ -105,21 +104,37 @@ def plotMC():
     plt.pause(0.001)
     #plt.savefig("/tmp/sim/{0:06.3f}.png".format(t))
 
+def topography(x):
+    z = 0.0
+
+    if 8 < x and x <= 12:
+        z = 2.0 - 0.5*pow(x-10, 2)
+    elif 22 < x <= 25:
+        z = 0.5*x - 11.0
+    elif 25 < x <= 28:
+        z = -0.5*x + 14.0
+    elif 39 < x <= 46:
+        z = 3.0
+
+    return z*0.5
+
 np.seterr(invalid='raise', divide='raise')
 
 g = 9.80665
 N = 64
-domain = [0.0, 25.0]
+domain = [0.0, 50.0]
 dx = (domain[1] - domain[0])/N
-dt = 0.04
+dt = 0.08
 endTime = 50.0
 
 xCentre = np.linspace(dx/2, domain[1]-dx/2, N)
+xFace = np.linspace(0, domain[1], N+1)
 
 ic = swepc.InitialConditions(N, degree=1)
-ic.z[:,0] = [2.0*(0.2 - 0.05*(x-10.0)**2) if (x > 8.0 and x < 12.0) else 0.0
-        for x in xCentre]
-ic.z[:,1] = [0.6/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
+
+zFace = [topography(x) for x in xFace]
+ic.z[:,0] = [0.5*(l+r) for l, r in zip(zFace, zFace[1:])]
+ic.z[:,1] = [0.8/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
 ic.h[:,0] = [2.0 - z for z in ic.z[:,0]]
 
 bc = swepc.BoundaryConditions()
