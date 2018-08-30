@@ -36,5 +36,13 @@ class WellBalancedH:
         return swepc.DynamicFlowValue(0.0, -g*q)
 
     def balancedRiemannInputs(self, flow, i):
-        return flow.balancedAtFace(i)
+        preserveElevation = lambda U, z: \
+                swepc.FlowCoeffs(U.h + U.z - z, U.q, U.z, U.basis)
+
+        left, right = flow.atFace(i)
+
+        left = preserveElevation(left, flow.zFace[i])
+        right = preserveElevation(right, flow.zFace[i])
+
+        return left, right
 
