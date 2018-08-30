@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{xcolor}
+\usepackage{bm}
 
 \title{Stochastic shallow water formulations}
 \author{James Shaw}
@@ -62,6 +63,18 @@
 	year={2008},
 	doi={10.1061/(ASCE)0733-9429(2008)134:2(243)},
 	publisher={American Society of Civil Engineers}
+}
+
+@article{rogers2003,
+	title={Mathematical balancing of flux gradient and source terms prior to using Roe's approximate Riemann solver},
+	author={Rogers, Benedict D and Borthwick, Alistair GL and Taylor, Paul H},
+	journal={Journal of Computational Physics},
+	volume={192},
+	number={2},
+	pages={422--451},
+	year={2003},
+	publisher={Elsevier},
+	doi={10.1016/j.jcp.2003.07.020}
 }
 \end{filecontents}
 
@@ -239,6 +252,32 @@ The ensemble average is then
 \end{align}
 \TODO{It might be possible to write this in a more pleasant form.}
 The Riemann solver inputs are $\left[h_{i-1/2,L}, q_{i-1}\right]^\intercal$, $\left[h_{i-1/2,R}, q_i\right]^\intercal$.
+
+\subsection*{Well-balanced $\eta$-form}
+
+Following \citet{rogers2003},
+\begin{align}
+	\vect{U} &= \left[ \eta, q \right]^\intercal \\
+	\vect{F} &= \left[ q, \frac{q^2}{\eta-z} + \frac{g}{2} \left(\eta^2 - 2 \eta z \right) \right]^\intercal
+%
+\intertext{and the discrete source term $\vect{S}_i$ is}
+%
+	\vect{S}_i &= \left[ 0, -g \eta_i \Delta z_i \right]^\intercal
+\end{align}
+The Riemann solver inputs are $\left[h_{i-1/2,L}, q_{i-1}\right]^\intercal$, $\left[h_{i-1/2,R}, q_i\right]^\intercal$ where
+\begin{align}
+	h_{i-1/2,L} &= \eta_{i-1} - z_{i-1/2} \\
+	h_{i-1/2,R} &= \eta_i - z_{i-1/2}
+\end{align}
+
+\begin{align}
+	\Ensemble{\vect{S}_i \Phi_l} &=
+	\left[0, -\frac{g}{\Delta x}
+	\sum_{p=0}^P \sum_{p'=0}^P
+	\eta_{i,p} \frac{z_{i+1,p'} - z_{i-1,p'}}{2}
+	\Ensemble{\Phi_p \Phi_{p'} \Phi_l}
+	\right]
+\end{align}
 
 \subsection*{Nonintrusive formulation}
 
