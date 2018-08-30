@@ -4,13 +4,13 @@ import collections
 import multiprocessing as mp
 
 class MonteCarlo:
-    def __init__(self, g):
+    def __init__(self, g, sourceTerm):
         self.basis = swepc.GaussianHermiteBasis(degree=0)
         solver = swepc.Roe(g)
         riemannEnsemble = swepc.RiemannEnsemble(self.basis, solver,
                 quadraturePoints=1)
-        flux = swepc.Flux(self.basis, riemannEnsemble)
-        self.deterministic = swepc.Simulation(g, flux)
+        flux = swepc.Flux(self.basis, riemannEnsemble, sourceTerm)
+        self.deterministic = swepc.Simulation(g, flux, sourceTerm)
         self.pool = mp.Pool()
 
     def initialFlows(self, initialConditions, boundaryConditions, iterations):

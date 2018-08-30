@@ -4,15 +4,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def intrusivePC(initialConditions, boundaryConditions, degree):
+def intrusivePC(initialConditions, boundaryConditions, sourceTerm, degree):
     basis = swepc.GaussianHermiteBasis(degree)
     solver = swepc.Roe(g)
     riemannEnsemble = swepc.RiemannEnsemble(
             basis, solver, quadraturePoints=degree+1)
-    flux = swepc.Flux(basis, riemannEnsemble)
+    flux = swepc.Flux(basis, riemannEnsemble, sourceTerm)
     flow = swepc.Flow(basis, initialConditions, boundaryConditions)
 
-    return swepc.Simulation(g, flux), flow
+    return swepc.Simulation(g, flux, sourceTerm), flow
 
 def plotPC():
     stddev = swepc.Stddev(pcFlow)
@@ -139,8 +139,11 @@ ic.h[:,0] = [2.0 - z for z in ic.z[:,0]]
 
 bc = swepc.BoundaryConditions()
 
-pcSim, pcFlow = intrusivePC(ic, bc, degree=3)
-mcSim = swepc.MonteCarlo(g)
+sourceTerm = swepc.WellBalancedH()
+#sourceTerm = swepc.CentredDifference()
+
+pcSim, pcFlow = intrusivePC(ic, bc, sourceTerm, degree=3)
+mcSim = swepc.MonteCarlo(g, sourceTerm)
 mcFlow = mcSim.initialFlows(ic, bc, iterations=50)
 
 _, axarr = plt.subplots(2, figsize=(6,6))
