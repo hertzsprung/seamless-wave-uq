@@ -158,7 +158,7 @@ while t < endTime:
     #mcSim.timestep(mcFlow, dx, dt)
     t = t + dt
     c = c + 1
-    if c % 8 == 0:
-        plotPC()
+    #if c % 8 == 0:
+    plotPC()
 
 plt.show(block=True)

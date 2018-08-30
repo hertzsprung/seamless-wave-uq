@@ -1,7 +1,7 @@
 from .basis import GaussianHermiteBasis
 from .conditions import BoundaryConditions, InitialConditions
 from .deterministicflux import DeterministicFlux
-from .flow import Flow, FlowCoeffs, DynamicFlowValue
+from .flow import Flow, FlowCoeffs, DynamicFlowValue, FlowIncrement
 from .montecarlo import MonteCarlo, MonteCarloFlowStatistics
 from .pdf import PDF
 from .riemannensemble import RiemannEnsemble

@@ -12,7 +12,7 @@ class CentredDifference:
                 q = q + coeffs.h[p] * (z_right[p_prime]-z_left[p_prime]) * \
                         flow.basis.tripleNorm[p,p_prime,l]
 
-        return swepc.DynamicFlowValue(0.0, -g*q)
+        return swepc.FlowIncrement.array(0.0, -g*q)
 
     def balancedRiemannInputs(self, flow, i):
         return flow.atFace(i)
@@ -33,7 +33,7 @@ class WellBalancedH:
                                 zMinus1[p]*zMinus1[p_prime])) * \
                         flow.basis.tripleNorm[p,p_prime,l]
 
-        return swepc.DynamicFlowValue(0.0, -g*q)
+        return swepc.FlowIncrement.array(0.0, -g*q)
 
     def balancedRiemannInputs(self, flow, i):
         preserveElevation = lambda U, z: \

@@ -8,8 +8,7 @@ class StochasticFlux:
         self.sourceTerm = sourceTerm
 
     def __call__(self, flow):
-        flux = np.empty((flow.elements+1, self.basis.degree+1),
-                dtype=swepc.DynamicFlowValue)
+        flux = np.empty((flow.elements+1, self.basis.degree+1, 2))
 
         for i in range(flow.elements+1):
             left, right = self.sourceTerm.balancedRiemannInputs(flow, i)

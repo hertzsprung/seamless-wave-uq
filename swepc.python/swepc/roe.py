@@ -25,8 +25,7 @@ class Roe:
             min(mid.c, max(0.0, 2.0*((r.u()-r.c(self.g))-(l.u()-l.c(self.g)))))
         ]
 
-        return swepc.DynamicFlowValue.fromarray(
-                np.dot(alpha*self.__Psi(a, delta), e))
+        return np.dot(alpha*self.__Psi(a, delta), e)
 
     def __Psi(self, a, delta):
         return np.array([abs(a_) if abs(a_) >= d else 0.5*(a_**2 + d**2)/d

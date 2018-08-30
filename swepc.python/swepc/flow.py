@@ -72,8 +72,8 @@ class Flow:
         return self.zFace[i], self.zFace[i+1]
 
     def update(self, i, l, increment):
-        self.h[i,l] = self.h[i,l] + increment.h
-        self.q[i,l] = self.q[i,l] + increment.q
+        self.h[i,l] = self.h[i,l] + increment[0]
+        self.q[i,l] = self.q[i,l] + increment[1]
 
     def maxWaveSpeed(self, g):
         v = 0.0
@@ -106,6 +106,11 @@ class FlowValue:
     def c(self, g):
         return np.sqrt(g*self.h)
 
+class FlowIncrement:
+    @staticmethod
+    def array(U0, U1):
+        return np.array([U0, U1])
+
 class DynamicFlowValue:
     def __init__(self, h, q):
         self.h = h
@@ -116,10 +121,6 @@ class DynamicFlowValue:
 
     def c(self, g):
         return np.sqrt(g*self.h)
-
-    @classmethod
-    def fromarray(cls, array):
-        return cls(array[0], array[1])
 
     def __add__(self, other):
         return DynamicFlowValue(self.h+other.h, self.q+other.q)

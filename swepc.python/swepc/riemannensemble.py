@@ -9,4 +9,4 @@ class RiemannEnsemble:
     def integrate(self, left, right, polynomial):
         return np.sum([w * self.riemann.flux(left(xi), right(xi)) * 
             polynomial(xi)
-            for xi, w in zip(self.points, self.weights)])
+            for xi, w in zip(self.points, self.weights)], axis=0)
