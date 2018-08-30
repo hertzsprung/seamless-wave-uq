@@ -6,10 +6,10 @@ import seaborn as sns
 
 def intrusivePC(initialConditions, boundaryConditions, sourceTerm, degree):
     basis = swepc.GaussianHermiteBasis(degree)
-    solver = swepc.Roe(g)
+    riemannSolver = swepc.Roe(swepc.DeterministicFlux(g), g)
     riemannEnsemble = swepc.RiemannEnsemble(
-            basis, solver, quadraturePoints=degree+1)
-    flux = swepc.Flux(basis, riemannEnsemble, sourceTerm)
+            basis, riemannSolver, quadraturePoints=degree+1)
+    flux = swepc.StochasticFlux(basis, riemannEnsemble, sourceTerm)
     flow = swepc.Flow(basis, initialConditions, boundaryConditions)
 
     return swepc.Simulation(g, flux, sourceTerm), flow

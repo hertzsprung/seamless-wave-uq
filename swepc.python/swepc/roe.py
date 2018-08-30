@@ -3,11 +3,12 @@ import numpy as np
 import swepc
 
 class Roe:
-    def __init__(self, g):
+    def __init__(self, deterministicFlux, g):
+        self.F = deterministicFlux
         self.g = g
 
     def flux(self, left, right):
-        return 0.5*(left.flux(self.g) + right.flux(self.g) - \
+        return 0.5*(self.F(left) + self.F(right) - \
                 self.__correction(left, right))
 
     def __correction(self, l, r):
@@ -24,7 +25,8 @@ class Roe:
             min(mid.c, max(0.0, 2.0*((r.u()-r.c(self.g))-(l.u()-l.c(self.g)))))
         ]
 
-        return swepc.FlowValue.fromarray(np.dot(alpha*self.__Psi(a, delta), e))
+        return swepc.DynamicFlowValue.fromarray(
+                np.dot(alpha*self.__Psi(a, delta), e))
 
     def __Psi(self, a, delta):
         return np.array([abs(a_) if abs(a_) >= d else 0.5*(a_**2 + d**2)/d

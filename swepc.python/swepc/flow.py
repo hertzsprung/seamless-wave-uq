@@ -95,22 +95,19 @@ class FlowCoeffs:
         self.basis = basis
 
     def __call__(self, xi):
-        return FlowValue(self.basis(xi, self.h), self.basis(xi, self.q))
+        return FlowValue(
+                self.basis(xi, self.h),
+                self.basis(xi, self.q),
+                self.basis(xi, self.z))
 
     def preserveElevationFor(self, z):
         self.h = self.h + self.z - z
 
 class FlowValue:
-    def __init__(self, h, q):
+    def __init__(self, h, q, z):
         self.h = h
         self.q = q
-
-    def flux(self, g):
-        return FlowValue(h=self.q, q=self.q**2/self.h + 0.5*g*self.h**2)
-
-    @classmethod
-    def fromarray(cls, array):
-        return cls(array[0], array[1])
+        self.z = z
 
     def u(self):
         return self.q / self.h
@@ -118,19 +115,34 @@ class FlowValue:
     def c(self, g):
         return np.sqrt(g*self.h)
 
+class DynamicFlowValue:
+    def __init__(self, h, q):
+        self.h = h
+        self.q = q
+
+    def u(self):
+        return self.q / self.h
+
+    def c(self, g):
+        return np.sqrt(g*self.h)
+
+    @classmethod
+    def fromarray(cls, array):
+        return cls(array[0], array[1])
+
     def __add__(self, other):
-        return FlowValue(self.h+other.h, self.q+other.q)
+        return DynamicFlowValue(self.h+other.h, self.q+other.q)
 
     def __sub__(self, other):
-        return FlowValue(self.h-other.h, self.q-other.q)
+        return DynamicFlowValue(self.h-other.h, self.q-other.q)
 
     def __mul__(self, scalar):
-        return FlowValue(scalar*self.h, scalar*self.q)
+        return DynamicFlowValue(scalar*self.h, scalar*self.q)
     
     def __rmul__(self, scalar):
-        return FlowValue(scalar*self.h, scalar*self.q)
+        return DynamicFlowValue(scalar*self.h, scalar*self.q)
 
     def __str__(self):
-        return "FlowValue<h={h},q={q}>".format(h=self.h, q=self.q)
+        return "DynamicFlowValue<{h},{q}>".format(h=self.h, q=self.q)
 
     __repr__ = __str__

@@ -6,10 +6,10 @@ import multiprocessing as mp
 class MonteCarlo:
     def __init__(self, g, sourceTerm):
         self.basis = swepc.GaussianHermiteBasis(degree=0)
-        solver = swepc.Roe(g)
-        riemannEnsemble = swepc.RiemannEnsemble(self.basis, solver,
+        riemannSolver = swepc.Roe(swepc.DeterministicFlux(g), g)
+        riemannEnsemble = swepc.RiemannEnsemble(self.basis, riemannSolver,
                 quadraturePoints=1)
-        flux = swepc.Flux(self.basis, riemannEnsemble, sourceTerm)
+        flux = swepc.StochasticFlux(self.basis, riemannEnsemble, sourceTerm)
         self.deterministic = swepc.Simulation(g, flux, sourceTerm)
         self.pool = mp.Pool()
 

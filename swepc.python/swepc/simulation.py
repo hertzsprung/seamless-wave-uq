@@ -7,7 +7,7 @@ class Simulation:
         self.sourceTerm = sourceTerm
 
     def timestep(self, flow, dx, dt):
-        f = self.flux.evaluate(flow)
+        f = self.flux(flow)
 
         for i in range(flow.elements):
             for l in range(flow.basis.degree+1):

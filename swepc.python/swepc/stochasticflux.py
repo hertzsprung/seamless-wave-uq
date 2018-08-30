@@ -1,15 +1,15 @@
 import numpy as np
 import swepc
 
-class Flux:
+class StochasticFlux:
     def __init__(self, basis, riemannEnsemble, sourceTerm):
         self.basis = basis
         self.riemannEnsemble = riemannEnsemble
         self.sourceTerm = sourceTerm
 
-    def evaluate(self, flow):
+    def __call__(self, flow):
         flux = np.empty((flow.elements+1, self.basis.degree+1),
-                dtype=swepc.FlowValue)
+                dtype=swepc.DynamicFlowValue)
 
         for i in range(flow.elements+1):
             left, right = self.sourceTerm.balancedRiemannInputs(flow, i)
