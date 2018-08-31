@@ -5,6 +5,6 @@ class DeterministicFlux:
         self.g = g
 
     def __call__(self, flowValue):
-        u = flowValue
-        return swepc.FlowIncrement.array(u.q, u.q**2/u.h + 0.5*self.g*u.h**2)
+        U = flowValue
+        return swepc.FlowIncrement.array(U.q, U.q**2/(U.eta - U.z) + 0.5*self.g*(U.eta**2 - 2*U.eta*U.z))
 
