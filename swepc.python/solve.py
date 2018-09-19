@@ -6,11 +6,12 @@ import seaborn as sns
 
 def intrusivePC(initialConditions, boundaryConditions, sourceTerm, degree):
     basis = swepc.GaussianHermiteBasis(degree)
-    riemannSolver = swepc.Roe(swepc.DeterministicFlux(g), g)
+    riemannSolver = swepc.Roe(swepc.DeterministicFluxEta(g), g)
     riemannEnsemble = swepc.RiemannEnsemble(
             basis, riemannSolver, quadraturePoints=degree+1)
     flux = swepc.StochasticFlux(basis, riemannEnsemble, sourceTerm)
-    flow = swepc.Flow(basis, initialConditions, boundaryConditions)
+    flow = swepc.Flow(basis, initialConditions, boundaryConditions,
+            swepc.FlowValueEta)
 
     return swepc.Simulation(g, flux, sourceTerm), flow
 
@@ -25,12 +26,13 @@ def plotPC():
             color='lightslategray')
     axarr[0].plot(xCentre, pcFlow.z[:,0], color='k')
     axarr[0].fill_between(xCentre,
-            pcFlow.eta[:,0] - stddev.eta,
-            pcFlow.eta[:,0] + stddev.eta, 
+            pcFlow.water[:,0] - stddev.water,
+            pcFlow.water[:,0] + stddev.water, 
             color='lightskyblue')
-    axarr[0].plot(xCentre, pcFlow.eta[:,0], color='mediumblue')
+    axarr[0].plot(xCentre, pcFlow.water[:,0], color='mediumblue')
     axarr[0].annotate("$t$ = {0:.3f}".format(t), (0, 0.9), xycoords='axes fraction')
-    axarr[0].annotate("$cfl$ = {0:.3f}".format(dt/dx*pcFlow.maxWaveSpeed(g)), (0, 0.8), xycoords='axes fraction')
+    axarr[0].annotate("$cfl$ = {0:.3f}".format(
+        dt/dx*pcFlowInfo.maxWaveSpeed(pcFlow)), (0, 0.8), xycoords='axes fraction')
 
     axarr[1].cla()
     #axarr[1].set_ylim((-1e-3,1e-3))
@@ -76,13 +78,14 @@ ic = swepc.InitialConditions(N, degree=1)
 zFace = [topography(x) for x in xFace]
 ic.z[:,0] = [0.5*(l+r) for l, r in zip(zFace, zFace[1:])]
 ic.z[:,1] = [0.8/np.sqrt(2*np.pi)*np.exp(-(1.5*(x-10))**2/2) for x in xCentre]
-ic.eta[:,0] = 2.0
+ic.water[:,0] = 2.0
 
 bc = swepc.BoundaryConditions()
 
 sourceTerm = swepc.WellBalancedEta()
 
 pcSim, pcFlow = intrusivePC(ic, bc, sourceTerm, degree=3)
+pcFlowInfo = swepc.FlowInfoEta(g)
 
 _, axarr = plt.subplots(2, figsize=(6,6))
 
