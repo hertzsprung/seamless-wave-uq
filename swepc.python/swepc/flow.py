@@ -61,13 +61,13 @@ class Flow:
 
         if i == 0:
             if self.upstream_water is not None:
-                left.h = self.upstream_water
+                left.water = self.upstream_water
             if self.upstream_q is not None:
                 left.q = self.upstream_q
 
         if i == self.elements:
             if self.downstream_water is not None:
-                right.h = self.downstream_water
+                right.water = self.downstream_water
             if self.downstream_q is not None:
                 left.q = self.downstream_q
 
