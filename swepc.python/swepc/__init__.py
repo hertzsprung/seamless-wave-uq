@@ -1,5 +1,6 @@
 from .basis import GaussianHermiteBasis
 from .conditions import BoundaryConditions, InitialConditions
+from .convergence import Convergence
 from .deterministicflux import DeterministicFluxEta, DeterministicFluxH
 from .flow import Flow, FlowCoeffs, FlowValueEta, FlowValueH, FlowIncrement
 from .flowinfo import FlowInfoEta, FlowInfoH

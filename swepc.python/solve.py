@@ -93,7 +93,7 @@ xCentre = np.linspace(domain[0]+dx/2, domain[1]-dx/2, N)
 
 ic = swepc.InitialConditions(N, degree=1)
 
-bump = Bump(a_mean=0.8, a_stddev=0.16, halfWidth=10.0)
+bump = Bump(a_mean=1.0, a_stddev=0.16, halfWidth=10.0)
 
 ic.z[:,0] = [bump.z0(x) for x in xCentre]
 ic.z[:,1] = [bump.z1(x) for x in xCentre]
@@ -116,7 +116,9 @@ ic.water[:,0] = 1.5
 #ic.water[:,0] = [1.0 - z for z in ic.z[:,0]]
 
 pcSim, pcFlow = initialisePC(ic, bc, sourceTerm, deterministicFlux,
-        flowValueClass, degree=1)
+        flowValueClass, degree=0)
+
+convergence = swepc.Convergence(pcFlow)
 
 _, axarr = plt.subplots(3, figsize=(6,6))
 
@@ -129,5 +131,6 @@ while t < endTime:
     c = c + 1
     if c % 8 == 0:
         plotPC()
+    print(t, convergence(pcFlow))
 
 plt.show(block=True)
