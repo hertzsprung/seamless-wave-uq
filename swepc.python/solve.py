@@ -20,7 +20,6 @@ def plotPC():
     stddev = swepc.Stddev(pcFlow)
 
     axarr[0].cla()
-    #axarr[0].set_xlim((40,60))
     axarr[0].set_ylim((0,2.5))
     axarr[0].fill_between(xCentre,
             pcFlow.z[:,0] - stddev.z,
@@ -87,13 +86,13 @@ N = 200
 domain = [-50.0, 50.0]
 dx = (domain[1] - domain[0])/N
 dt = 0.08
-endTime = 1000.0
+endTime = 500.0
 
 xCentre = np.linspace(domain[0]+dx/2, domain[1]-dx/2, N)
 
 ic = swepc.InitialConditions(N, degree=1)
 
-bump = Bump(a_mean=1.0, a_stddev=0.16, halfWidth=10.0)
+bump = Bump(a_mean=0.8, a_stddev=0.16, halfWidth=10.0)
 
 ic.z[:,0] = [bump.z0(x) for x in xCentre]
 ic.z[:,1] = [bump.z1(x) for x in xCentre]
@@ -131,6 +130,5 @@ while t < endTime:
     c = c + 1
     if c % 8 == 0:
         plotPC()
-    print(t, convergence(pcFlow))
 
 plt.show(block=True)
