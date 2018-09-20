@@ -19,66 +19,92 @@ def initialisePC(initialConditions, boundaryConditions, sourceTerm,
 def plotPC():
     stddev = swepc.Stddev(pcFlow)
 
-    axarr[0].cla()
-    axarr[0].set_ylim((0,2.5))
-    axarr[0].fill_between(xCentre,
+    axarr[0, 1].cla()
+    axarr[0, 1].set_ylim((0,2.5))
+    axarr[0, 1].fill_between(xCentre,
             pcFlow.z[:,0] - stddev.z,
             pcFlow.z[:,0] + stddev.z, 
             color='lightslategray')
-    axarr[0].plot(xCentre, pcFlow.z[:,0], color='k')
+    axarr[0, 1].plot(xCentre, pcFlow.z[:,0], color='k')
 
-    axarr[0].fill_between(xCentre,
+    axarr[0, 1].fill_between(xCentre,
             pcFlow.water[:,0] - stddev.water,
             pcFlow.water[:,0] + stddev.water, 
             color='lightskyblue')
-    axarr[0].plot(xCentre, pcFlow.water[:,0], color='mediumblue')
+    axarr[0, 1].plot(xCentre, pcFlow.water[:,0], color='mediumblue')
 
-#    axarr[0].fill_between(xCentre,
+#    axarr[0, 1].fill_between(xCentre,
 #            pcFlow.z[:,0] + pcFlow.water[:,0] - stddev.water,
 #            pcFlow.z[:,0] + pcFlow.water[:,0] + stddev.water, 
 #            color='lightskyblue')
-#    axarr[0].plot(xCentre, pcFlow.z[:,0] + pcFlow.water[:,0], color='mediumblue')
+#    axarr[0, 1].plot(xCentre, pcFlow.z[:,0] + pcFlow.water[:,0], color='mediumblue')
 
-    axarr[0].annotate("$t$ = {0:.3f}".format(t), (0, 0.9), xycoords='axes fraction')
-    axarr[0].annotate("$cfl$ = {0:.3f}".format(
+    axarr[0, 1].annotate("$t$ = {0:.3f}".format(t), (0, 0.9), xycoords='axes fraction')
+    axarr[0, 1].annotate("$cfl$ = {0:.3f}".format(
         dt/dx*pcFlowInfo.maxWaveSpeed(pcFlow)), (0, 0.8), xycoords='axes fraction')
 
-    axarr[1].cla()
-    #axarr[1].set_ylim((-1e-3,1e-3))
-    axarr[1].set_ylabel("q")
-    axarr[1].fill_between(xCentre,
+    axarr[1, 1].cla()
+    #axarr[1, 1].set_ylim((-1e-3,1e-3))
+    axarr[1, 1].set_ylabel("q")
+    axarr[1, 1].fill_between(xCentre,
             pcFlow.q[:,0] - stddev.q,
             pcFlow.q[:,0] + stddev.q, 
             color='plum')
-    axarr[1].plot(xCentre, pcFlow.q[:,0], color='purple')
+    axarr[1, 1].plot(xCentre, pcFlow.q[:,0], color='purple')
 
-    plt.draw()
-    plt.pause(0.001)
     #plt.savefig("/tmp/sim/{0:06.3f}.png".format(t))
+
+def plotMC():
+    stats = swepc.MonteCarloFlowStatistics(mcFlow)
+
+    axarr[0, 0].cla()
+    axarr[0, 0].set_ylim((0,2.5))
+    axarr[0, 0].fill_between(xCentre,
+             stats.z[:,0] - stats.z[:,1],
+             stats.z[:,0] + stats.z[:,1],
+             color='lightslategray')
+    axarr[0, 0].plot(xCentre, stats.z[:,0], color='k')
+
+    axarr[0, 0].fill_between(xCentre,
+             stats.water[:,0] - stats.water[:,1],
+             stats.water[:,0] + stats.water[:,1], 
+             color='lightskyblue')
+    axarr[0, 0].plot(xCentre, stats.water[:,0], color='mediumblue')
+
+    axarr[0, 0].annotate("$t$ = {0:.3f}".format(t), (0, 0.9), xycoords='axes fraction')
+    axarr[0, 0].annotate("$cfl$ = {0:.3f}".format(
+        dt/dx*pcFlowInfo.maxWaveSpeed(pcFlow)), (0, 0.8), xycoords='axes fraction')
+
+    axarr[1, 0].cla()
+   #axarr[1, 0].set_ylim((-1e-3,1e-3))
+    axarr[1, 0].set_ylabel("q")
+    axarr[1, 0].fill_between(xCentre,
+          stats.q[:,0] - stats.q[:,1],
+          stats.q[:,0] + stats.q[:,1], 
+          color='plum')
+    axarr[1, 0].plot(xCentre, stats.q[:,0], color='purple')
 
 class Bump:
     def __init__(self, a_mean, a_stddev, halfWidth):
         self.a_mean = a_mean
         self.a_stddev = a_stddev
-        self.halfWidth = np.pi/halfWidth
+        self.halfWidth = halfWidth
 
     def z0(self, x):
-        return self.a_mean*(1/np.cosh(self.halfWidth*x))**2
+        return self.a_mean*(1/np.cosh(np.pi/self.halfWidth*x))**2
 
     def z1(self, x):
         return np.sqrt(self.__dzda(x)**2 * self.a_stddev**2)
 
     def __dzda(self, x):
         return self.halfWidth*x \
-                * np.tanh(self.halfWidth*x) \
-                * (1/np.cosh(self.halfWidth*x))**2 \
-                - (1/np.cosh(self.halfWidth*x))**2
+                * np.tanh(np.pi/self.halfWidth*x) \
+                * (1/np.cosh(np.pi/self.halfWidth*x))**2 \
+                - (1/np.cosh(np.pi/self.halfWidth*x))**2
 
 class TwoBumps:
     def __init__(self, a_mean, a_stddev, halfWidth):
-        self.a_mean = a_mean
-        self.a_stddev = a_stddev
-        self.halfWidth = np.pi/halfWidth
+        self.bump = Bump(a_mean, a_stddev, halfWidth)
 
     def z0(self, x):
         z = 0.0
@@ -90,39 +116,44 @@ class TwoBumps:
         if 30 < x and x <= 40:
             z = self.a_mean
 
-        return z + self.a_mean*(1/np.cosh(self.halfWidth*x))**2
+        return z + self.bump.z0(x)
 
     def z1(self, x):
-        return np.sqrt(self.__dzda(x)**2 * self.a_stddev**2)
+        return self.bump.z1(x)
 
-    def __dzda(self, x):
-        return self.halfWidth*x \
-                * np.tanh(self.halfWidth*x) \
-                * (1/np.cosh(self.halfWidth*x))**2 \
-                - (1/np.cosh(self.halfWidth*x))**2
+class RandomSmoothBump:
+    def __init__(self, xCentre, a_mean, a_stddev, halfWidth):
+        self.xCentre = xCentre
+        self.a_mean = a_mean
+        self.a_stddev = a_stddev
+        self.halfWidth = halfWidth
 
+    def sample(self):
+        a = np.random.normal(self.a_mean, self.a_stddev)
+        bump = Bump(a, 0.0, self.halfWidth)
+        return [bump.z0(x) for x in self.xCentre]
 
 np.seterr(invalid='raise', divide='raise')
 
 g = 9.80665
-N = 200
+N = 100
 domain = [-50.0, 50.0]
 dx = (domain[1] - domain[0])/N
-dt = 0.08
+dt = 0.15
 endTime = 500.0
 
 xCentre = np.linspace(domain[0]+dx/2, domain[1]-dx/2, N)
 
 ic = swepc.InitialConditions(N, degree=1)
 
-bump = TwoBumps(a_mean=0.8, a_stddev=0.16, halfWidth=10.0)
+bump = Bump(a_mean=0.8, a_stddev=0.16, halfWidth=10.0)
 
 ic.z[:,0] = [bump.z0(x) for x in xCentre]
 ic.z[:,1] = [bump.z1(x) for x in xCentre]
 
 bc = swepc.BoundaryConditions()
-#bc.upstream_q = [1.125, 0.0]
-#bc.downstream_water = [1.5, 0.0]
+bc.upstream_q = [1.125, 0.0]
+bc.downstream_water = [1.5, 0.0]
 
 sourceTerm = swepc.WellBalancedEta()
 #sourceTerm = swepc.CentredDifference()
@@ -140,18 +171,28 @@ ic.water[:,0] = 1.5
 pcSim, pcFlow = initialisePC(ic, bc, sourceTerm, deterministicFlux,
         flowValueClass, degree=3)
 
+#mcSim = swepc.MonteCarlo(g, sourceTerm, deterministicFlux, flowValueClass)
+#topographyGenerator = RandomSmoothBump(xCentre, bump.a_mean, bump.a_stddev,
+#        bump.halfWidth)
+#mcFlow = mcSim.initialFlows(ic, bc, topographyGenerator, iterations=10)
+
 convergence = swepc.Convergence(pcFlow)
 
-_, axarr = plt.subplots(2, figsize=(6,6))
+_, axarr = plt.subplots(2, 2, figsize=(6,6))
 
 c = 0
 t = 0.0
 
 while t < endTime:
     pcSim.timestep(pcFlow, dx, dt)
+    #mcSim.timestep(mcFlow, dx, dt)
     t = t + dt
     c = c + 1
     #if c % 8 == 0:
     plotPC()
+#    plotMC()
+
+    plt.draw()
+    plt.pause(0.001)
 
 plt.show(block=True)
