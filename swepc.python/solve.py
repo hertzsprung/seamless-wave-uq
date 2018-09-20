@@ -20,7 +20,9 @@ def plotPC():
     stddev = swepc.Stddev(pcFlow)
 
     axarr[0, 1].cla()
+    axarr[0, 1].set_xlim((-10,10))
     axarr[0, 1].set_ylim((0,2.5))
+
     axarr[0, 1].fill_between(xCentre,
             pcFlow.z[:,0] - stddev.z,
             pcFlow.z[:,0] + stddev.z, 
@@ -44,7 +46,7 @@ def plotPC():
         dt/dx*pcFlowInfo.maxWaveSpeed(pcFlow)), (0, 0.8), xycoords='axes fraction')
 
     axarr[1, 1].cla()
-    #axarr[1, 1].set_ylim((-1e-3,1e-3))
+    axarr[1, 1].set_ylim((1,1.4))
     axarr[1, 1].set_ylabel("q")
     axarr[1, 1].fill_between(xCentre,
             pcFlow.q[:,0] - stddev.q,
@@ -58,7 +60,9 @@ def plotMC():
     stats = swepc.MonteCarloFlowStatistics(mcFlow)
 
     axarr[0, 0].cla()
+    axarr[0, 0].set_xlim((-10,10))
     axarr[0, 0].set_ylim((0,2.5))
+
     axarr[0, 0].fill_between(xCentre,
              stats.z[:,0] - stats.z[:,1],
              stats.z[:,0] + stats.z[:,1],
@@ -76,7 +80,7 @@ def plotMC():
         dt/dx*pcFlowInfo.maxWaveSpeed(pcFlow)), (0, 0.8), xycoords='axes fraction')
 
     axarr[1, 0].cla()
-   #axarr[1, 0].set_ylim((-1e-3,1e-3))
+    axarr[1, 0].set_ylim((1,1.4))
     axarr[1, 0].set_ylabel("q")
     axarr[1, 0].fill_between(xCentre,
           stats.q[:,0] - stats.q[:,1],
@@ -97,10 +101,7 @@ class Bump:
         return np.sqrt(self.__dzda(x)**2 * self.a_stddev**2)
 
     def __dzda(self, x):
-        return self.halfWidth*x \
-                * np.tanh(np.pi/self.halfWidth*x) \
-                * (1/np.cosh(np.pi/self.halfWidth*x))**2 \
-                - (1/np.cosh(np.pi/self.halfWidth*x))**2
+        return (1/np.cosh(np.pi/self.halfWidth*x))**2
 
 class TwoBumps:
     def __init__(self, a_mean, a_stddev, halfWidth):
@@ -134,6 +135,7 @@ class RandomSmoothBump:
         return [bump.z0(x) for x in self.xCentre]
 
 np.seterr(invalid='raise', divide='raise')
+np.random.seed(0)
 
 g = 9.80665
 N = 100
@@ -171,10 +173,10 @@ ic.water[:,0] = 1.5
 pcSim, pcFlow = initialisePC(ic, bc, sourceTerm, deterministicFlux,
         flowValueClass, degree=3)
 
-#mcSim = swepc.MonteCarlo(g, sourceTerm, deterministicFlux, flowValueClass)
-#topographyGenerator = RandomSmoothBump(xCentre, bump.a_mean, bump.a_stddev,
-#        bump.halfWidth)
-#mcFlow = mcSim.initialFlows(ic, bc, topographyGenerator, iterations=10)
+mcSim = swepc.MonteCarlo(g, sourceTerm, deterministicFlux, flowValueClass)
+topographyGenerator = RandomSmoothBump(xCentre, bump.a_mean, bump.a_stddev,
+        bump.halfWidth)
+mcFlow = mcSim.initialFlows(ic, bc, topographyGenerator, iterations=100)
 
 convergence = swepc.Convergence(pcFlow)
 
@@ -185,12 +187,12 @@ t = 0.0
 
 while t < endTime:
     pcSim.timestep(pcFlow, dx, dt)
-    #mcSim.timestep(mcFlow, dx, dt)
+    mcSim.timestep(mcFlow, dx, dt)
     t = t + dt
     c = c + 1
     #if c % 8 == 0:
+    plotMC()
     plotPC()
-#    plotMC()
 
     plt.draw()
     plt.pause(0.001)
