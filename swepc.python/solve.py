@@ -20,7 +20,6 @@ def plotPC():
     stddev = swepc.Stddev(pcFlow)
 
     axarr[0, 1].cla()
-    axarr[0, 1].set_xlim((-10,10))
     axarr[0, 1].set_ylim((0,2.5))
 
     axarr[0, 1].fill_between(xCentre,
@@ -34,6 +33,7 @@ def plotPC():
             pcFlow.water[:,0] + stddev.water, 
             color='lightskyblue')
     axarr[0, 1].plot(xCentre, pcFlow.water[:,0], color='mediumblue')
+    axarr[0, 1].axvline(x=1.5, linestyle='dotted')
 
 #    axarr[0, 1].fill_between(xCentre,
 #            pcFlow.z[:,0] + pcFlow.water[:,0] - stddev.water,
@@ -41,7 +41,6 @@ def plotPC():
 #            color='lightskyblue')
 #    axarr[0, 1].plot(xCentre, pcFlow.z[:,0] + pcFlow.water[:,0], color='mediumblue')
 
-    axarr[0, 1].annotate("$t$ = {0:.3f}".format(t), (0, 0.9), xycoords='axes fraction')
     axarr[0, 1].annotate("$cfl$ = {0:.3f}".format(
         dt/dx*pcFlowInfo.maxWaveSpeed(pcFlow)), (0, 0.8), xycoords='axes fraction')
 
@@ -54,13 +53,12 @@ def plotPC():
             color='plum')
     axarr[1, 1].plot(xCentre, pcFlow.q[:,0], color='purple')
 
-    #plt.savefig("/tmp/sim/{0:06.3f}.png".format(t))
+    plt.savefig("/tmp/sim/{0:06.2f}.png".format(t))
 
 def plotMC():
     stats = swepc.MonteCarloFlowStatistics(mcFlow)
 
     axarr[0, 0].cla()
-    axarr[0, 0].set_xlim((-10,10))
     axarr[0, 0].set_ylim((0,2.5))
 
     axarr[0, 0].fill_between(xCentre,
@@ -78,6 +76,7 @@ def plotMC():
     axarr[0, 0].annotate("$t$ = {0:.3f}".format(t), (0, 0.9), xycoords='axes fraction')
     axarr[0, 0].annotate("$cfl$ = {0:.3f}".format(
         dt/dx*pcFlowInfo.maxWaveSpeed(pcFlow)), (0, 0.8), xycoords='axes fraction')
+    axarr[0, 0].axvline(x=1.5, linestyle='dotted')
 
     axarr[1, 0].cla()
     axarr[1, 0].set_ylim((1,1.4))
@@ -87,6 +86,19 @@ def plotMC():
           stats.q[:,0] + stats.q[:,1], 
           color='plum')
     axarr[1, 0].plot(xCentre, stats.q[:,0], color='purple')
+
+def plotPDF(index):
+    axarr[2, 0].cla()
+    axarr[2, 0].set_xlim((0,20))
+    axarr[2, 0].set_ylim((0.8,1.8))
+
+    u = np.linspace(0.8, 1.8, 100)
+    pdf = swepc.PDF(pcFlow.basis)(u, pcFlow.water[index,:])
+    axarr[2, 0].plot(pdf, u, label='Stochastic Galerkin')
+
+    mc2_5 = [flow.water[index,0] for flow in mcFlow]
+    mc2_5 += [1.500001]
+    sns.kdeplot(mc2_5, ax=axarr[2, 0], vertical=True, label='Monte Carlo')
 
 class Bump:
     def __init__(self, a_mean, a_stddev, halfWidth):
@@ -180,7 +192,7 @@ mcFlow = mcSim.initialFlows(ic, bc, topographyGenerator, iterations=100)
 
 convergence = swepc.Convergence(pcFlow)
 
-_, axarr = plt.subplots(2, 2, figsize=(6,6))
+_, axarr = plt.subplots(3, 2, figsize=(6,6))
 
 c = 0
 t = 0.0
@@ -190,9 +202,10 @@ while t < endTime:
     mcSim.timestep(mcFlow, dx, dt)
     t = t + dt
     c = c + 1
-    #if c % 8 == 0:
-    plotMC()
-    plotPC()
+    if c % 8 == 0:
+        plotMC()
+        plotPC()
+        plotPDF(51)
 
     plt.draw()
     plt.pause(0.001)
