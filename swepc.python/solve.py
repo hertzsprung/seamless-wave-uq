@@ -52,11 +52,6 @@ def plotPC():
             color='plum')
     axarr[1].plot(xCentre, pcFlow.q[:,0], color='purple')
 
-    axarr[2].cla()
-    axarr[2].set_ylabel("Froude")
-    h = pcFlow.water[:,0] - pcFlow.z[:,0]
-    axarr[2].plot(xCentre, pcFlow.q[:,0]/h/np.sqrt(g*h))
-
     plt.draw()
     plt.pause(0.001)
     #plt.savefig("/tmp/sim/{0:06.3f}.png".format(t))
@@ -79,6 +74,34 @@ class Bump:
                 * (1/np.cosh(self.halfWidth*x))**2 \
                 - (1/np.cosh(self.halfWidth*x))**2
 
+class TwoBumps:
+    def __init__(self, a_mean, a_stddev, halfWidth):
+        self.a_mean = a_mean
+        self.a_stddev = a_stddev
+        self.halfWidth = np.pi/halfWidth
+
+    def z0(self, x):
+        z = 0.0
+
+        #if -40 < x and x <= -35:
+        #    z = (self.a_mean/5)*x + 8*self.a_mean
+        #elif -35 < x and x <= -30:
+        #    z = -(self.a_mean/5)*x - 6*self.a_mean
+        if 30 < x and x <= 40:
+            z = self.a_mean
+
+        return z + self.a_mean*(1/np.cosh(self.halfWidth*x))**2
+
+    def z1(self, x):
+        return np.sqrt(self.__dzda(x)**2 * self.a_stddev**2)
+
+    def __dzda(self, x):
+        return self.halfWidth*x \
+                * np.tanh(self.halfWidth*x) \
+                * (1/np.cosh(self.halfWidth*x))**2 \
+                - (1/np.cosh(self.halfWidth*x))**2
+
+
 np.seterr(invalid='raise', divide='raise')
 
 g = 9.80665
@@ -92,14 +115,14 @@ xCentre = np.linspace(domain[0]+dx/2, domain[1]-dx/2, N)
 
 ic = swepc.InitialConditions(N, degree=1)
 
-bump = Bump(a_mean=0.8, a_stddev=0.16, halfWidth=10.0)
+bump = TwoBumps(a_mean=0.8, a_stddev=0.16, halfWidth=10.0)
 
 ic.z[:,0] = [bump.z0(x) for x in xCentre]
 ic.z[:,1] = [bump.z1(x) for x in xCentre]
 
 bc = swepc.BoundaryConditions()
-bc.upstream_q = [1.125, 0.0]
-bc.downstream_water = [1.5, 0.0]
+#bc.upstream_q = [1.125, 0.0]
+#bc.downstream_water = [1.5, 0.0]
 
 sourceTerm = swepc.WellBalancedEta()
 #sourceTerm = swepc.CentredDifference()
@@ -115,11 +138,11 @@ ic.water[:,0] = 1.5
 #ic.water[:,0] = [1.0 - z for z in ic.z[:,0]]
 
 pcSim, pcFlow = initialisePC(ic, bc, sourceTerm, deterministicFlux,
-        flowValueClass, degree=0)
+        flowValueClass, degree=3)
 
 convergence = swepc.Convergence(pcFlow)
 
-_, axarr = plt.subplots(3, figsize=(6,6))
+_, axarr = plt.subplots(2, figsize=(6,6))
 
 c = 0
 t = 0.0
@@ -128,7 +151,7 @@ while t < endTime:
     pcSim.timestep(pcFlow, dx, dt)
     t = t + dt
     c = c + 1
-    if c % 8 == 0:
-        plotPC()
+    #if c % 8 == 0:
+    plotPC()
 
 plt.show(block=True)
