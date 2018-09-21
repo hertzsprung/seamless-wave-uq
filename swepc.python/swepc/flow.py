@@ -101,12 +101,16 @@ class FlowValueEta:
         self.z = z
 
         self.h = self.eta - self.z
+        self.__c = None
 
     def u(self):
         return self.q / self.h
 
     def c(self, g):
-        return np.sqrt(g*self.h)
+        if self.__c is None:
+            self.__c = np.sqrt(g*self.h)
+
+        return self.__c
 
     def __str__(self):
         return "FlowValueEta<η={eta},q={q},z={z}>".format(eta=self.eta, q=self.q, z=self.z)
