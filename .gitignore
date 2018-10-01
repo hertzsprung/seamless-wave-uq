@@ -368,3 +368,8 @@ TSWLatexianTemp*
 # standalone packages
 *.sta
 
+# ninja-build
+build
+build.ninja
+build.ninja.generated
+
