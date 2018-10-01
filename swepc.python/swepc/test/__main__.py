@@ -23,6 +23,8 @@ def main():
 
     if args.testCase == "lakeAtRest":
         testCaseClass = swepc.test.LakeAtRest
+    elif args.testCase == "criticalSteadyState":
+        testCaseClass = swepc.test.CriticalSteadyState
 
     mesh = swepc.Mesh(testCaseClass.domain, args.elements)
 
@@ -47,7 +49,7 @@ def main():
 
     t = 0.0
     dt = args.dt
-    if "end_time" in vars(args):
+    if args.end_time:
         testCase.endTime = args.end_time
 
     while t < testCase.endTime:
