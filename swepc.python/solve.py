@@ -53,7 +53,7 @@ def plotPC():
             color='plum')
     axarr[1, 1].plot(xCentre, pcFlow.q[:,0], color='purple')
 
-    plt.savefig("/tmp/sim/{0:06.2f}.png".format(t))
+    #plt.savefig("/tmp/sim/{0:06.2f}.png".format(t))
 
 def plotMC():
     stats = swepc.MonteCarloFlowStatistics(mcFlow)
@@ -154,7 +154,8 @@ N = 100
 domain = [-50.0, 50.0]
 dx = (domain[1] - domain[0])/N
 dt = 0.15
-endTime = 500.0
+#endTime = 500.0
+endTime = 20.0
 
 xCentre = np.linspace(domain[0]+dx/2, domain[1]-dx/2, N)
 
@@ -188,7 +189,9 @@ pcSim, pcFlow = initialisePC(ic, bc, sourceTerm, deterministicFlux,
 mcSim = swepc.MonteCarlo(g, sourceTerm, deterministicFlux, flowValueClass)
 topographyGenerator = RandomSmoothBump(xCentre, bump.a_mean, bump.a_stddev,
         bump.halfWidth)
-mcFlow = mcSim.initialFlows(ic, bc, topographyGenerator, iterations=100)
+#mcFlow = mcSim.initialFlows(ic, bc, topographyGenerator, iterations=5)
+mcSim.simulate(ic, bc, topographyGenerator, dx, dt, endTime, iterations=50, 
+        convergenceSampleIndex=51)
 
 convergence = swepc.Convergence(pcFlow)
 
@@ -198,14 +201,14 @@ c = 0
 t = 0.0
 
 while t < endTime:
-    pcSim.timestep(pcFlow, dx, dt)
-    mcSim.timestep(mcFlow, dx, dt)
+    #pcSim.timestep(pcFlow, dx, dt)
+    #mcSim.timestep(mcFlow, dx, dt)
     t = t + dt
     c = c + 1
     if c % 8 == 0:
-        plotMC()
+        #plotMC()
         plotPC()
-        plotPDF(51)
+        #plotPDF(51)
 
     plt.draw()
     plt.pause(0.001)

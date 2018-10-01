@@ -1,7 +1,6 @@
 import swepc
 import numpy as np
 import collections
-import multiprocessing as mp
 
 class MonteCarlo:
     def __init__(self, g, sourceTerm, deterministicFlux, flowValueClass):
@@ -12,47 +11,55 @@ class MonteCarlo:
                 quadraturePoints=1)
         flux = swepc.StochasticFlux(self.basis, riemannEnsemble, sourceTerm)
         self.deterministic = swepc.Simulation(g, flux, sourceTerm)
-        self.pool = mp.Pool()
 
-    def initialFlows(self, initialConditions, boundaryConditions,
-            topographyGenerator, iterations):
-        return MonteCarloFlows(
-                self.basis, initialConditions, boundaryConditions,
-                self.flowValueClass, topographyGenerator, iterations)
+    def simulate(self, initialConditions, boundaryConditions,
+            topographyGenerator, dx, dt, endTime, iterations,
+            convergenceSampleIndex):
+        flows = MonteCarloFlows(initialConditions)
+        oldSampleStats = np.array([0.0, 0.0])
 
-    def timestep(self, flows, dx, dt):
-        flows[:] = self.pool.map(MonteCarloTimestep(self.deterministic, dx, dt), flows)
+        for i in range(iterations):
+            flow = self.__randomisedFlow(initialConditions, boundaryConditions,
+                    topographyGenerator)
+            flows.append(self.__simulateDeterministic(flow, dx, dt, endTime))
+            stats = MonteCarloFlowStatistics(flows)
+            sampleStats = stats.water[convergenceSampleIndex,:]
+            sampleStatsDiff = np.abs(sampleStats - oldSampleStats)
+            print(len(flows), sampleStatsDiff[0], sampleStatsDiff[1])
+            oldSampleStats = sampleStats
 
-class MonteCarloTimestep:
-    def __init__(self, simulation, dx, dt):
-        self.simulation = simulation
-        self.dx = dx
-        self.dt = dt
+    def __randomisedFlow(self, initialConditions, boundaryConditions,
+            topographyGenerator):
+        ic = swepc.InitialConditions(initialConditions.elements,
+                degree=1)
+        for i in range(ic.elements):
+            ic.water[i,0] = max(1e-4, np.random.normal(
+                    initialConditions.water[i,0],
+                    initialConditions.water[i,1]))
 
-    def __call__(self, flow):
-        return self.simulation.timestep(flow, self.dx, self.dt)
+            ic.q[i,0] = np.random.normal(
+                    initialConditions.q[i,0],
+                    initialConditions.q[i,1])
+
+        ic.z[:,0] = topographyGenerator.sample()
+
+        return swepc.Flow(self.basis, ic, boundaryConditions,
+                self.flowValueClass)
+
+    def __simulateDeterministic(self, flow, dx, dt, endTime):
+        t = 0.0
+        while t < endTime:
+            t = t + dt
+            flow = self.deterministic.timestep(flow, dx, dt)
+        return flow
 
 class MonteCarloFlows(collections.Sequence):
-    def __init__(self, basis, initialConditions, boundaryConditions,
-            flowValueClass, topographyGenerator, iterations):
-        self.elements = initialConditions.elements
+    def __init__(self, initialConditions):
+         self.elements = initialConditions.elements
+         self.flows = []
 
-        self.flows = np.empty(iterations, dtype=swepc.Flow)
-        for it in range(iterations):
-            ic = swepc.InitialConditions(initialConditions.elements, degree=1)
-            for i in range(ic.elements):
-                ic.water[i,0] = max(1e-4, np.random.normal(
-                        initialConditions.water[i,0],
-                        initialConditions.water[i,1]))
-
-                ic.q[i,0] = np.random.normal(
-                        initialConditions.q[i,0],
-                        initialConditions.q[i,1])
-
-            ic.z[:,0] = topographyGenerator.sample()
-
-            self.flows[it] = swepc.Flow(basis, ic, boundaryConditions,
-                    flowValueClass)
+    def append(self, flow):
+        self.flows.append(flow)
 
     def __getitem__(self, index):
         return self.flows[index]
