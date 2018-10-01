@@ -51,5 +51,9 @@ setup(
 
     package_data={},
     data_files=[],
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'swepc = swepc.test.__main__:main'
+        ]
+    },
 )
