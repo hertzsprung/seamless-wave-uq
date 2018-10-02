@@ -25,18 +25,18 @@ class CriticalSteadyState:
             endTime=endTime,
             dt=dt)
 
-        self.plot = Gnuplot(
+        self.flowPlot = Gnuplot(
             'criticalSteadyState',
-            output=os.path.join('uq/criticalSteadyState'),
-            plot=os.path.join('src/uq/criticalSteadyState.plt'),
+            output=os.path.join('uq/criticalSteadyState-flow'),
+            plot=os.path.join('src/uq/criticalSteadyState-flow.plt'),
             data=self.wellBalancedEta.outputs() +
                  self.monteCarlo.outputs())
 
-        self.figure = PDFLaTeXFigure(
-            'fig-criticalSteadyState',
-            output=os.path.join('uq/fig-criticalSteadyState'),
-            figure=os.path.join('src/uq/fig-criticalSteadyState'),
-            components=self.plot.outputs())
+        self.flowFigure = PDFLaTeXFigure(
+            'fig-criticalSteadyStateFlow',
+            output=os.path.join('uq/fig-criticalSteadyState-flow'),
+            figure=os.path.join('src/uq/fig-criticalSteadyState-flow'),
+            components=self.flowPlot.outputs())
 
     def outputs(self):
         return self.figure.outputs()
@@ -44,5 +44,5 @@ class CriticalSteadyState:
     def addTo(self, build):
         build.add(self.wellBalancedEta)
         build.add(self.monteCarlo)
-        build.add(self.plot)
-        build.add(self.figure)
+        build.add(self.flowPlot)
+        build.add(self.flowFigure)

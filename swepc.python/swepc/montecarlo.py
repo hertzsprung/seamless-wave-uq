@@ -15,7 +15,7 @@ class MonteCarlo:
 
     def simulate(self, initialConditions, boundaryConditions,
             topographyGenerator, dx, dt, endTime, iterations,
-            sampleIndex):
+            sampleIndex, file=sys.stderr):
         flows = MonteCarloFlows(initialConditions)
 
         for i in range(iterations):
@@ -26,12 +26,14 @@ class MonteCarlo:
             sampleStats = stats.water[sampleIndex,:]
 
             if len(flows) == 1:
-                print(len(flows), sampleStats[0], 'None', file=sys.stderr)
+                print(len(flows), sampleStats[0], 'None', file=file)
             else:
-                CVmeanStar = np.sqrt(sampleStats[1]**2/len(flows)) / sampleStats[0]
-                print(len(flows), sampleStats[0], sampleStats[1], CVmeanStar, file=sys.stderr)
+                CVmeanStar = np.sqrt(sampleStats[1]**2/len(flows)) \
+                        / sampleStats[0]
+                print(len(flows), sampleStats[0], sampleStats[1], CVmeanStar,
+                        file=file)
 
-        return stats
+        return flows, stats
 
     def __randomisedFlow(self, initialConditions, boundaryConditions,
             topographyGenerator):

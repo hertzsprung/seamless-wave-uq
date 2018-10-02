@@ -2,6 +2,8 @@ import argparse
 import numpy as np
 import swepc
 import swepc.test
+import os
+import sys
 
 np.seterr(invalid='raise', divide='raise')
 g = 9.80665
@@ -18,6 +20,7 @@ def main():
     parser.add_argument("--monte-carlo", action="store_true")
     parser.add_argument("--mc-iterations", type=int, default=100)
     parser.add_argument("--mc-sample-index", type=int, default=51)
+    parser.add_argument("--mc-output-dir")
     parser.add_argument("-d", "--degree", type=int, default=3,
             help="Polynomial chaos degree")
     parser.add_argument("-M", "--elements", type=int, default=100,
@@ -75,31 +78,47 @@ def stochasticGalerkin(args, testCase, solver, mesh):
     write(mesh, flow, solver, basis.degree)
 
 def monteCarlo(args, testCase, solver, mesh):
-    print("# Sampling at x =", mesh.C[args.mc_sample_index])
     np.random.seed(0)
     sim = swepc.MonteCarlo(g, solver)
-    flow = sim.simulate(testCase.ic, testCase.bc,
-            testCase.randomTopographyGenerator(),
-            mesh.dx, args.dt, testCase.endTime, iterations=args.mc_iterations,
-            sampleIndex=args.mc_sample_index)
 
-    write(mesh, flow, solver, degree=1)
+    with open(os.path.join(args.mc_output_dir, "convergence.dat"), 'w') as out:
+        print("# Sampling at x =", mesh.C[args.mc_sample_index], file=out)
 
-def write(mesh, flow, solver, degree):
-    print("# x", end=' ')
+        flows, stats = sim.simulate(testCase.ic, testCase.bc,
+                testCase.randomTopographyGenerator(),
+                mesh.dx, args.dt, testCase.endTime,
+                iterations=args.mc_iterations,
+                sampleIndex=args.mc_sample_index,
+                file=out)
+
+    with open(os.path.join(args.mc_output_dir, "flow.dat"), 'w') as out:
+        write(mesh, stats, solver, degree=1, file=out)
+
+    with open(os.path.join(args.mc_output_dir, "sample.dat"), 'w') as out:
+        print("# Sampling at x =", mesh.C[args.mc_sample_index], file=out)
+
+        print("# z " + solver.water + " q", file=out)
+        for flow in flows:
+            print(flow.z[args.mc_sample_index,0], end=' ', file=out)
+            print(flow.water[args.mc_sample_index,0], end=' ', file=out)
+            print(flow.q[args.mc_sample_index,0], end=' ', file=out)
+            print(file=out)
+
+def write(mesh, flow, solver, degree, file=sys.stdout):
+    print("# x", end=' ', file=file)
     for p in range(degree+1):
-        print("z"+str(p), end=' ')
-        print(solver.water+str(p), end=' ')
-        print("q"+str(p), end=' ')
-    print()
+        print("z"+str(p), end=' ', file=file)
+        print(solver.water+str(p), end=' ', file=file)
+        print("q"+str(p), end=' ', file=file)
+    print(file=file)
 
     for i in range(flow.elements):
-        print(mesh.C[i], end=' ')
+        print(mesh.C[i], end=' ', file=file)
         for p in range(degree+1):
-            print(flow.z[i,p], end=' ')
-            print(flow.water[i,p], end=' ')
-            print(flow.q[i,p], end=' ')
-        print()
+            print(flow.z[i,p], end=' ', file=file)
+            print(flow.water[i,p], end=' ', file=file)
+            print(flow.q[i,p], end=' ', file=file)
+        print(file=file)
 
 if __name__ == '__main__':
     main()
