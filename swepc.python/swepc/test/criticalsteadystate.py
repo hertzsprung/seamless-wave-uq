@@ -4,6 +4,7 @@ class CriticalSteadyState:
     domain = [-50.0, 50.0]
 
     def __init__(self, mesh, solver):
+        self.mesh = mesh
         self.endTime = 500.0
         self.ic = swepc.InitialConditions(mesh.elements, degree=1)
 
@@ -17,3 +18,7 @@ class CriticalSteadyState:
         self.bc = swepc.BoundaryConditions()
         self.bc.upstream_q = [1.65, 0.0]
         self.bc.downstream_water = [1.5, 0.0]
+
+    def randomTopographyGenerator(self):
+        return swepc.test.RandomSmoothBump(self.mesh, a_mean=0.6, a_stddev=0.3,
+            halfWidth=10.0, a_min=0.0, a_max=1.4)

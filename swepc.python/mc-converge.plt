@@ -1,11 +1,15 @@
-set style data points
+set style data lines
 
-set logscale
+set logscale x
 
-set yrange [*:1e-2]
+set multiplot layout 1,2
+set ytics nomirror
+set y2tics
 
-f(x) = a/sqrt(x)
-a=1e-3
-#fit f(x) 'mc-converge.dat' using 1:2 via a
+plot 'mc-converge.dat' using 1:2, 'mc-converge.dat' using 1:3 axes x1y2
 
-plot 'mc-converge.dat' using 1:2, 'mc-converge.dat' using 1:3, 1e-2/x
+set logscale y
+unset y2tics
+set ytics mirror
+
+plot 'mc-converge.dat' using 1:4, 5e-2/sqrt(x)

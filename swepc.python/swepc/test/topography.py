@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 
 class Bump:
     def __init__(self, a_mean, a_stddev, halfWidth):
@@ -30,3 +31,19 @@ class TwoBumps:
     def z1(self, x):
         return self.bump.z1(x)
 
+class RandomSmoothBump:
+    def __init__(self, mesh, a_mean, a_stddev, halfWidth, a_min, a_max):
+        self.C = mesh.C
+        self.a_mean = a_mean
+        self.a_stddev = a_stddev
+        self.halfWidth = halfWidth
+        self.a_min = a_min
+        self.a_max = a_max
+
+    def sample(self):
+        a = np.random.normal(self.a_mean, self.a_stddev)
+        while a < self.a_min or a > self.a_max:
+            print("# rejecting a =", a, file=sys.stderr)
+            a = np.random.normal(self.a_mean, self.a_stddev)
+        bump = Bump(a, 0.0, self.halfWidth)
+        return [bump.z0(x) for x in self.C]

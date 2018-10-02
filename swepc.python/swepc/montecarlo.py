@@ -1,32 +1,38 @@
 import swepc
 import numpy as np
 import collections
+import sys
 
 class MonteCarlo:
-    def __init__(self, g, sourceTerm, deterministicFlux, flowValueClass):
-        self.flowValueClass = flowValueClass
+    def __init__(self, g, solver):
+        self.flowValueClass = solver.flowValueClass
         self.basis = swepc.GaussianHermiteBasis(degree=0)
-        riemannSolver = swepc.Roe(deterministicFlux, g)
+        riemannSolver = swepc.Roe(solver.deterministicFlux, g)
         riemannEnsemble = swepc.RiemannEnsemble(self.basis, riemannSolver,
                 quadraturePoints=1)
-        flux = swepc.StochasticFlux(self.basis, riemannEnsemble, sourceTerm)
-        self.deterministic = swepc.Simulation(g, flux, sourceTerm)
+        flux = swepc.StochasticFlux(self.basis, riemannEnsemble,
+                solver.sourceTerm)
+        self.deterministic = swepc.Simulation(g, flux, solver.sourceTerm)
 
     def simulate(self, initialConditions, boundaryConditions,
             topographyGenerator, dx, dt, endTime, iterations,
-            convergenceSampleIndex):
+            sampleIndex):
         flows = MonteCarloFlows(initialConditions)
-        oldSampleStats = np.array([0.0, 0.0])
 
         for i in range(iterations):
             flow = self.__randomisedFlow(initialConditions, boundaryConditions,
                     topographyGenerator)
             flows.append(self.__simulateDeterministic(flow, dx, dt, endTime))
             stats = MonteCarloFlowStatistics(flows)
-            sampleStats = stats.water[convergenceSampleIndex,:]
-            sampleStatsDiff = np.abs(sampleStats - oldSampleStats)
-            print(len(flows), sampleStatsDiff[0], sampleStatsDiff[1])
-            oldSampleStats = sampleStats
+            sampleStats = stats.water[sampleIndex,:]
+
+            if len(flows) == 1:
+                print(len(flows), sampleStats[0], 'None', file=sys.stderr)
+            else:
+                CVmeanStar = np.sqrt(sampleStats[1]**2/len(flows)) / sampleStats[0]
+                print(len(flows), sampleStats[0], sampleStats[1], CVmeanStar, file=sys.stderr)
+
+        return stats
 
     def __randomisedFlow(self, initialConditions, boundaryConditions,
             topographyGenerator):
@@ -72,6 +78,7 @@ class MonteCarloFlows(collections.Sequence):
 
 class MonteCarloFlowStatistics:
     def __init__(self, flows):
+        self.elements = flows.elements
         self.water = np.zeros((flows.elements, 2))
         self.q = np.zeros((flows.elements, 2))
         self.z = np.zeros((flows.elements, 2))
