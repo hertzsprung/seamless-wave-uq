@@ -88,6 +88,9 @@ class FlowCoeffs:
         self.basis = basis
         self.flowValueClass = flowValueClass
 
+    def deterministic(self):
+        return self.flowValueClass(self.water[0], self.q[0], self.z[0])
+
     def __call__(self, xi):
         return self.flowValueClass(
                 self.basis(xi, self.water),

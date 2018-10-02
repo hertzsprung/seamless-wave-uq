@@ -7,7 +7,7 @@ from .flowinfo import FlowInfoEta, FlowInfoH
 from .mesh import Mesh
 from .montecarlo import MonteCarlo, MonteCarloFlowStatistics
 from .pdf import PDF
-from .riemannensemble import RiemannEnsemble
+from .riemannensemble import RiemannEnsemble, DeterministicRiemannEnsemble
 from .roe import Roe
 from .simulation import Simulation
 from .solver import CentredDifferenceEtaSolver, WellBalancedEtaSolver, WellBalancedHSolver

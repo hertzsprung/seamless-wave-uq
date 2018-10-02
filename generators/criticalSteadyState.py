@@ -29,7 +29,8 @@ class CriticalSteadyState:
             'criticalSteadyState',
             output=os.path.join('uq/criticalSteadyState'),
             plot=os.path.join('src/uq/criticalSteadyState.plt'),
-            data=self.wellBalancedEta.outputs())
+            data=self.wellBalancedEta.outputs() +
+                 self.monteCarlo.outputs())
 
         self.figure = PDFLaTeXFigure(
             'fig-criticalSteadyState',

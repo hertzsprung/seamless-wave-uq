@@ -8,8 +8,7 @@ class MonteCarlo:
         self.flowValueClass = solver.flowValueClass
         self.basis = swepc.GaussianHermiteBasis(degree=0)
         riemannSolver = swepc.Roe(solver.deterministicFlux, g)
-        riemannEnsemble = swepc.RiemannEnsemble(self.basis, riemannSolver,
-                quadraturePoints=1)
+        riemannEnsemble = swepc.DeterministicRiemannEnsemble(riemannSolver)
         flux = swepc.StochasticFlux(self.basis, riemannEnsemble,
                 solver.sourceTerm)
         self.deterministic = swepc.Simulation(g, flux, solver.sourceTerm)
