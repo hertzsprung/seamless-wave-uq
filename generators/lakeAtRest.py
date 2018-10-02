@@ -5,7 +5,7 @@ class LakeAtRest:
     def __init__(self, degree=3, elements=100, endTime=10.0, dt=0.15):
         self.centredDifferenceEta = SWEPC(
             'lakeAtRest-centredDifferenceEta',
-            output='uq/lakeAtRest-centredDifferenceEta.dat',
+            output='uq/lakeAtRest-centredDifferenceEta',
             testCase='lakeAtRest',
             solver='centredDifferenceEta',
             degree=degree,
@@ -15,7 +15,7 @@ class LakeAtRest:
 
         self.wellBalancedH = SWEPC(
             'lakeAtRest-wellBalancedH',
-            output='uq/lakeAtRest-wellBalancedH.dat',
+            output='uq/lakeAtRest-wellBalancedH',
             testCase='lakeAtRest',
             solver='wellBalancedH',
             degree=degree,
@@ -25,7 +25,7 @@ class LakeAtRest:
 
         self.wellBalancedEta = SWEPC(
             'lakeAtRest-wellBalancedEta',
-            output='uq/lakeAtRest-wellBalancedEta.dat',
+            output='uq/lakeAtRest-wellBalancedEta',
             testCase='lakeAtRest',
             solver='wellBalancedEta',
             degree=degree,

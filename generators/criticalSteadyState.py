@@ -1,24 +1,26 @@
-from ninjaopenfoam import Gnuplot, PDFLaTeXFigure, SWEPC
+from ninjaopenfoam import Gnuplot, PDFLaTeXFigure, SWEPC, SWEMonteCarlo
 import os
 
 class CriticalSteadyState:
-    def __init__(self, degree=3, elements=100, endTime=500.0, dt=0.15):
-        self.centredDifferenceEta = SWEPC(
-            'criticalSteadyState-centredDifferenceEta',
-            output='uq/criticalSteadyState-centredDifferenceEta.dat',
+    def __init__(self, degree=3, iterations=1000, sampleIndex=51, elements=100,
+            endTime=500.0, dt=0.15):
+        self.wellBalancedEta = SWEPC(
+            'criticalSteadyState-wellBalancedEta',
+            output='uq/criticalSteadyState-wellBalancedEta',
             testCase='criticalSteadyState',
-            solver='centredDifferenceEta',
+            solver='wellBalancedEta',
             degree=degree,
             elements=elements,
             endTime=endTime,
             dt=dt)
 
-        self.wellBalancedEta = SWEPC(
-            'criticalSteadyState-wellBalancedEta',
-            output='uq/criticalSteadyState-wellBalancedEta.dat',
+        self.monteCarlo = SWEMonteCarlo(
+            'criticalSteadyState-monteCarlo',
+            output='uq/criticalSteadyState-monteCarlo',
             testCase='criticalSteadyState',
             solver='wellBalancedEta',
-            degree=degree,
+            iterations=iterations,
+            sampleIndex=sampleIndex,
             elements=elements,
             endTime=endTime,
             dt=dt)
@@ -27,8 +29,7 @@ class CriticalSteadyState:
             'criticalSteadyState',
             output=os.path.join('uq/criticalSteadyState'),
             plot=os.path.join('src/uq/criticalSteadyState.plt'),
-            data=self.wellBalancedEta.outputs() + 
-                 self.centredDifferenceEta.outputs())
+            data=self.wellBalancedEta.outputs())
 
         self.figure = PDFLaTeXFigure(
             'fig-criticalSteadyState',
@@ -40,7 +41,7 @@ class CriticalSteadyState:
         return self.figure.outputs()
 
     def addTo(self, build):
-        build.add(self.centredDifferenceEta)
         build.add(self.wellBalancedEta)
+        build.add(self.monteCarlo)
         build.add(self.plot)
         build.add(self.figure)
