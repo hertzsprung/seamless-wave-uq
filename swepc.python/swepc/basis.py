@@ -27,6 +27,21 @@ class GaussianHermiteBasis:
                                 self.polynomials[k](xi)
                             for xi, w in zip(points, weights)])
 
+        self.quadNorm = np.empty((degree+1, degree+1, degree+1, degree+1))
+
+        points, weights = self.quadrature(1+4*degree)
+
+        for i in range(degree+1):
+            for j in range(degree+1):
+                for k in range(degree+1):
+                    for l in range(degree+1):
+                        self.quadNorm[i,j,k,l] = np.sum(
+                                [w*self.polynomials[i](xi)*
+                                    self.polynomials[j](xi)*
+                                    self.polynomials[k](xi)*
+                                    self.polynomials[l](xi)
+                                for xi, w in zip(points, weights)])
+
     def __call__(self, xi, coefficients):
         return hermite_e.hermeval(xi, coefficients)
 

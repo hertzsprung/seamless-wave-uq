@@ -53,7 +53,8 @@ setup(
     data_files=[],
     entry_points={
         'console_scripts': [
-            'swepc = swepc.test.__main__:main'
+            'swepc = swepc.test.__main__:main',
+            'swepdf = swepc.test.pdf:main'
         ]
     },
 )

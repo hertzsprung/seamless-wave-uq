@@ -94,15 +94,17 @@ def monteCarlo(args, testCase, solver, mesh):
     with open(os.path.join(args.mc_output_dir, "flow.dat"), 'w') as out:
         write(mesh, stats, solver, degree=1, file=out)
 
-    with open(os.path.join(args.mc_output_dir, "sample.dat"), 'w') as out:
-        print("# Sampling at x =", mesh.C[args.mc_sample_index], file=out)
+    for i in range(mesh.elements):
+        with open(os.path.join(args.mc_output_dir, "sample"+str(i)+".dat"),
+                'w') as out:
+            print("# Sampling at x =", mesh.C[i], file=out)
 
-        print("# z " + solver.water + " q", file=out)
-        for flow in flows:
-            print(flow.z[args.mc_sample_index,0], end=' ', file=out)
-            print(flow.water[args.mc_sample_index,0], end=' ', file=out)
-            print(flow.q[args.mc_sample_index,0], end=' ', file=out)
-            print(file=out)
+            print("# z " + solver.water + " q", file=out)
+            for flow in flows:
+                print(flow.z[i,0], end=' ', file=out)
+                print(flow.water[i,0], end=' ', file=out)
+                print(flow.q[i,0], end=' ', file=out)
+                print(file=out)
 
 def write(mesh, flow, solver, degree, file=sys.stdout):
     print("# x", end=' ', file=file)
