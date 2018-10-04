@@ -15,6 +15,7 @@ Input is space delimited in the format <x> <z0> <water0> <q0> <z1> <water1> <q1>
     parser.add_argument("variable", choices=['z', 'water', 'q'])
     parser.add_argument("--min", type=float, required=True)
     parser.add_argument("--max", type=float, required=True)
+    parser.add_argument("--samples", type=int, default=500)
 
     args = parser.parse_args()
 
@@ -33,7 +34,7 @@ Input is space delimited in the format <x> <z0> <water0> <q0> <z1> <water1> <q1>
     print("# sample at x =", tokens[0])
     print("# coefficients", coeffs)
 
-    u = np.linspace(args.min, args.max, 100)
+    u = np.linspace(args.min, args.max, args.samples)
     pdf = swepc.PDF(basis)(u, coeffs)
 
     for u, P in zip(u, pdf):
