@@ -61,3 +61,41 @@ class GaussianHermiteBasis:
 
     def toPolynomial(self, projection):
         return hermite_e.herme2poly(projection.coef)
+
+    def moments(self, coefficients):
+        m = np.zeros(4)
+
+        m[0] = coefficients[0]
+        mu2 = np.sum([coefficients[p]**2*self.squareNorm[p] for p in range(self.degree)])
+        m[1] = np.sqrt(np.sum([coefficients[p]**2*self.squareNorm[p] for p in range(1,self.degree)]))
+
+        tripleProduct = 0.0
+        for i in range(self.degree):
+            for j in range(self.degree):
+                for k in range(self.degree):
+                    tripleProduct += \
+                            coefficients[i]*coefficients[j]*coefficients[k]* \
+                            self.tripleNorm[i,j,k]
+
+        if m[1] < 1e-12:
+            m[2] = 0.0
+        else:
+            m[2] = m[1]**(-3)*(tripleProduct - 3*m[0]*mu2 + 2*m[0]**3)
+
+        quadProduct = 0.0
+        for i in range(self.degree):
+            for j in range(self.degree):
+                for k in range(self.degree):
+                    for l in range(self.degree):
+                        quadProduct += \
+                                coefficients[i]*coefficients[j]* \
+                                coefficients[k]*coefficients[l]* \
+                                self.quadNorm[i,j,k,l]
+
+        if m[1] < 1e-12:
+            m[3] = 0.0
+        else:
+            m[3] = m[1]**(-1)*(quadProduct - 4*m[0]*tripleProduct +
+                6*m[0]**2*mu2 - 3*m[0]**4)
+
+        return m

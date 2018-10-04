@@ -14,10 +14,10 @@ set label "(a)" at -47,1.8
 set label "Water elevation" at -47,1.3
 set label "Topography" at -47,0.7
 
-plot "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta.dat" using 1:($3-$6):($3+$6) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta.dat" using 1:3 lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
+plot "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta/statistics.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta/statistics.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta/statistics.dat" using 1:($3-$6):($3+$6) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta/statistics.dat" using 1:3 lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
 
 unset label
 set label "(b)" at -47,1.8
@@ -25,19 +25,19 @@ unset ylabel
 unset key
 set title 'Well-balanced $h$-form'
 
-plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH.dat" using 1:($2+$3-$6):($2+$3+$6) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH.dat" using 1:($2+$3) lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
+plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:($2+$3-$6):($2+$3+$6) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:($2+$3) lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
 
 set title 'Well-balanced $\eta$-form'
 unset label
 set label "(c)" at -47,1.8
 
-plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta.dat" using 1:($3-$6):($3+$6) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta.dat" using 1:3 lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
+plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta/statistics.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta/statistics.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta/statistics.dat" using 1:($3-$6):($3+$6) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta/statistics.dat" using 1:3 lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
 
 unset title
 set yrange [-1:1]
@@ -46,18 +46,18 @@ set xlabel "$x$ (\\si{\\meter})"
 unset label
 set label "(d)" at -47,0.8
 
-plot "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta.dat" using 1:($4-$7):($4+$7) with filledcurves lc rgbcolor '#a1d99b' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta.dat" using 1:4 lc rgbcolor '#238b45' lw 3
+plot "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta/statistics.dat" using 1:($4-$7):($4+$7) with filledcurves lc rgbcolor '#a1d99b' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceEta/statistics.dat" using 1:4 lc rgbcolor '#238b45' lw 3
 
 unset ylabel
 unset label
 set label "(e)" at -47,0.8
 
-plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH.dat" using 1:($4-$7):($4+$7) with filledcurves lc rgbcolor '#a1d99b' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH.dat" using 1:4 lc rgbcolor '#238b45' lw 3
+plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:($4-$7):($4+$7) with filledcurves lc rgbcolor '#a1d99b' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:4 lc rgbcolor '#238b45' lw 3
 
 unset label
 set label "(f)" at -47,0.8
 
-plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta.dat" using 1:($4-$7):($4+$7) with filledcurves lc rgbcolor '#a1d99b' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta.dat" using 1:4 lc rgbcolor '#238b45' lw 3
+plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta/statistics.dat" using 1:($4-$7):($4+$7) with filledcurves lc rgbcolor '#a1d99b' notitle, \
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedEta/statistics.dat" using 1:4 lc rgbcolor '#238b45' lw 3

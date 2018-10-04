@@ -1,5 +1,6 @@
 import swepc
 import numpy as np
+import scipy.stats as sps
 import collections
 import sys
 
@@ -80,13 +81,23 @@ class MonteCarloFlows(collections.Sequence):
 class MonteCarloFlowStatistics:
     def __init__(self, flows):
         self.elements = flows.elements
-        self.water = np.zeros((flows.elements, 2))
-        self.q = np.zeros((flows.elements, 2))
-        self.z = np.zeros((flows.elements, 2))
+        self.moments = 4
+        self.water = np.zeros((flows.elements, self.moments))
+        self.q = np.zeros((flows.elements, self.moments))
+        self.z = np.zeros((flows.elements, self.moments))
 
         self.water[:,0] = np.mean([flow.water[:,0] for flow in flows], axis=0)
         self.q[:,0] = np.mean([flow.q[:,0] for flow in flows], axis=0)
         self.z[:,0] = np.mean([flow.z[:,0] for flow in flows], axis=0)
+
         self.water[:,1] = np.std([flow.water[:,0] for flow in flows], axis=0)
         self.q[:,1] = np.std([flow.q[:,0] for flow in flows], axis=0)
         self.z[:,1] = np.std([flow.z[:,0] for flow in flows], axis=0)
+
+        self.water[:,2] = sps.skew([flow.water[:,0] for flow in flows], axis=0)
+        self.q[:,2] = sps.skew([flow.q[:,0] for flow in flows], axis=0)
+        self.z[:,2] = sps.skew([flow.z[:,0] for flow in flows], axis=0)
+
+        self.water[:,3] = sps.kurtosis([flow.water[:,0] for flow in flows], axis=0)
+        self.q[:,3] = sps.kurtosis([flow.q[:,0] for flow in flows], axis=0)
+        self.z[:,3] = sps.kurtosis([flow.z[:,0] for flow in flows], axis=0)

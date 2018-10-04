@@ -4,6 +4,7 @@ from .convergence import Convergence
 from .deterministicflux import DeterministicFluxEta, DeterministicFluxH
 from .flow import Flow, FlowCoeffs, FlowValueEta, FlowValueH, FlowIncrement
 from .flowinfo import FlowInfoEta, FlowInfoH
+from .flowstatistics import FlowStatistics
 from .mesh import Mesh
 from .montecarlo import MonteCarlo, MonteCarloFlowStatistics
 from .pdf import PDF

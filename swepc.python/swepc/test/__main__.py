@@ -20,7 +20,7 @@ def main():
     parser.add_argument("--monte-carlo", action="store_true")
     parser.add_argument("--mc-iterations", type=int, default=100)
     parser.add_argument("--mc-sample-index", type=int, default=51)
-    parser.add_argument("--mc-output-dir")
+    parser.add_argument("-o", "--output-dir", required=True)
     parser.add_argument("-d", "--degree", type=int, default=3,
             help="Polynomial chaos degree")
     parser.add_argument("-M", "--elements", type=int, default=100,
@@ -75,13 +75,19 @@ def stochasticGalerkin(args, testCase, solver, mesh):
 
         sim.timestep(flow, mesh.dx, dt)
 
-    write(mesh, flow, solver, basis.degree)
+    stats = swepc.FlowStatistics(flow)
+
+    with open(os.path.join(args.output_dir, "coefficients.dat"), 'w') as out:
+        write(mesh, flow, solver, basis.degree, file=out)
+
+    with open(os.path.join(args.output_dir, "statistics.dat"), 'w') as out:
+        write(mesh, stats, solver, stats.moments-1, file=out)
 
 def monteCarlo(args, testCase, solver, mesh):
     np.random.seed(0)
     sim = swepc.MonteCarlo(g, solver)
 
-    with open(os.path.join(args.mc_output_dir, "convergence.dat"), 'w') as out:
+    with open(os.path.join(args.output_dir, "convergence.dat"), 'w') as out:
         print("# Sampling at x =", mesh.C[args.mc_sample_index], file=out)
 
         flows, stats = sim.simulate(testCase.ic, testCase.bc,
@@ -91,11 +97,11 @@ def monteCarlo(args, testCase, solver, mesh):
                 sampleIndex=args.mc_sample_index,
                 file=out)
 
-    with open(os.path.join(args.mc_output_dir, "flow.dat"), 'w') as out:
-        write(mesh, stats, solver, degree=1, file=out)
+    with open(os.path.join(args.output_dir, "statistics.dat"), 'w') as out:
+        write(mesh, stats, solver, degree=3, file=out)
 
     for i in range(mesh.elements):
-        with open(os.path.join(args.mc_output_dir, "sample"+str(i)+".dat"),
+        with open(os.path.join(args.output_dir, "sample"+str(i)+".dat"),
                 'w') as out:
             print("# Sampling at x =", mesh.C[i], file=out)
 
