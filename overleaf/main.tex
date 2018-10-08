@@ -1,0 +1,85 @@
+\documentclass[Journal,letterpaper,InsideFigs,SingleSpace,NoLineNumbers]{ascelike-new}
+\usepackage[colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue,draft=false]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage[figurename=Fig.,labelfont=bf,labelsep=period]{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{doi}
+\usepackage{mathtools}
+\usepackage{newtxtext,newtxmath}
+\usepackage[round]{natbib}
+\usepackage{siunitx}
+\usepackage{todonotes}
+
+\NameTag{Shaw, \today}
+
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\sech}{sech}
+\newcommand{\amean}{\overline{a}}
+\newcommand{\zmean}{\overline{z}}
+\newcommand{\dee}{\mathrm{d}}
+\newcommand{\diff}{\:\dee}
+\newcommand{\Ensemble}[1]{\left\langle #1 \right\rangle}
+\newcommand{\flow}{\vect{U}}
+\newcommand{\flux}{\vect{F}}
+\newcommand{\Mag}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\pcbasis}{\Phi}
+\newcommand{\pcbasisvect}{\bm{\Phi}}
+\newcommand{\randomroot}{\hat{\xi}}
+\newcommand{\riemannflux}{\vect{\tilde{F}}}
+\newcommand{\source}{\vect{S}}
+\newcommand{\T}{\intercal}
+\newcommand{\vect}{\mathbf}
+\newcommand{\zstar}{z^\star}
+
+\author[1]{James Shaw}
+\author[2]{Georges Kesserwani}
+
+\affil[1]{Research Associate, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: js102@zepler.net}
+\affil[2]{Research Fellow Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K.}
+
+\title{Well-balanced stochastic Galerkin shallow water flows over uncertain topography}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\section{Introduction}
+
+\begin{itemize}
+    \item Uncertainty in bed elevation has a strong effect on solutions of the shallow water equations \citep{bates2014,fisher-tate2006}
+    \item Review more traditional Monte Carlo approaches including an uncertain bed?
+    \item GLUE is popular, see references in \citep{teng2017,stephens-bates2015}
+    \item \citet{mishra2012} use some clever formulation of an uncertain bed in their multi-level Monte Carlo method for SWE
+    \item Polynomial chaos methods are popular because they converge faster than traditional Monte Carlo but, as far as the authors are aware, the only applications of polynomial chaos methods to stochastic shallow water modelling are \citet{ge2008} and \citet{ge2009}.
+\end{itemize}
+Polynomial chaos methods can be classified as intrusive (stochastic Galerkin) or non-intrusive (stochastic collocation).
+Contrast pros and cons of intrusive and non-intrusive methods:
+\begin{itemize}
+    \item Non-intrusive methods can be used without modifying existing deterministic models
+    \item It is sometimes difficult or impossible to formulate a stochastic Galerkin model \citep{xiu2009}.  For example, it is not clear how to obtain a stochastic Galerkin model from a deterministic formulation that includes discontinuous operators such as min or max.
+    \item \citet{jin2016} says well-balanced stochastic Galerkin could be superior to well-balanced stochastic collocation, need to understand this properly
+\end{itemize}
+Most stochastic Galerkin and stochastic collocation methods assume that uncertain variables are statistically independent:
+\begin{itemize}
+    \item The deterministic shallow water equations expressed in terms of water height $h$ or water elevation $\eta$ are mathematically equivalent \citep{lu-xie2016}.
+    This is not true for the equivalent stochastic formulations because $h$ and $z$ are statistically dependent while $\eta$ and $z$ are not.
+    \item Say why well-balancing is needed in deterministic shallow water models, cite the main formulations
+    \item \citet{jin2016} formulated a well-balanced stochastic Galerkin finite volume models of inviscid Burgers equation but the formulation was not extended to SWEs
+\end{itemize}
+
+\input{method}
+\input{experiments}
+
+\bibliography{references}
+
+\end{document}

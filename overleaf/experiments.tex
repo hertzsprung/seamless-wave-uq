@@ -1,0 +1,52 @@
+\section{Numerical experiments}
+Two numerical experiments are performed to assess the stochastic Galerkin shallow water models.
+The first test simulates a lake at rest over a bed with a region of uncertainty.
+This test assesses the ability of the stochastic Galerkin models to preserve the C-property.
+The second test simulates flow over a hump of uncertain amplitude.
+This test is designed to challenge the stochastic Galerkin models by generating a nonlinear response such that the steady-state solution may be subcritical or transcritical depending on the hump amplitude.
+
+For both tests, the one-dimensional domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements such that $\Delta x = \SI{0.5}{\meter}$.
+Both tests include a topographic hump centred at $x = \SI{0}{\meter}$.
+Following a similar approach to \citet{ge2008}, a bed elevation $z$ with a Gaussian probability distribution is defined as
+\begin{align}
+z(x, a) = a \sech^2 \left( \frac{\pi x}{\lambda} \right) \label{eqn:bed}
+\end{align}
+where the uncertain hump amplitude $a$ has a mean value $\amean = \SI{0.6}{\meter}$ and standard deviation $\sigma_a = \SI{0.3}{\meter}$, and half-width $\lambda = \SI{10}{\meter}$.
+Before calculating the bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$, the uncertain bed elevation profile given by equation~\eqref{eqn:bed} must be expressed in terms of mean bed elevation $\zmean(x)$ and bed elevation variance $\sigma_z^2(x)$.
+The mean bed elevation is simply $\zmean(x) = z(x, \amean)$.
+The bed elevation variance $\sigma^2_z(x) = \E[z^2(x)] - \E^2[z(x)]$, which can be approximated by a Taylor series expansion about $\amean$,
+\begin{align}
+    \sigma_z^2(x) &\approx
+    z^2 +
+    \left[
+    \left(\frac{\partial z}{\partial a}\right)^2
+    + z \frac{\partial^2 z}{\partial a^2}
+    \right]
+    \sigma^2_a
+    -
+    \left[
+    z + \frac{\partial^2 z}{\partial a^2} \frac{\sigma_a^2}{2}
+    \right]^2
+%
+\intertext{where $z = z(x, \amean)$.  Since $\sigma_a$ is small then high order terms can be neglected and the bed elevation variance becomes}
+%
+    \sigma_z^2(x) &\approx \left( \frac{\partial z(x, \amean)}{\partial a} \sigma_a \right)^2 \label{eqn:z-variance-continuous}
+\end{align}
+The bump has a Gaussian probability distribution and so high order moments $\mu_3[z(x)], \ldots$ are zero.
+Hence, the bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$ are
+\begin{align}
+    z_{i,p} = \begin{cases}
+    \zmean(x_i) & \text{if $p=0$} \\
+    \sigma_z(x_i) & \text{if $p=1$} \\
+    0 & \text{otherwise}
+    \end{cases}
+\end{align}
+where $x_i$ is the centre of element $i$ and $z_{i,1}$ is calculated using equations~\eqref{eqn:variance} and \eqref{eqn:z-variance-continuous} with $\mu_2[z(x, \xi)] = \sigma_z^2(x)$.
+All polynomial chaos expansions are chosen to have a maximum degree $P = 3$.
+
+The timestep $\Delta t = \SI{0.15}{\second}$ resulting in a maximum Courant number of about $0.8$.  By choosing a fixed timestep, simulations of a given test complete in the same number of timesteps irrespective of the model formulation, and error accumulation due to timestepping errors will be the same across all model formulations.
+
+\todo[inline]{Make data and code available on Zenodo.}
+
+\input{lakeAtRest}
+\input{criticalSteadyState}
