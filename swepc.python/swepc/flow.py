@@ -74,7 +74,19 @@ class Flow:
         return left, right
 
     def topographyAtFacesOfElement(self, i):
-        return self.zFace[i], self.zFace[i+1]
+        if i == 0:
+            left = self.z[i]
+            right = self.topographyAtFace(i+1)
+        elif i == self.elements-1:
+            left = self.topographyAtFace(i)
+            right = self.z[i]
+        else:
+            left = self.topographyAtFace(i)
+            right = self.topographyAtFace(i+1)
+        return left, right
+
+    def topographyAtFace(self, i):
+        return 0.5*(self.z[i-1] + self.z[i])
 
     def update(self, i, l, increment):
         self.water[i,l] = self.water[i,l] + increment[0]

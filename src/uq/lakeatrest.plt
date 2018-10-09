@@ -9,7 +9,7 @@ set yrange [0:2]
 set ylabel "Elevation (\\si{\\meter})"
 
 unset key
-set title 'Centred difference $\eta$-form'
+set title 'Centred difference'
 set label "(a)" at -47,1.8
 set label "Water elevation" at -47,1.3
 set label "Topography" at -47,0.7

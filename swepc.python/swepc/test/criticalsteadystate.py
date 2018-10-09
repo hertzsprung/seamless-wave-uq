@@ -14,6 +14,8 @@ class CriticalSteadyState:
 
         self.ic.water[:,0] = [solver.elevationToWater(1.5, z)
                 for z in self.ic.z[:,0]]
+        self.ic.water[:,1] = [solver.elevationToWater(0.0, z)
+                for z in self.ic.z[:,1]]
 
         self.bc = swepc.BoundaryConditions()
         self.bc.upstream_q = [1.65, 0.0]
