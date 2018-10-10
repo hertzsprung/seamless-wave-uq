@@ -52,14 +52,18 @@ class WellBalancedH:
         q = 0.0
 
         for p in range(flow.basis.degree+1):
-            for p_prime in range(flow.basis.degree+1):
-                q = q + ((0.5*coeffs.water[p] + 0.25*coeffs.z[p]) * \
-                        (zPlus1[p_prime] - zMinus1[p_prime]) - \
-                        0.125*(zPlus1[p]*zPlus1[p_prime] - 
-                                zMinus1[p]*zMinus1[p_prime])) * \
-                        flow.basis.tripleNorm[p,p_prime,l]
+            for s in range(flow.basis.degree+1):
+                q = q + self.__h_bar(coeffs, zPlus1, zMinus1, p) * \
+                        self.__delta_z(zPlus1, zMinus1, s) * \
+                        flow.basis.tripleNorm[p,s,l]
 
         return swepc.FlowIncrement.array(0.0, -g*q)
+
+    def __h_bar(self, coeffs, zPlus1, zMinus1, p):
+        return coeffs.water[p] - 0.25*(zMinus1[p] - 2.0*coeffs.z[p] + zPlus1[p])
+
+    def __delta_z(self, zPlus1, zMinus1, p):
+        return 0.5*(zPlus1[p] - zMinus1[p])
 
     def balancedRiemannInputs(self, flow, i):
         left, right = flow.atFace(i)
