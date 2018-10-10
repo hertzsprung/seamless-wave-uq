@@ -16,51 +16,24 @@
 \newcommand{\riemannflux}{\widetilde{\vect{F}}}
 \newcommand{\source}{\vect{S}}
 \newcommand{\vect}{\mathbf}
+\newcommand{\zstar}{z^\star}
 
 \begin{document}
 For a lake-at-rest $u=0$ and $h + z = \text{constant}$.  We wish to show that the spatial operator is zero so that the lake remains at rest.
 For the deterministic FV1 model with the surface gradient method, the spatial operator $\vect{L}$ is
 \begin{align}
-\vect{L} = \frac{1}{\Delta x} \left( \riemannflux_{i+1/2} - \riemannflux_{i-1/2} - \Delta x \source_i \right) \\
+\vect{L} = \frac{1}{\Delta x} \left( \riemannflux_{i+1/2} - \riemannflux_{i-1/2} \right) - \source_i\\
 \end{align}
-Since $q = hu = 0 $ then the mass conservation equation vanishes and the spatial operator for the momentum equation is
+The water elevation $\eta$ is constant and so $h_{i+1/2}^- = \eta - \zstar_{i+1/2}$, $h_{i+1/2}^+ = \eta - \zstar_{i+1/2}$, hence $h_{i+1/2}^- = h_{i+1/2}^+ = h_{i+1/2}$.
+Since $q = hu = 0 $ then the mass conservation equation vanishes and the steady-state momentum equation is
 \begin{align}
-	L &= \frac{1}{\Delta x} \left( \widetilde{F}_{i+1/2} - \widetilde{F}_{i-1/2} + g \bar{h} \Delta z \right) \\
-	\widetilde{F}_{i-1/2} &= \frac{1}{2} \left( \frac{g}{2} \left(h_{i-1/2}^-\right)^2
-	+ \frac{g}{2} \left(h_{i-1/2}^+ \right)^2
-	- \tilde{\alpha}^1_{i-1/2} \left( \tilde{a}^1_{i-1/2} \right)^2
-	- \tilde{\alpha}^2_{i-1/2} \left( \tilde{a}^2_{i-1/2} \right)^2
-	\right) \\
-	%
-	\widetilde{F}_{i-1/2} &= \frac{1}{2} \left( \frac{g}{2} \left(h_{i-1/2}^-\right)^2
-	+ \frac{g}{2} \left(h_{i-1/2}^+ \right)^2
-	- \underbrace{\frac{h_{i-1/2}^- + h_{i-1/2}^+}{2}}_{\tilde{\alpha}_{i-1/2}^1} 
-	\underbrace{g \frac{h_{i-1/2}^- + h_{i-1/2}^+}{2}}_{\left( \tilde{a}_{i-1/2}^1 \right)^2}
-	- \underbrace{\frac{h_{i-1/2}^- + h_{i-1/2}^+}{2}}_{\tilde{\alpha}_{i-1/2}^2} 
-	\underbrace{g \frac{h_{i-1/2}^- + h_{i-1/2}^+}{2}}_{\left( \tilde{a}_{i-1/2}^2 \right)^2}
-	\right) \\
-	%
-	\widetilde{F}_{i-1/2} &= \frac{g}{4} \left( \left(h_{i-1/2}^-\right)^2
-	+ \left(h_{i-1/2}^+ \right)^2
-	- \left(h_{i-1/2}^- + h_{i-1/2}^+\right)^2
-	\right) \\
-	%
-	\widetilde{F}_{i-1/2} &= -\frac{g}{2} h_{i-1/2}^- h_{i-1/2}^+
-\end{align}
-\begin{align}
-	\widetilde{F}_{i+1/2} - \widetilde{F}_{i-1/2} &= \frac{g}{2}
-	\left(
-	h_{i-1/2}^- h_{i-1/2}^+ - h_{i+1/2}^- h_{i+1/2}^+
-	\right) \\
-	\Delta x \source_i &= -\frac{g}{2} \left(h_{i-1/2}^+ + h_{i+1/2}^-\right)
-	\left( z_{i+1/2}^\pm - z_{i-1/2}^\pm \right) \\
-	%
-	L &= \frac{g}{2 \Delta x} \left[ 
-	h_{i-1/2}^- h_{i-1/2}^+ - h_{i+1/2}^- h_{i+1/2}^+
-	+
-	\left(h_{i-1/2}^+ + h_{i+1/2}^-\right)
-	\left( z_{i+1/2}^\pm - z_{i-1/2}^\pm \right) 
-	\right]
+	\frac{\partial F_\mathrm{momentum}}{\partial x} - S_\mathrm{momentum} = 0 \\
+	S_\mathrm{momentum} = - \frac{g}{\Delta x} \bar{h}_i \Delta z_i \\
+	\frac{\partial F_\mathrm{momentum}}{\partial x} &\approx \frac{g}{2\Delta x} \left( h_{i+1/2}^2 - h_{i-1/2}^2 \right) \\
+	&= \frac{g}{2 \Delta x} \left( h_{i+1/2} + h_{i-1/2} \right) \left( h_{i+1/2} - h_{i-1/2} \right) \\
+	&= \frac{g}{\Delta x} \frac{h_{i+1/2} + h_{i-1/2}}{2} \left( \eta - \zstar_{i+1/2} - \eta + \zstar_{i-1/2} \right) \\
+	&= - \frac{g}{\Delta x} \bar{h}_i \left( \zstar_{i+1/2} - \zstar_{i-1/2} \right) \\
+	&= - \frac{g}{\Delta x} \bar{h}_i \Delta z_i
 \end{align}
 
 \end{document}
