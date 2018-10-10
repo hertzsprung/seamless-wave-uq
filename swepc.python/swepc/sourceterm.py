@@ -34,6 +34,8 @@ class WellBalancedEta:
         return swepc.FlowIncrement.array(0.0, -g*q)
 
     def balancedRiemannInputs(self, flow, i):
+        print("Need to make sure that q is modified to account for zStar topography")
+        abort
         left, right = flow.atFace(i)
 
         left.z = flow.zFace[i]
@@ -60,13 +62,31 @@ class WellBalancedH:
         return swepc.FlowIncrement.array(0.0, -g*q)
 
     def balancedRiemannInputs(self, flow, i):
-        preserveElevation = lambda U, z: \
-                swepc.FlowCoeffs(U.water + U.z - z, U.q, U.z, U.basis,
-                        swepc.FlowValueH)
-
         left, right = flow.atFace(i)
 
-        left = preserveElevation(left, flow.zFace[i])
-        right = preserveElevation(right, flow.zFace[i])
+        left = BalancedFlowCoeffsH(left, flow.zFace[i])
+        right = BalancedFlowCoeffsH(right, flow.zFace[i])
 
         return left, right
+
+class BalancedFlowCoeffsH:
+    def __init__(self, unbalancedFlowCoeffs, zStar):
+        self.water = unbalancedFlowCoeffs.water
+        self.q = unbalancedFlowCoeffs.q
+        self.z = unbalancedFlowCoeffs.z
+        self.basis = unbalancedFlowCoeffs.basis
+        self.flowValueClass = unbalancedFlowCoeffs.flowValueClass
+        self.zStar = zStar
+
+    def deterministic(self):
+        return self(xi=0)
+
+    def __call__(self, xi):
+        balanced_h = self.water + self.z - self.zStar
+        unbalanced_u = self.basis(xi, self.q) / self.basis(xi, self.water)
+        balanced_q = unbalanced_u * self.basis(xi, balanced_h)
+
+        return self.flowValueClass(
+                self.basis(xi, balanced_h),
+                balanced_q,
+                self.basis(xi, self.z))
