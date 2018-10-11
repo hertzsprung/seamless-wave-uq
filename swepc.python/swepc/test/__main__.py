@@ -84,7 +84,7 @@ def stochasticGalerkin(args, testCase, solver, mesh):
         write(mesh, stats, solver, stats.moments-1, file=out)
 
     with open(os.path.join(args.output_dir, "derived-statistics.dat"), 'w') as out:
-        solver.writeDerivedStatistics(mesh, flow, stats, file=out)
+        solver.writeDerivedStochasticGalerkinStatistics(mesh, flow, file=out)
 
 def monteCarlo(args, testCase, solver, mesh):
     np.random.seed(0)
@@ -102,6 +102,9 @@ def monteCarlo(args, testCase, solver, mesh):
 
     with open(os.path.join(args.output_dir, "statistics.dat"), 'w') as out:
         write(mesh, stats, solver, degree=3, file=out)
+
+    with open(os.path.join(args.output_dir, "derived-statistics.dat"), 'w') as out:
+        solver.writeDerivedMonteCarloStatistics(mesh, flows, stats, file=out)
 
     for i in range(mesh.elements):
         with open(os.path.join(args.output_dir, "sample"+str(i)+".dat"),

@@ -12,7 +12,10 @@ class WellBalancedEtaSolver:
     def elevationToWater(self, elevation, z):
         return elevation
 
-    def writeDerivedStatistics(self, mesh, flow, stats, file):
+    def writeDerivedStochasticGalerkinStatistics(self, mesh, flow, file):
+        pass
+    
+    def writeDerivedMonteCarloStatistics(self, mesh, flows, stats, file):
         pass
 
 class HSolver:
@@ -25,7 +28,7 @@ class HSolver:
     def elevationToWater(self, elevation, z):
         return elevation - z
 
-    def writeDerivedStatistics(self, mesh, flow, stats, file):
+    def writeDerivedStochasticGalerkinStatistics(self, mesh, flow, file):
         print("# x mean_eta sigma_eta", file=file)
 
         for i in range(flow.elements):
@@ -37,6 +40,15 @@ class HSolver:
     def __stddev_eta(self, z,h , basis):
         return np.sqrt(np.sum([(h[p] + z[p])**2*basis.squareNorm[p]
             for p in range(1, basis.degree+1)]))
+    
+    def writeDerivedMonteCarloStatistics(self, mesh, flows, stats, file):
+        stddev_eta = np.std([flow.z[:,0] + flow.water[:,0] for flow in flows], axis=0)
+
+        print("# x mean_eta sigma_eta", file=file)
+        for i in range(flows.elements):
+            print(mesh.C[i], end=' ', file=file)
+            print(stats.z[i,0] + stats.water[i,0], end=' ', file=file)
+            print(stddev_eta[i], file=file)
 
 class WellBalancedHSolver(HSolver):
     def __init__(self, g):
