@@ -16,7 +16,7 @@ def main():
 
     parser.add_argument("testCase", choices=["lakeAtRest", "criticalSteadyState"])
     parser.add_argument("solver", choices=["wellBalancedH",
-        "wellBalancedEta", "centredDifferenceEta"])
+        "wellBalancedEta", "centredDifferenceH"])
     parser.add_argument("--monte-carlo", action="store_true")
     parser.add_argument("--mc-iterations", type=int, default=100)
     parser.add_argument("--mc-sample-index", type=int, default=51)
@@ -42,8 +42,8 @@ def main():
         solver = swepc.WellBalancedEtaSolver(g)
     if args.solver == "wellBalancedH":
         solver = swepc.WellBalancedHSolver(g)
-    elif args.solver == "centredDifferenceEta":
-        solver = swepc.CentredDifferenceEtaSolver(g)
+    elif args.solver == "centredDifferenceH":
+        solver = swepc.CentredDifferenceHSolver(g)
 
     testCase = testCaseClass(mesh, solver)
 

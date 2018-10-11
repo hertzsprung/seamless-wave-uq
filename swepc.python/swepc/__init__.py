@@ -11,7 +11,7 @@ from .pdf import PDF
 from .riemannensemble import RiemannEnsemble, DeterministicRiemannEnsemble
 from .roe import Roe
 from .simulation import Simulation
-from .solver import CentredDifferenceEtaSolver, WellBalancedEtaSolver, WellBalancedHSolver
+from .solver import CentredDifferenceHSolver, WellBalancedEtaSolver, WellBalancedHSolver
 from .sourceterm import CentredDifference, WellBalancedEta, WellBalancedH
 from .stddev import Stddev
 from .stochasticflux import StochasticFlux
