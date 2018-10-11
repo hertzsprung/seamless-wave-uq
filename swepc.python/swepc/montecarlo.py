@@ -40,16 +40,17 @@ class MonteCarlo:
             topographyGenerator):
         ic = swepc.InitialConditions(initialConditions.elements,
                 degree=1)
-        for i in range(ic.elements):
-            ic.water[i,0] = max(1e-4, np.random.normal(
-                    initialConditions.water[i,0],
-                    initialConditions.water[i,1]))
 
+        ic.z[:,0] = topographyGenerator.sample()
+
+        # assume the deterministic model is h-form
+        # assume eta = 1.5
+        ic.water[:,0] = 1.5 - ic.z[:,0]
+
+        for i in range(ic.elements):
             ic.q[i,0] = np.random.normal(
                     initialConditions.q[i,0],
                     initialConditions.q[i,1])
-
-        ic.z[:,0] = topographyGenerator.sample()
 
         return swepc.Flow(self.basis, ic, boundaryConditions,
                 self.flowValueClass)

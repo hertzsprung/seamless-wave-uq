@@ -2,22 +2,22 @@ from ninjaopenfoam import Gnuplot, PDFLaTeXFigure, SWEPC, SWEPDF, SWEMonteCarlo
 import os
 
 class CriticalSteadyState:
-    def __init__(self, degree=3, iterations=1000, sampleIndex=51, elements=100,
+    def __init__(self, degree=3, iterations=50, sampleIndex=51, elements=100,
             endTime=500.0, dt=0.15):
-        self.wellBalancedEta = SWEPC(
-            'criticalSteadyState-wellBalancedEta',
-            output='uq/criticalSteadyState-wellBalancedEta',
+        self.wellBalancedH = SWEPC(
+            'criticalSteadyState-wellBalancedH',
+            output='uq/criticalSteadyState-wellBalancedH',
             testCase='criticalSteadyState',
-            solver='wellBalancedEta',
+            solver='wellBalancedH',
             degree=degree,
             elements=elements,
             endTime=endTime,
             dt=dt)
 
         self.pdf12 = SWEPDF(
-            'criticalSteadyState-wellBalancedEta-pdf12',
-            output='uq/criticalSteadyState-wellBalancedEta/pdf12',
-            coefficientsFile='uq/criticalSteadyState-wellBalancedEta/coefficients.dat',
+            'criticalSteadyState-wellBalancedH-pdf12',
+            output='uq/criticalSteadyState-wellBalancedH/pdf12',
+            coefficientsFile='uq/criticalSteadyState-wellBalancedH/coefficients.dat',
             variable='water',
             sampleIndex=12,
             min=0.0,
@@ -25,9 +25,9 @@ class CriticalSteadyState:
             samples=500)
 
         self.pdf51 = SWEPDF(
-            'criticalSteadyState-wellBalancedEta-pdf51',
-            output='uq/criticalSteadyState-wellBalancedEta/pdf51',
-            coefficientsFile='uq/criticalSteadyState-wellBalancedEta/coefficients.dat',
+            'criticalSteadyState-wellBalancedH-pdf51',
+            output='uq/criticalSteadyState-wellBalancedH/pdf51',
+            coefficientsFile='uq/criticalSteadyState-wellBalancedH/coefficients.dat',
             variable='water',
             sampleIndex=51,
             min=0.0,
@@ -38,7 +38,7 @@ class CriticalSteadyState:
             'criticalSteadyState-monteCarlo',
             output='uq/criticalSteadyState-monteCarlo',
             testCase='criticalSteadyState',
-            solver='wellBalancedEta',
+            solver='wellBalancedH',
             iterations=iterations,
             sampleIndex=sampleIndex,
             elements=elements,
@@ -49,7 +49,7 @@ class CriticalSteadyState:
             'criticalSteadyState-flow',
             output=os.path.join('uq/criticalSteadyState-flow'),
             plot=os.path.join('src/uq/criticalSteadyState-flow.plt'),
-            data=self.wellBalancedEta.outputs() +
+            data=self.wellBalancedH.outputs() +
                  self.monteCarlo.outputs())
 
         self.flowFigure = PDFLaTeXFigure(
@@ -76,7 +76,7 @@ class CriticalSteadyState:
         return self.figure.outputs()
 
     def addTo(self, build):
-        build.add(self.wellBalancedEta)
+        build.add(self.wellBalancedH)
         build.add(self.pdf12)
         build.add(self.pdf51)
         build.add(self.monteCarlo)
