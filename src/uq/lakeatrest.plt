@@ -31,11 +31,11 @@ plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 
      "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/derived-statistics.dat" using 1:2 lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
 
 unset title
-set yrange [-1:1]
+set yrange [-0.6:0.6]
 set ylabel "Discharge (\\si{\\meter\\squared\\per\\second})" offset 1.5,0
 set xlabel "$x$ (\\si{\\meter})"
 unset label
-set label "(c)" at -46,0.8
+set label "(c)" at -46,0.49
 
 plot "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceH/statistics.dat" using 1:($4-$7):($4+$7) with filledcurves lc rgbcolor '#a1d99b' notitle, \
      "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceH/statistics.dat" using 1:4 lc rgbcolor '#238b45' lw 3
