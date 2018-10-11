@@ -66,8 +66,8 @@ class GaussianHermiteBasis:
         m = np.zeros(4)
 
         m[0] = coefficients[0]
-        mu2 = np.sum([coefficients[p]**2*self.squareNorm[p] for p in range(self.degree)])
-        m[1] = np.sqrt(np.sum([coefficients[p]**2*self.squareNorm[p] for p in range(1,self.degree)]))
+        mu2 = np.sum([coefficients[p]**2*self.squareNorm[p] for p in range(self.degree+1)])
+        m[1] = np.sqrt(np.sum([coefficients[p]**2*self.squareNorm[p] for p in range(1,self.degree+1)]))
 
         tripleProduct = 0.0
         for i in range(self.degree):

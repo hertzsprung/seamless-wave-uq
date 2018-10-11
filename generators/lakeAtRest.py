@@ -2,12 +2,12 @@ from ninjaopenfoam import Gnuplot, PDFLaTeXFigure, SWEPC
 import os
 
 class LakeAtRest:
-    def __init__(self, degree=3, elements=100, endTime=10.0, dt=0.15):
-        self.centredDifferenceEta = SWEPC(
-            'lakeAtRest-centredDifferenceEta',
-            output='uq/lakeAtRest-centredDifferenceEta',
+    def __init__(self, degree=3, elements=100, endTime=100.0, dt=0.15):
+        self.centredDifferenceH = SWEPC(
+            'lakeAtRest-centredDifferenceH',
+            output='uq/lakeAtRest-centredDifferenceH',
             testCase='lakeAtRest',
-            solver='centredDifferenceEta',
+            solver='centredDifferenceH',
             degree=degree,
             elements=elements,
             endTime=endTime,
@@ -23,23 +23,12 @@ class LakeAtRest:
             endTime=endTime,
             dt=dt)
 
-        self.wellBalancedEta = SWEPC(
-            'lakeAtRest-wellBalancedEta',
-            output='uq/lakeAtRest-wellBalancedEta',
-            testCase='lakeAtRest',
-            solver='wellBalancedEta',
-            degree=degree,
-            elements=elements,
-            endTime=endTime,
-            dt=dt)
-
         self.plot = Gnuplot(
             'lakeAtRest',
             output=os.path.join('uq/lakeatrest'),
             plot=os.path.join('src/uq/lakeatrest.plt'),
-            data=self.wellBalancedEta.outputs() + 
-                 self.wellBalancedH.outputs() + 
-                 self.centredDifferenceEta.outputs())
+            data=self.wellBalancedH.outputs() + 
+                 self.centredDifferenceH.outputs())
 
         self.figure = PDFLaTeXFigure(
             'fig-lakeAtRest',
@@ -51,8 +40,7 @@ class LakeAtRest:
         return self.figure.outputs()
 
     def addTo(self, build):
-        build.add(self.centredDifferenceEta)
-        build.add(self.wellBalancedEta)
+        build.add(self.centredDifferenceH)
         build.add(self.wellBalancedH)
         build.add(self.plot)
         build.add(self.figure)
