@@ -28,6 +28,9 @@ def main():
     parser.add_argument("--end-time", type=float,
             help="Override default test case-dependent end time")
     parser.add_argument("--dt", type=float, default=0.15)
+    parser.add_argument("--topography-mean", type=float, default=0.6)
+    parser.add_argument("--topography-stddev", type=float, default=0.3)
+    parser.add_argument("--water-convergence", action="store_true")
 
     args = parser.parse_args()
 
@@ -45,7 +48,7 @@ def main():
     elif args.solver == "centredDifferenceH":
         solver = swepc.CentredDifferenceHSolver(g)
 
-    testCase = testCaseClass(mesh, solver)
+    testCase = testCaseClass(mesh, solver, args)
 
     if args.end_time:
         testCase.endTime = args.end_time
@@ -67,13 +70,21 @@ def stochasticGalerkin(args, testCase, solver, mesh):
     t = 0.0
     dt = args.dt
 
-    while t < testCase.endTime:
-        t = t + dt
-        if t > testCase.endTime:
-            dt = testCase.endTime - (t - dt)
-            t = testCase.endTime
+    convergence = swepc.Convergence(flow)
 
-        sim.timestep(flow, mesh.dx, dt)
+    with open(os.path.join(args.output_dir, "convergence.dat"), 'w') as out:
+        print('# t l2(h)', file=out)
+
+        while t < testCase.endTime:
+            t = t + dt
+            if t > testCase.endTime:
+                dt = testCase.endTime - (t - dt)
+                t = testCase.endTime
+
+            sim.timestep(flow, mesh.dx, dt)
+
+            if args.water_convergence:
+                print(t, convergence(flow), file=out)
 
     stats = swepc.FlowStatistics(flow)
 
@@ -94,7 +105,7 @@ def monteCarlo(args, testCase, solver, mesh):
         print("# Sampling at x =", mesh.C[args.mc_sample_index], file=out)
 
         flows, stats = sim.simulate(testCase.ic, testCase.bc,
-                testCase.randomTopographyGenerator(),
+                testCase.randomTopographyGenerator(args),
                 mesh.dx, args.dt, testCase.endTime,
                 iterations=args.mc_iterations,
                 sampleIndex=args.mc_sample_index,
