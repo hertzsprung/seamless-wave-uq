@@ -21,24 +21,30 @@
 \DeclareMathOperator{\E}{\mathbb{E}}
 \DeclareMathOperator{\sech}{sech}
 \newcommand{\amean}{\overline{a}}
-\newcommand{\zmean}{\overline{z}}
+\newcommand{\cproperty}{$\mathcal{C}$-property}
 \newcommand{\dee}{\mathrm{d}}
 \newcommand{\diff}{\:\dee}
 \newcommand{\Ensemble}[1]{\left\langle #1 \right\rangle}
+\newcommand{\etamean}{\overline{\eta}}
 \newcommand{\flow}{\vect{U}}
 \newcommand{\flux}{\vect{F}}
+\newcommand{\hmodified}{h^\star}
 \newcommand{\Mag}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\palt}{s}
 \newcommand{\pcbasis}{\Phi}
 \newcommand{\pcbasisvect}{\bm{\Phi}}
 \newcommand{\randomroot}{\hat{\xi}}
 \newcommand{\riemannflux}{\vect{\tilde{F}}}
+\newcommand{\riemannfluxcomponent}{\tilde{F}}
 \newcommand{\source}{\vect{S}}
 \newcommand{\T}{\intercal}
 \newcommand{\vect}{\mathbf}
-\newcommand{\zstar}{z^\star}
+\newcommand{\zmean}{\overline{z}}
+\newcommand{\zmodified}{z^\star}
+\newcommand{\zrectbump}{\breve{z}}
 
-\author[1]{James Shaw}
-\author[2]{Georges Kesserwani}
+\author[1]{James Shaw, Ph.D}
+\author[2]{Georges Kesserwani, Ph.D}
 
 \affil[1]{Research Associate, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: js102@zepler.net}
 \affil[2]{Research Fellow Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K.}
@@ -55,6 +61,13 @@ TODO
 
 \section{Introduction}
 
+Two main points:
+\begin{enumerate}
+    \item Formulate a well-balanced stochastic Galerkin model
+    \item Study the ability of the stochastic Galerkin model to represent highly non-Gaussian distributions of
+    stochastic flows
+\end{enumerate}
+
 \begin{itemize}
     \item Uncertainty in bed elevation has a strong effect on solutions of the shallow water equations \citep{bates2014,fisher-tate2006}
     \item Review more traditional Monte Carlo approaches including an uncertain bed?
@@ -67,17 +80,19 @@ Contrast pros and cons of intrusive and non-intrusive methods:
 \begin{itemize}
     \item Non-intrusive methods can be used without modifying existing deterministic models
     \item It is sometimes difficult or impossible to formulate a stochastic Galerkin model \citep{xiu2009}.  For example, it is not clear how to obtain a stochastic Galerkin model from a deterministic formulation that includes discontinuous operators such as min or max.
-    \item \citet{jin2016} says well-balanced stochastic Galerkin could be superior to well-balanced stochastic collocation, need to understand this properly
-\end{itemize}
-Most stochastic Galerkin and stochastic collocation methods assume that uncertain variables are statistically independent:
-\begin{itemize}
-    \item The deterministic shallow water equations expressed in terms of water height $h$ or water elevation $\eta$ are mathematically equivalent \citep{lu-xie2016}.
-    This is not true for the equivalent stochastic formulations because $h$ and $z$ are statistically dependent while $\eta$ and $z$ are not.
-    \item Say why well-balancing is needed in deterministic shallow water models, cite the main formulations
     \item \citet{jin2016} formulated a well-balanced stochastic Galerkin finite volume models of inviscid Burgers equation but the formulation was not extended to SWEs
+    \item \citet{jin2016} says well-balanced stochastic Galerkin could be superior to well-balanced stochastic collocation, need to understand this properly
+    \item Say why well-balancing is needed in deterministic shallow water models, cite the main formulations
+\end{itemize}
+
+We have some surprisingly good stochastic Galerkin results:
+\begin{itemize}
+    \item long time integration is not a problem in our tests (unlike others, need citations)
+    \item non-smooth PDFs can be well-represented by even low-order stochastic Galerkin with classical Hermite polynomial chaos (unlike citations)
 \end{itemize}
 
 \input{method}
+\input{cproperty}
 \input{experiments}
 
 \bibliography{references}

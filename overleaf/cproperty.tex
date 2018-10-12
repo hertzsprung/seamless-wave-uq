@@ -1,0 +1,62 @@
+\section{Analytic verification of the stochastic Galerkin conservative property}
+
+Using a deterministic shallow water model formulation, the surface gradient method satisfies the exact \cproperty{} \citep{zhou2001} such that the deterministic model exactly preserves an initial, stationary solution over a sloping bed.
+In this section it is shown that the stochastic Galerkin model also satisfies the exact \cproperty.
+
+The initial mean water elevation $\eta_0 = h_0 + z_0 $ is constant and the initial mean discharge $q_0 = 0$.
+There is zero uncertainty in the initial water elevation and initial discharge.
+The bed elevation $z$ is arbitrary, having any spatial and stochastic profile.
+Since the water elevation is spatially uniform and the averaged bed elevation $\zmodified$ is continuous at interfaces then $h_{i+1/2}^- = h_{i+1/2}^+$ and the shorthand notation $h_{i+1/2}$ can be used.
+The mass conservation equation vanishes since $q = 0$.
+In order to preserve a stationary solution in element $i$ then $\partial q_i/\partial t = 0$ and the momentum equation becomes
+\begin{align}
+    \frac{\riemannfluxcomponent_{i+1/2} - \riemannfluxcomponent_{i-1/2}}{\Delta x} = S_i
+    \label{eqn:momentum-balance}
+\end{align}
+where the numerical momentum flux $\riemannfluxcomponent_{i+1/2}$ and bed slope source term $S_i$ are
+\begin{align}
+\riemannfluxcomponent_{i+1/2} = \frac{g}{2} h_{i+1/2}^2 \text{\quad,\quad}
+S_i = - \frac{g}{\Delta x} \hmodified_i \Delta \zmodified_i
+\end{align}
+To show that the stochastic Galerkin model formulation satisfies the exact \cproperty{}, it is sufficient to show that the stochastic Galerkin projection of equation~\eqref{eqn:momentum-balance} is satisfied.
+The stochastic Galerkin projection of the source term $\Ensemble{S_i \pcbasis_l}$ is given by equation~\eqref{eqn:pc-source-h}.
+The stochastic Galerkin projection of the momentum flux is
+\begin{align}
+    \Ensemble{\frac{\riemannfluxcomponent_{i+1/2} -
+    \riemannfluxcomponent_{i-1/2}}{\Delta x}
+    \pcbasis_l}
+    &=
+    \frac{g}{2 \Delta x}
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    h_{i+1/2,p} \, h_{i+1/2,\palt} - 
+    h_{i-1/2,p} \, h_{i-1/2,\palt} 
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \nonumber \\
+%
+\intertext{Since $h_{i+1/2,p}$ and $h_{i+1/2,\palt}$ are interchangeable and similarly for $h_{i-1/2,p}$ and $h_{i-1/2,\palt}$ then}
+%
+    &= 
+    \frac{g}{2 \Delta x}
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    \left( h_{i+1/2,p} + h_{i-1/2,p} \right)
+    \left( h_{i+1/2,\palt} - h_{i-1/2,\palt} \right)
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \nonumber \\
+%
+\intertext{and, given that $h_{i+1/2,\palt} = \eta_\palt - \zmodified_{i+1/2,\palt}$ where the water elevation coefficient $\eta_\palt$ is spatially uniform, then}
+    &=
+    -\frac{g}{\Delta x}
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    \frac{h_{i+1/2,p} + h_{i-1/2,p}}{2}
+    \left( \zmodified_{i+1/2,\palt} - \zmodified_{i-1/2,\palt} \right)
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \nonumber \\
+%
+    \Ensemble{\frac{\riemannfluxcomponent_{i+1/2} -
+    \riemannfluxcomponent_{i-1/2}}{\Delta x}
+    \pcbasis_l}
+    &=
+    - \frac{g}{\Delta x}
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    \hmodified_{i,p} \Delta \zmodified_{i,\palt}
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
+    = \Ensemble{S_i \pcbasis_l}
+\end{align}
+which satisfies equation~\eqref{eqn:momentum-balance} as required.

@@ -1,41 +1,18 @@
-\section{Deterministic and stochastic shallow water model formulations}
+\section{Deterministic and stochastic Galerkin shallow water model formulations}
 
-In this section, the deterministic one-dimensional shallow water equations with a topographic source term are formulated using either water height or water elevation, resulting in two deterministic formulations called $h$-form and $\eta$-form.
-The two deterministic formulations are discretised using a shock-capturing first-order finite volume method.
-The bed slope source terms are discretised using the surface gradient method \citep{zhou2001,liang-borthwick2009}.
-Using the stochastic Galerkin method, a stochastic dimension is introduced into the deterministic $h$-form and $\eta$-form models, and a polynomial chaos expansion is made to produce the two corresponding stochastic models.
+In this section, the deterministic one-dimensional shallow water equations are discretised using a shock-capturing first-order finite volume method.
+To ensure well-balancing in the deterministic model, the bed slope source term is discretised using the surface gradient method \citep{zhou2001}.
+Using the stochastic Galerkin method, a stochastic dimension is introduced into the deterministic model, and a polynomial chaos expansion is made to produce the corresponding stochastic model.
 
 The deterministic one-dimensional shallow water equation is
 \begin{align}
     \frac{\partial \flow}{\partial t} + \frac{\partial \flux(\flow)}{\partial x} = \source \label{eqn:swe}
 \end{align}
 where $\flow$ is the flow, $\flux$ is the flux and $\source$ is the bed slope source term.
-The flow can be expressed in terms of water height $h$, or water elevation $\eta = h + z$ where $z$ is the bed elevation, resulting in two formulations called $h$-form and $\eta$-form.
-For the $h$-form model the flow $\flow$ is
-\begin{subequations}
-\begin{align}
-    \flow &= \left[ h, q \right]^\T
-%
-\intertext{with discharge per unit width $q = hu$ and velocity $u$.  The flux $\flux$ is}
-%
-    \flux &= \left[ q,  \frac{q^2}{h} + \frac{gh^2}{2} \right]^\T
-%
-\intertext{where the gravitational acceleration $g = \SI{9.80665}{\meter\per\second}$.  The source term $\source$ is}
-%
-    \source &= \left[ 0, -gh \frac{\dee z}{\dee x} \right]^\T
-\end{align}
-\end{subequations}
-For the $\eta$-form model the flow, flux and source term are \citep{liang-borthwick2009}
-\begin{subequations}
-\begin{align}
-    \flow &= \left[ \eta, q \right]^\T \\
-    \flux &= \left[ q, \frac{q^2}{\eta - z} +
-            \frac{g}{2}\left(\eta^2 - 2\eta z \right) \right]^\T \\
-    \source &= \left[ 0, -g \eta \frac{\dee z}{\dee x} \right]^\T
-\end{align}
-\end{subequations}
+The flow $\flow = \left[ h, q \right]^\T$ with water height $h$, discharge per unit width $q = hu$ and velocity $u$.
+The flux $\flux = \left[ q,  q^2/h + gh^2/2 \right]^\T$ where the gravitational acceleration $g = \SI{9.80665}{\meter\per\second}$.  The source term $\source = \left[ 0, -gh \: \dee z / \dee x \right]^\T$ where $z(x)$ is the bed elevation profile.
 
-\subsection{Discretisation of the Deterministic $h$-form and $\eta$-form Finite Volume Shallow Water Models}
+\subsection{Deterministic Shallow Water Model Formulation}
 Equation~\eqref{eqn:swe} is discretised on a one-dimensional domain with $M$ elements and uniform mesh spacing $\Delta x$.
 Applying the first-order finite volume method and forward Euler time-stepping yields the evolution equation
 \begin{align}
@@ -44,90 +21,53 @@ Applying the first-order finite volume method and forward Euler time-stepping yi
     - \Delta x \source_i^{(n)} \right) \label{eqn:swe-discrete}
 \end{align}
 which evolves the flow on element $i = 1, \ldots, M$ from time level $(n)$ to time level $(n+1)$ with a time-step $\Delta t$.  
-The numerical flux $\riemannflux_{i+1/2}$ is calculated at the interface $i+1/2$  using a Roe approximate Riemann solver with entropy correction\todo{citation}.
+The numerical flux $\riemannflux_{i+1/2}$ is calculated at interface $i+1/2$ using a Roe approximate Riemann solver with entropy correction\todo{citation}.
 
-To ensure well-balancing in the deterministic models, the bed slope source term $\source_i$ is discretised using the surface gradient method.
-For the $\eta$-form model, the source term $\source_i$ is \citep{liang-borthwick2009}
+To ensure well-balancing in the deterministic model, the bed slope source term $\source_i$ is discretised using the surface gradient method \citep{zhou2001},
 \begin{align}
-    \source_i = \left[ 0, -g \eta_i \frac{\Delta z_i}{\Delta x} \right]^\T \label{eqn:source-eta}
+\source_i = \left[ 0, -g \hmodified_i \frac{\Delta \zmodified_i}{\Delta x} \right]^\T \label{eqn:source-h}
 \end{align}
-where $\Delta z_i$ is calculated based on the averaged bed elevation at interfaces.  The averaged bed elevation $z_{i+1/2}^\pm$ at interface $i+1/2$ is
+where the modified water height $\hmodified_i$ is
 \begin{align}
-z_{i+1/2}^\pm = \frac{z_i + z_{i+1}}{2} \label{eqn:z-interface}
+    \hmodified_i = \frac{h_{i-1/2}^+ + h_{i+1/2}^-}{2} \label{eqn:hbar}
 \end{align}
-and the change in bed elevation $\Delta z_i$ over element $i$ is
+and the modified water heights at the interfaces of element $i$ are $h_{i-1/2}^+ = \eta_{i-1/2}^+ - \zmodified_{i-1/2}$ and $h_{i+1/2}^- = \eta_{i+1/2}^- - \zmodified_{i+1/2}$ where the water elevation $\eta = h + z$.
+Since the first-order finite volume discretisation uses a piecewise-constant basis then $\eta_{i-1/2}^+ = \eta_{i+1/2}^- = h_i + z_i$.
+The change in bed elevation $\Delta \zmodified_i$ over element $i$ is
 \begin{align}
-    \Delta z_i = z_{i+1/2}^\pm - z_{i-1/2}^\pm \label{eqn:delta-z}
+    \Delta \zmodified_i = \zmodified_{i+1/2} - \zmodified_{i-1/2} \label{eqn:delta-z}
 \end{align}
-For the $h$-form model, the source term is \citep{zhou2001}
+where the averaged bed elevation $\zmodified_{i+1/2}$ at interface $i+1/2$ is
 \begin{align}
-\source_i = \left[ 0, -g \bar{h}_i \frac{\Delta z_i}{\Delta x} \right]^\T \label{eqn:source-h}
+\zmodified_{i+1/2} = \frac{z_i + z_{i+1}}{2} \label{eqn:z-interface}
 \end{align}
-where the modified water height $\bar{h}_i$ is
-\begin{align}
-    \bar{h}_i = \frac{h_{i-1/2}^+ + h_{i+1/2}^-}{2} \label{eqn:hbar}
-\end{align}
-The modified water heights at the interfaces of element $i$ are
-\begin{align}
-    h_{i-1/2}^+ &= \eta_{i-1/2}^+ - z_{i-1/2}^\pm \\
-    h_{i+1/2}^- &= \eta_{i+1/2}^- - z_{i+1/2}^\pm
-\end{align}
-For both $h$-form and $\eta$-form models, the numerical flux $\riemannflux_{i+1/2}$ is calculated using the averaged bed elevation $z_{i+1/2}^\pm$ such that
-\begin{align}
-    \riemannflux_{i+1/2} = \riemannflux(\flow_{i+1/2}^-, \flow_{i+1/2}^+)
-    = \riemannflux\left(
-    \begin{bmatrix}
-        h_{i+1/2}^- \\
-        q_{i+1/2}^-
-    \end{bmatrix}
-    ,
-     \begin{bmatrix}
-        h_{i+1/2}^+ \\
-        q_{i+1/2}^+
-    \end{bmatrix}
-    \right)
-\end{align}
-Since the first-order finite volume discretisation uses a piecewise-constant basis then $\eta_{i-1/2}^+ = \eta_{i+1/2}^- = \eta_i = h_i + z_i$ and $q_{i-1/2}^+ = q_{i+1/2}^- = q_i$.
+The numerical flux $\riemannflux_{i+1/2}$ is calculated based on the averaged bed elevation $\zmodified_{i+1/2}$ such that $\riemannflux_{i+1/2} = \riemannflux(\flow_{i+1/2}^-, \flow_{i+1/2}^+)$ where $\flow_{i+1/2}^- = [h_{i+1/2}^-, q_{i+1/2}^-]^\T$ and $\flow_{i-1/2}^+ = [h_{i+1/2}^+, q_{i+1/2}^+]^\T$.
+The discharges $q_{i-1/2}^+$ and $q_{i+1/2}^-$ are calculated using the velocity $u_i = q_i/h_i$ such that $q_{i-1/2}^+ = h_{i-1/2}^+ \, u_i$ and $q_{i+1/2}^- = h_{i+1/2}^- \, u_i$.
 
-\subsection{Stochastic Galerkin Method}
+\subsection{Stochastic Galerkin Shallow Water Model Formulation}
 The stochastic Galerkin method introduces a stochastic dimension with coordinate $\xi$ such that the flow $\flow = \flow(x, t, \xi)$ and the bed elevation $z = z(x, \xi)$.
 The flow and bed elevation fields in the stochastic dimension are represented by a polynomial chaos expansion,
-\begin{subequations}
 \begin{align}
-    \flow(x, t, \xi) &= \sum _{p=0}^P \flow_p(x, t) \pcbasis_p(\xi) \\
-    z(x, \xi) &= \sum _{p=0}^P z_p(x) \pcbasis_p(\xi)
+    \flow(x, t, \xi) = \sum _{p=0}^P \flow_p(x, t) \pcbasis_p(\xi) \quad\text{,}\quad
+    z(x, \xi) = \sum _{p=0}^P z_p(x) \pcbasis_p(\xi)
 \end{align}\label{eqn:pc-expansion}%
-\end{subequations}
 where $\pcbasisvect = \left[ \pcbasis_0, \ldots, \pcbasis_P \right]$ is the probabilists' Hermite polynomial basis having term $\pcbasis_p$ with degree $p$,
 \begin{align}
     \pcbasis_p(\xi) = \left( -1 \right)^p \exp \left(\frac{\xi^2}{2}\right)
     \frac{\dee^p}{\dee \xi^p} \exp \left(- \frac{\xi^2}{2} \right)
 \end{align}
 where $\pcbasis_0 = 1, \pcbasis_1 = \xi, \pcbasis_2 = \xi^2 - 1, \pcbasis_3 = \xi^3 - 3\xi$ and so on.
-The ensemble average $\Ensemble{\pcbasis_p \pcbasis_q}$ is 
+The ensemble average $\Ensemble{\pcbasis_p \pcbasis_\palt}$ is 
 \begin{align}
-    \Ensemble{\pcbasis_p \pcbasis_q} = \int_{-\infty}^\infty \pcbasis_p \pcbasis_q W \diff \xi
+    \Ensemble{\pcbasis_p \pcbasis_\palt} = \int_{-\infty}^\infty \pcbasis_p \pcbasis_\palt W \diff \xi
 \end{align}
 where the Gaussian probability density function $W$ is
 \begin{align}
     W = \frac{1}{\sqrt{2\pi}} \exp \left(-\frac{\xi^2}{2}\right)
 \end{align}
-Since the polynomial chaos basis is orthogonal then $\Ensemble{\pcbasis_p \pcbasis_q} = \Ensemble{\pcbasis_p^2} \delta_{pq}$ where $\delta_{pq}$ is the Kronecker delta.
+Since the polynomial chaos basis is orthogonal then $\Ensemble{\pcbasis_p \pcbasis_\palt} = \Ensemble{\pcbasis_p^2} \delta_{p\palt}$ where $\delta_{p\palt}$ is the Kronecker delta.
 
-The $m$-th moment $\mu_m[u]$ of a flow variable $u = h(x, t, \xi)$ or $u = q(x, y, \xi)$ or bed elevation $u = z(x, t, \xi)$ is
-\begin{align}
-    \mu_m [u] = \int_{-\infty}^\infty \left(u - c\right)^m W \diff \xi
-\end{align}
-where $c = 0$ when $m = 1$ and $c = \mu_0[u]$ for higher moments.
-Hence, the mean $\mu_1[u] = u_0$ and the variance $\mu_2[u]$ is
-%Hence, the mean flow $\mu_1[\flow(x, t, \xi)] = \flow_0(x, t)$ and the mean bed elevation $\mu_1[z(x, \xi)] = z_0(x)$.
-\begin{align}
-    \mu_2[u] &= \sum_{p=1}^P u^2_p \Ensemble{\pcbasis_p^2} \label{eqn:variance}
-\end{align}
-where the zeroth-order term with $p = 0$ is omitted because the variance is centred about the mean.
-
-\subsection{Stochastic Galerkin Shallow Water Model Formulations}
-A stochastic Galerkin shallow water model is formulated by making a polynomial chaos expansion of equation~\eqref{eqn:swe-discrete} then making a Galerkin projection onto the bases $\pcbasis_l, l = 0, \ldots, P$ to produce $P + 1$ decoupled equations,
+The stochastic Galerkin shallow water model is formulated by making a polynomial chaos expansion of equation~\eqref{eqn:swe-discrete} then making a Galerkin projection onto the bases $\pcbasis_l, l = 0, \ldots, P$ to produce $P + 1$ decoupled equations,
 \begin{align}
     \flow_{i,l}^{(n+1)} = \flow_{i,l}^{(n)}
     - \frac{\Delta t}{\Delta x \Ensemble{\pcbasis_l}^2}
@@ -140,56 +80,54 @@ A stochastic Galerkin shallow water model is formulated by making a polynomial c
 \end{align}
 where $\flow_{i,l}^{(n)}$ are the flow coefficients at time level $n$ over element $i$ in the physical dimension, $l$ in the stochastic dimension.
 The stochastic evolution equation~\eqref{eqn:swe-pc} involves ensemble averages of numerical fluxes and an ensemble average of the bed slope source term.
-The ensemble average of the numerical flux $\Ensemble{\riemannflux_{i+1/2} \pcbasis_l}$ can be approximated by Gauss-Hermite quadrature,
+Since the ensemble average of the numerical flux $\Ensemble{\riemannflux_{i+1/2} \pcbasis_l}$ is nonlinear, it is approximated by Gauss-Hermite quadrature,
 \begin{align}
     \Ensemble{\riemannflux_{i+1/2} \pcbasis_l}
     \approx
     \sum_{j=1}^{P+1} w_j
     \riemannflux( \flow_{i+1/2}^-(\xi_j), \flow_{i+1/2}^+(\xi_j) )
-    \pcbasis_l(\xi_j) W(\xi_j)
+    \pcbasis_l(\xi_j) W(\xi_j) \label{eqn:pc-flux}
 \end{align}
 where $w_j$ are the quadrature weights and $\xi_j$ are the quadrature points in the stochastic dimension.
-The numerical flux $\riemannflux( \flow_{i+1/2}^-(\xi_j), \flow_{i+1/2}^+(\xi_j) )$ is calculated using the flow evaluated at the quadrature points $\xi_j$ such that
-\begin{align}
-    \flow_{i+1/2}^-(\xi_j) = \sum_{p=0}^P \flow_{i+1/2,p}^- \pcbasis_p(\xi_j)
-\end{align}
-and similarly for $\flow_{i+1/2}^+$.
+%The numerical flux $\riemannflux( \flow_{i+1/2}^-(\xi_j), \flow_{i+1/2}^+(\xi_j) )$ is calculated using the flow evaluated at the quadrature points $\xi_j$ such that
+%\begin{align}
+%    \flow_{i+1/2}^-(\xi_j) = \sum_{p=0}^P \flow_{i+1/2,p}^- \pcbasis_p(\xi_j)
+%\end{align}
+%and similarly for $\flow_{i+1/2}^+$.
+%\todo[inline]{
+%This is a minor point but took me a little time to work out.
+%It is straightforward to calculate the modified water heights at the interfaces since addition of polynomial chaos expansions is distributive: $\sum h_p \pcbasis_p + \sum z_p \pcbasis_p = \sum (h_p + z_p) \pcbasis_p$.
+%However, the modified discharges at the interfaces involve division ($u = q/h$) and multiplication $q^\pm = u*h^\pm$ which are not distributive operations.
+%Hence, the modified discharge must be evaluated for given quadrature points $\xi_j$, and cannot be precomputed using the coefficients alone.}
 
-The stochastic source term for the $\eta$-form model is derived from equation~\eqref{eqn:source-eta},
-\begin{align}
-    \Ensemble{\source_i \pcbasis_l} = \left[ 0,
-    -\frac{g}{\Delta x} \sum_{p=0}^P \sum_{q=0}^P \eta_{i,p}
-    \Delta z_{i,q}
-    \Ensemble{\pcbasis_p \pcbasis_q \pcbasis_l}
-    \right]^\T \label{eqn:pc-source-eta}
-\end{align}
-where $\Delta z_{i,q} = z_{i+1/2,q}^\pm - z_{i-1/2,q}^\pm$ and $z_{i+1/2,q}^\pm = (z_{i,q}+z_{i+1,q})/2$.
-The double summation in equation~\eqref{eqn:pc-source-eta} is a result of the tensor product that arises from the polynomial chaos expansions of water elevation $\eta$ and bed elevation $z$.
-
-The stochastic source term for the $h$-form model is derived from equation~\eqref{eqn:source-h}.  The derivation is more complicated because $\bar{h}_i$ and $\Delta z_i$ are both functions of bed elevation $z$ .
-By using the definitions of $\bar{h}_i$ (equation~\ref{eqn:hbar}) and $\Delta z_i$ (equations~\ref{eqn:z-interface} and \ref{eqn:delta-z}), the deterministic source term $\source_i$ (equation~\ref{eqn:source-h}) can be rewritten as
-\begin{align}
-\source_i = \left[ 0, -\frac{g}{\Delta x} \left\{
-         \left(h_i + \frac{z_i}{2} \right) \Delta z_i
-        - \frac{1}{8} \left( z_{i+1}^2 - z_{i-1}^2 \right)
-        \right\} \right]^\T
-\end{align}
-Hence the stochastic source term for the $h$-form model is
+The stochastic bed slope source term $\Ensemble{\source_i \pcbasis_l}$ in equation~\eqref{eqn:swe-pc} is derived from the deterministic bed slope source term (equation~\ref{eqn:source-h}) such that
 \begin{align}
     \Ensemble{\source_i \pcbasis_l} &= \left[ 0,
-    - \frac{g}{\Delta x} \left\{
-    \sum_{p=0}^P \sum_{q=0}^P
-    \left[
-    \left( h_{i,p} + \frac{z_{i,p}}{2} \right) \Delta z_{i,q} 
-    - \frac{1}{8}
-    \left( z_{i+1,p} z_{i+1,q} - z_{i-1,p} z_{i-1,q} \right)
-    \right]
-    \Ensemble{\pcbasis_p \pcbasis_q \pcbasis_l}
-    \right\}
+    - \frac{g}{\Delta x}
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    \hmodified_{i,p} \Delta \zmodified_{i,\palt}
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
     \right]^\T
 \label{eqn:pc-source-h}
 \end{align}
-The ensemble averages of polynomial chaos bases in equations~\eqref{eqn:pc-source-eta}, \eqref{eqn:pc-source-h}, and in the denominator of equation~\eqref{eqn:swe-pc}, can be calculated analytically or by Gauss-Hermite quadrature.
+The ensemble averages of polynomial chaos bases in equation~\eqref{eqn:pc-source-h}, and in the denominator of equation~\eqref{eqn:swe-pc}, can be calculated analytically or by Gauss-Hermite quadrature.
 
 \todo[inline]{Mention that only continuous functions are amenable to a stochastic Galerkin formulation.
-Show how a well-balancing method that uses min or max cannot be decoupled.}
+Show how a well-balancing method that uses min or max cannot be decoupled.
+Very quick sketch, say we need to calculate $\zmodified_i = \max(z_{i-1}, z_{i+1})$.
+Making a polynomial chaos expansion we have
+\begin{align}
+    \sum_{p=0}^P \zmodified_{i,p} \pcbasis_p
+    =
+    \max\left(\sum_{p=0}^P z_{i-1,p} \pcbasis_p, 
+    \sum_{p=0}^P z_{i+1,p} \pcbasis_p \right)
+%
+\intertext{A stochastic Galerkin projection gives}
+%
+\Ensemble{\zmodified_{i,l} \pcbasis_l^2}
+=
+    \Ensemble{\max\left(\sum_{p=0}^P z_{i-1,p} \pcbasis_p, 
+    \sum_{p=0}^P z_{i+1,p} \pcbasis_p \right)
+    \pcbasis_l}
+\end{align}
+and now we're stuck!  I wonder if we can integrate this by quadrature or something...}

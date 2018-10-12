@@ -1,9 +1,9 @@
 \section{Numerical experiments}
-Two numerical experiments are performed to assess the stochastic Galerkin shallow water models.
+Two numerical experiments are performed to assess the well-balanced stochastic Galerkin shallow water model.
 The first test simulates a lake at rest over a bed with a region of uncertainty.
-This test assesses the ability of the stochastic Galerkin models to preserve the C-property.
+This test verifies that the stochastic Galerkin model preserves the \cproperty.
 The second test simulates flow over a hump of uncertain amplitude.
-This test is designed to challenge the stochastic Galerkin models by generating a nonlinear response such that the steady-state solution may be subcritical or transcritical depending on the hump amplitude.
+This test is designed to challenge the stochastic Galerkin model by generating a nonlinear response such that the steady-state solution may be subcritical or transcritical depending on the hump amplitude.
 
 For both tests, the one-dimensional domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements such that $\Delta x = \SI{0.5}{\meter}$.
 Both tests include a topographic hump centred at $x = \SI{0}{\meter}$.
@@ -32,7 +32,16 @@ The bed elevation variance $\sigma^2_z(x) = \E[z^2(x)] - \E^2[z(x)]$, which can 
 %
     \sigma_z^2(x) &\approx \left( \frac{\partial z(x, \amean)}{\partial a} \sigma_a \right)^2 \label{eqn:z-variance-continuous}
 \end{align}
-The bump has a Gaussian probability distribution and so high order moments $\mu_3[z(x)], \ldots$ are zero.
+The bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$ are defined in terms of mean bed elevation $\bar{z}$ and bed elevation variance $\sigma_z^2$ using the fact that the $m$-th moment $\mu_m[u]$ of the bed elevation $u = z(x, \xi)$ or a flow variable $u = h(x, t, \xi)$ or $u = q(x, t, \xi)$ is
+\begin{align}
+    \mu_m [u] = \int_{-\infty}^\infty \left(u - c\right)^m W \diff \xi
+\end{align}
+where $c = 0$ when $m = 1$ and $c = \mu_0[u]$ for higher moments.
+Hence, the mean $\mu_1[u] = u_0$ and the variance $\mu_2[u]$ is
+\begin{align}
+    \mu_2[u] &= \sum_{p=1}^P u^2_p \Ensemble{\pcbasis_p^2} \label{eqn:variance}
+\end{align}
+The topographic bump has a Gaussian probability distribution and so high order moments $\mu_3[z(x)], \ldots$ are zero.
 Hence, the bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$ are
 \begin{align}
     z_{i,p} = \begin{cases}
@@ -40,13 +49,21 @@ Hence, the bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$ are
     \sigma_z(x_i) & \text{if $p=1$} \\
     0 & \text{otherwise}
     \end{cases}
+    \label{eqn:z-pc-coeffs}
 \end{align}
-where $x_i$ is the centre of element $i$ and $z_{i,1}$ is calculated using equations~\eqref{eqn:variance} and \eqref{eqn:z-variance-continuous} with $\mu_2[z(x, \xi)] = \sigma_z^2(x)$.
-All polynomial chaos expansions are chosen to have a maximum degree $P = 3$.
+where $x_i$ is the centre of element $i$, and $z_{i,1}$ is calculated using equations~\eqref{eqn:z-variance-continuous} and \eqref{eqn:variance} with $\mu_2[z(x, \xi)] = \sigma_z^2(x)$.
+
+For both tests, the initial mean water elevation $\eta_{0} = \SI{1.5}{\meter}$ with zero initial uncertainty such that $\eta_p = 0$ with $p = 1, \ldots, P$.
+The initial water height coefficients $h_0, \ldots, h_P$ are given by the stochastic Galerkin projection of the polynomial chaos expansions.  Since $h = \eta - z$ then
+\begin{align}
+    \Ensemble{ h_{i,p} \pcbasis_p^2} = \Ensemble{\left(\eta_{i,p} - z_{i,p}\right) \pcbasis_p^2}
+\end{align}
+and so $h_{i,p} = \eta_{i,p} - z_{i,p}$.
+In the following tests, all polynomial chaos expansions are chosen to have a maximum degree $P = 3$.
 
 The timestep $\Delta t = \SI{0.15}{\second}$ resulting in a maximum Courant number of about $0.8$.  By choosing a fixed timestep, simulations of a given test complete in the same number of timesteps irrespective of the model formulation, and error accumulation due to timestepping errors will be the same across all model formulations.
 
-\todo[inline]{Make data and code available on Zenodo.}
+%\todo[inline]{Make data and code available on Zenodo.}
 
 \input{lakeAtRest}
 \input{criticalSteadyState}
