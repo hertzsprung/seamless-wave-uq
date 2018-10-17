@@ -9,7 +9,7 @@ build = Build([
     'generators/criticalSteadyState.py'
 ])
 
-criticalSteadyState = generators.CriticalSteadyState(iterations=200)
+criticalSteadyState = generators.CriticalSteadyState(iterations=2000)
 lakeAtRest = generators.LakeAtRest()
 
 criticalSteadyState.addTo(build)
