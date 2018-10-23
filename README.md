@@ -11,7 +11,7 @@ Build scripts are also provided that run test cases and generate the plots that 
 
 Ubuntu users can install the toolchain
 
-    apt install python3-numpy python3-scipy ninja-build gnuplot texlive-extra-utils
+    apt install python3-pip python3-numpy python3-scipy ninja-build gnuplot texlive-extra-utils
    
 To install the Python 3 solvers
    
