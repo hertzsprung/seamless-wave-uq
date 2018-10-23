@@ -6,7 +6,6 @@ This repository includes
 * preconfigured lake-at-rest and steady-state critical flow test cases
 
 Build scripts are also provided that run test cases and generate the plots that appear in the accompanying article in the [ASCE Journal of Hydraulic Engineering](https://ascelibrary.org/journal/jhend8).
-These scripts require [ninja-openfoam](https://github.com/hertzsprung/ninjaopenfoam) to be installed.
 
 ## Installation
 
@@ -29,3 +28,12 @@ will run the lake-at-rest test with the [well-balanced surface gradient method](
 To run a Monte Carlo simulation with 10 iterations of critical steady-state flow 
 
     swepc --monte-carlo --mc-iterations 10 criticalSteadyState wellBalancedH -o /tmp
+
+## Automated testing and plot generation
+
+These scripts require [ninja-openfoam](https://github.com/hertzsprung/ninjaopenfoam) to be installed.
+
+    ./generate.py
+    ninja
+    
+Note that the default build includes a Monte Carlo simulation that takes several hours to complete.
