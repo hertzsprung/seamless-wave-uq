@@ -1,4 +1,4 @@
-# uq
+# seamless-wave-uq
 Stochastic Galerkin and Monte Carlo uncertainty quantification for 1D shallow water equations with uncertain topography.
 This repository includes
 * a Godunov-type finite volume solver for 1D shallow water equations with topography, which can operate as a stochastic Galerkin solver or a deterministic solver
