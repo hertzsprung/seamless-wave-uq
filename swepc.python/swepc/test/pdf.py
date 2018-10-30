@@ -42,11 +42,11 @@ Input is space delimited in the format <x> <z0> <water0> <q0> <z1> <water1> <q1>
         print(u, P)
 
 def coefficients(tokens, basis, offset):
-    indices = [1+offset+basis.degree*p for p in range(basis.degree+1)]
+    indices = [1+offset+3*p for p in range(basis.degree+1)]
     return [float(tokens[i]) for i in indices]
 
 def derivedEtaCoefficients(tokens, basis):
-    z_indices = [1+basis.degree*p for p in range(basis.degree+1)]
-    h_indices = [2+basis.degree*p for p in range(basis.degree+1)]
+    z_indices = [1+3*p for p in range(basis.degree+1)]
+    h_indices = [2+3*p for p in range(basis.degree+1)]
 
     return [float(tokens[zi])+float(tokens[hi]) for zi, hi in zip(z_indices, h_indices)]
