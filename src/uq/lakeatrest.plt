@@ -11,13 +11,13 @@ set ylabel "Elevation (\\si{\\meter})" offset 0.5,0
 unset key
 set title 'Centred difference'
 set label "(a)" at -46,1.8
-set label "Water elevation" at -47,1.3
+set label "Free-surface" at -47,1.3
 set label "Topography" at -47,0.7
 
 plot "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceH/statistics.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
      "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceH/statistics.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
      "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceH/derived-statistics.dat" using 1:($2-$3):($2+$3) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceH/derived-statistics.dat" using 1:2 lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
+     "`echo $uqdata_builddir`/uq/lakeAtRest-centredDifferenceH/derived-statistics.dat" using 1:2 lw 3 lc rgbcolor '#2171b5' title 'Free-surface elevation'
 
 unset label
 set label "(b)" at -46,1.8
@@ -28,7 +28,7 @@ set title 'Surface gradient method'
 plot "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:($2-$5):($2+$5) with filledcurves lc rgbcolor '#BBBBBB' notitle, \
      "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/statistics.dat" using 1:2 lc rgbcolor 'black' lw 3 title 'Topography', \
      "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/derived-statistics.dat" using 1:($2-$3):($2+$3) with filledcurves lw 3 lc rgbcolor '#9acae1' notitle, \
-     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/derived-statistics.dat" using 1:2 lw 3 lc rgbcolor '#2171b5' title 'Water elevation'
+     "`echo $uqdata_builddir`/uq/lakeAtRest-wellBalancedH/derived-statistics.dat" using 1:2 lw 3 lc rgbcolor '#2171b5' title 'Free-surface elevation'
 
 unset title
 set yrange [-0.6:0.6]

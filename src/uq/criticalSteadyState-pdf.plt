@@ -28,7 +28,7 @@ plot "`echo $uqdata_builddir`/uq/criticalSteadyState-monteCarlo/sample12.dat" us
 
 unset label
 set label "(b) $x = \\SI{1.5}{\\meter}$" at 1.9,6
-set xlabel "Water elevation (\\si{\\meter})"
+set xlabel "Free-surface elevation (\\si{\\meter})"
 set yrange [0:7]
 set ylabel "$f(\\eta)$" offset 0,0
 unset key
