@@ -21,10 +21,12 @@ set samples 200
 
 set label "(a) $x = \\SI{-37.5}{\\meter}$" at 1.8,13
 set yrange [0:15]
-set key at 2.35,-8 samplen 1.5
+set key at 2.35,-8
 
 plot "`echo $uqdata_builddir`/uq/criticalSteadyState-monteCarlo/sample12.dat" using (bin($1+$2,binwidth)):(1.0/N/binwidth) smooth freq with boxes fill solid border -1 fc rgb '#DDDDDD' title 'Monte Carlo', \
-     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH/pdf12.dat" using 1:2 lw 3 lc rgb 'black' title 'Stochastic Galerkin'
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH-1/pdf12.dat" using 1:2 lw 3 lc 1 title 'SG $P = 1$', \
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH-2/pdf12.dat" using 1:2 lw 3 lc 2 title 'SG $P = 2$', \
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH-3/pdf12.dat" using 1:2 lw 3 lc 4 title 'SG $P = 3$'
 
 unset label
 set label "(b) $x = \\SI{1.5}{\\meter}$" at 1.9,6
@@ -34,4 +36,6 @@ set ylabel "$f(\\eta)$" offset 0,0
 unset key
 
 plot "`echo $uqdata_builddir`/uq/criticalSteadyState-monteCarlo/sample51.dat" using (bin($1+$2,binwidth)):(1.0/N/binwidth) smooth freq with boxes fill solid border -1 fc rgb '#DDDDDD', \
-     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH/pdf51.dat" using 1:2 lw 3 lc rgb 'black'
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH-1/pdf51.dat" using 1:2 lw 3 lc 1, \
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH-2/pdf51.dat" using 1:2 lw 3 lc 2, \
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-wellBalancedH-3/pdf51.dat" using 1:2 lw 3 lc 4
