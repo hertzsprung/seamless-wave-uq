@@ -14,7 +14,7 @@ stats "`echo $uqdata_builddir`/uq/criticalSteadyState-monteCarlo/sample51.dat" n
 N = STATS_records
 
 set xrange [0.9:2.35]
-set ylabel "$f(\\eta)$" offset 1,0
+set ylabel "$f_\\eta$" offset 1,0
 
 set multiplot layout 2,1 spacing 0.1,0.12 margin 0.14,0.99,0.06,0.95
 set samples 200
@@ -32,7 +32,7 @@ unset label
 set label "(b) $x = \\SI{1.5}{\\meter}$" at 1.9,6
 set xlabel "Free-surface elevation (\\si{\\meter})"
 set yrange [0:7]
-set ylabel "$f(\\eta)$" offset 0,0
+set ylabel "$f_\\eta$" offset 0,0
 unset key
 
 plot "`echo $uqdata_builddir`/uq/criticalSteadyState-monteCarlo/sample51.dat" using (bin($1+$2,binwidth)):(1.0/N/binwidth) smooth freq with boxes fill solid border -1 fc rgb '#DDDDDD', \
