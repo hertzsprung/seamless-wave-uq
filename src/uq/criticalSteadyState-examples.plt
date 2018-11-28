@@ -12,7 +12,7 @@ plot "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic-sigma/statist
      "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic-mean/statistics.dat" using 1:($2+$3) lw 4 title '$\overline{a}$ = \SI{0.6}{\meter}', \
      "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic+sigma/statistics.dat" using 1:($2+$3) lw 4 title '$\overline{a} + \sigma_a = \SI{0.9}{\meter}$', \
      "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic+2sigma/statistics.dat" using 1:($2+$3) lw 4 title '$\overline{a} + 2\sigma_a = \SI{1.2}{\meter}$', \
-     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic-sigma/statistics.dat" using 1:2 lc 1 notitle, \
-     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic-mean/statistics.dat" using 1:2 lc 2 notitle, \
-     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic+sigma/statistics.dat" using 1:2 lc 3 notitle, \
-     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic+2sigma/statistics.dat" using 1:2 lc 4 notitle
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic-sigma/statistics.dat" using 1:2 lc 1 lw 4 dt (5,1.5) notitle, \
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic-mean/statistics.dat" using 1:2 lc 2 lw 4 dt (5,1.5) notitle, \
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic+sigma/statistics.dat" using 1:2 lc 3 lw 4 dt (5,1.5) notitle, \
+     "`echo $uqdata_builddir`/uq/criticalSteadyState-deterministic+2sigma/statistics.dat" using 1:2 lc 4 lw 4 dt (5,1.5) notitle
