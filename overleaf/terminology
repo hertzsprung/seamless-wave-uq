@@ -1,0 +1,67 @@
+a: hump amplitude
+b: ?
+c: wave speed (but unused)
+\mathscr{c}: central moment
+d: ?
+e: AVOID
+f: PDF
+F: flux
+g: gravitational constant
+h: water height
+i: spatial index
+j: quadrature index or PDF root index
+k: ?
+K: + or - interface limits
+l: PC index
+m: moment
+M: number of elements in mesh
+n: time level
+o: AVOID
+p: PC index
+P: PC index limit
+q: discharge
+r: ?
+s: PC index
+S: source term vector
+t: time coordinate
+U: flow vector
+v: velocity
+w: quadrature weight
+W: weighting function
+x: space coordinate
+X: any random variable
+Y: any random variable
+y: ?
+z: topography
+
+alpha: any expression involving random variables or basis functions
+Phi: PC basis
+eta: free-surface elevation
+mu: moment
+theta: random event
+sigma: stddev
+xi: standard Gaussian
+
+basis function
+basis order $P$
+elements (not cells)
+ensemble average operator
+expansion coefficient
+flow vector
+flux vector
+finite volume Godunov-type
+free-surface elevation
+high-order (not high order)
+mesh (not grid)
+model (not solver)
+numerical flux
+Polynomial Chaos (capitalised)
+random event
+random variable
+source term vector
+timestep (not time step or time-step)
+time level
+topography (or 'bed' or 'bed elevation' where more appropriate)
+water height (or 'water level' where more appropriate)
+Wiener-Hermite basis
+Wiener-Hermite Polynomial Chaos expansion

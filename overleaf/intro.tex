@@ -1,0 +1,48 @@
+\section{Introduction}
+Shallow water flows can be highly sensitive to uncertainties in input data: uncertainties in boundary forcing derived from stream gauge data, the choice of friction coefficient, and errors in digital elevation models can substantially alter simulated distributions of flood extent, water depth and flow velocity \citep{bates2014,jung-merwade2012}.
+Conventional uncertainty quantification methods, including the Generalized Likelihood Uncertainty Estimation (GLUE) method \citep{beven-binley1992}, are based on Monte Carlo sampling with randomised inputs, making conventional methods computationally expensive and slow to converge on flow statistics.
+As a result, Monte Carlo simulations of flood events are severely constrained by available computing resources, and many sources of uncertainty must be neglected to make probabilistic simulations feasible \citep{neal2013}.
+Stochastic Galerkin methods offer a computationally efficient alternative: repeated sampling is eliminated, and convergence is typically far more rapid than Monte Carlo methods \citep{xiu2009,ge2008}.
+%Despite widespread interest in stochastic Galerkin and other polynomial chaos methods, existing stochastic Galerkin shallow water models have lacked any well-balanced treatment, and have only been validated for flows with smooth probability distributions \citep{ge2008}.
+%This paper addresses these limitations by formulating a well-balanced stochastic Galerkin shallow water model, and assessing the model using flows with discontinuous, non-Gaussian probability distributions.
+
+Polynomial Chaos methods work by introducing to the governing deterministic equations an additional, stochastic dimension, and approximating it with a Polynomial Chaos expansion.
+Polynomial Chaos methods can be classified as non-intrusive or intrusive.
+Non-intrusive methods repeatedly sample a deterministic model with different input values, using the outputs to construct a stochastic solution.
+While non-intrusive polynomial chaos methods involve repeated sampling, they require far fewer samples than Monte Carlo methods \citep{ge2008}.
+Intrusive methods reformulate a deterministic model to produce a stochastic formulation that must be implemented as a new stochastic solver.
+The stochastic Galerkin method is an intrusive method which makes a Galerkin projection in stochastic space to produce a decoupled system of equations that are solved in a single model run.
+Conventional stochastic Galerkin methods span the entire stochastic space using a single element with a basis chosen from the Askey scheme of orthogonal polynomials \citep{xiu-karniadakis2002}.
+When the stochastic flow is sufficiently smooth and the probability distributions are well-represented by the Polynomial Chaos basis, then Polynomial Chaos methods can achieve exponential convergence in the stochastic dimension \citep{xiu-karniadakis2003}.
+
+Conventional stochastic Galerkin methods have two main shortcomings.
+First, strongly nonlinear flows produce steep gradients or discontinuities in stochastic space that are often poorly represented by global Polynomial Chaos bases using a single element \citep{pettersson2014}.
+Second, even when exponential convergence is achieved early in the simulation, solution accuracy can deteriorate severely over long simulations \citep{gerritsma2010}.
+These shortcomings have motivated a wealth of research into better alternatives, including time-dependent basis functions \citep{gerritsma2010}, multiresolution wavelet decompositions \citep{lemaitre2004a}, multi-element discretisations and adaptive meshing of stochastic space \citep{wan-karniadakis2006,tryoen2010a,pettersson2014,li-stinis2015}.
+%Similar adaptive methods have also been developed for non-intrusive stochastic collocation methods, and these are reviewed by \citet{bhaduri2018}.
+
+While stochastic Galerkin methods have received a great deal of attention, few have applied the method to the shallow water equations.
+\citet{ge2008} made the first step in this direction, formulating a one-dimensional stochastic Galerkin shallow water model to study solitary wave propagation over uncertain topography.
+Their stochastic Galerkin model was 50 times more efficient than Monte Carlo with similar accuracy, demonstrating that stochastic Galerkin shallow water models offer a viable alternative to Monte Carlo methods.
+However, their experiments were limited to flows with smooth, unimodal probability distributions that are more easily represented by stochastic Galerkin methods.
+Furthermore, their stochastic Galerkin formulation used a centred difference approximation of the bed slope source term that is not well-balanced.
+
+A well-balanced stochastic Galerkin model was formulated by \citet{jin2016} and applied to scalar nonlinear equations including the inviscid Burgers' equation.
+The model inherited the well-balancing property from the underlying deterministic model that used the `interface method' by \citet{jin2001}.
+\citet{jin2016} note that the intrusive stochastic Galerkin method has a particular advantage over non-intrusive stochastic collocation:
+a stochastic collocation method can only guarantee well-balancing at the collocation nodes where the deterministic well-balanced model is sampled.
+In contrast, the stochastic Galerkin model guarantees well-balancing across the entire stochastic space, irrespective of the order of Polynomial Chaos basis.
+
+When applied to the shallow water equations, the well-balanced interface method is equivalent to the surface gradient method by \citet{zhou2001}.
+A stochastic reformulation of the surface gradient method is straightforward because it is a linear method involving only linear combinations of the discrete flow variables and topography.
+Popular alternatives to the surface gradient method include well-balanced approaches that are also depth-positivity preserving \citep{audusse2004,liang-marche2009}.
+Such approaches use nonlinear $\max(\cdot, \cdot)$ operators which greatly complicate their stochastic Galerkin reformulation for realistic applications.
+
+This paper presents a well-balanced stochastic Galerkin model of the one-dimensional shallow water equations using a stochastic reformulation of the surface gradient method \citep{zhou2001}.
+The well-balancedness of the proposed stochastic Galerkin model is studied theoretically and verified numerically for a lake-at-rest flow over an uncertain bed.
+Next, a steady-state test is proposed that provokes a strongly nonlinear flow response over an uncertain bed, resulting in probability distributions that are highly non-Gaussian and discontinuous.
+Probability distributions produced by the stochastic Galerkin model are validated against a Monte Carlo reference simulation, and the relative computational performance is discussed.
+Numerical simulation data \citep{shaw-kesserwani2018a} and a Python 3 implementation of the stochastic Galerkin shallow flow model \citep{shaw-kesserwani2018b} are available to download from Zenodo.
+Instructions for running the models and interpreting the data are provided in the appendix.
+
+%This paper makes the next step by formulating a well-balanced stochastic Galerkin shallow water model, and assessing the model using flows with discontinuous, non-Gaussian probability distributions.

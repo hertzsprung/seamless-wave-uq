@@ -1,0 +1,19 @@
+\TODO{Mention that only linear functions are amenable to a stochastic Galerkin formulation.
+Show how a well-balancing method that uses min or max cannot be decoupled.
+Very quick sketch, say we need a positivity preserving water depth, $\hmodified_i = \max(0, \eta_i - \zmodified_i)$.
+Making a polynomial chaos expansion we have
+\begin{align}
+    \sum_{p=0}^P \hmodified_{i,p} \pcbasis_p
+    =
+    \max\left(0, 
+    \sum_{p=0}^P \left(\eta_{i,p} - \zmodified_{i,p} \right) \pcbasis_p \right)
+%
+\intertext{A stochastic Galerkin projection gives}
+%
+\Ensemble{\hmodified_{i,l} \pcbasis_l^2}
+=
+    \Ensemble{\max\left(0, 
+    \sum_{p=0}^P \left(\eta_{i,p} - \zmodified_{i,p} \right) \pcbasis_p \right)
+    \pcbasis_l}
+\end{align}
+and now we're stuck!  I wonder if we can integrate this by quadrature or something...}

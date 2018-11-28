@@ -1,133 +1,243 @@
-\section{Deterministic and stochastic Galerkin shallow water model formulations}
+\clearpage
+\section{Deterministic and stochastic shallow flow models}
 
-In this section, the deterministic one-dimensional shallow water equations are discretised using a shock-capturing first-order finite volume method.
-To ensure well-balancing in the deterministic model, the bed slope source term is discretised using the surface gradient method \citep{zhou2001}.
-Using the stochastic Galerkin method, a stochastic dimension is introduced into the deterministic model, and a polynomial chaos expansion is made to produce the corresponding stochastic model.
+In this section, a certain deterministic numerical solver of the one dimensional (1D) shallow water equations is outlined in the framework of a finite volume Godunov-type method.
+The selected deterministic solver relies on the surface gradient method \citep{zhou2001} to both ensure a well-balanced topography integration and extendibility of the well-balanced property into the stochastic Galerkin case. 
+Accordingly, a stochastic Galerkin reformulation is devised that is theoretically well-balanced with uncertain topography under a lake-at-rest hypothesis.
 
-The deterministic one-dimensional shallow water equation is
+The mathematical model of the shallow water equations represent mass and momentum
+conservation principals, and is used in the following conservative form when solving it within a finite volume Godunov-type framework \citep{toro-garcianavarro2007}:
 \begin{align}
-    \frac{\partial \flow}{\partial t} + \frac{\partial \flux(\flow)}{\partial x} = \source \label{eqn:swe}
+\frac{\partial \flow(x, t)}{\partial t} + \frac{\partial \flux(\flow(x, t))}{\partial x} = \source(\flow(x, t), z(x)) \label{eqn:swe}
 \end{align}
-where $\flow$ is the flow, $\flux$ is the flux and $\source$ is the bed slope source term.
-The flow $\flow = \left[ h, q \right]^\T$ with water height $h$, discharge per unit width $q = hu$ and velocity $u$.
-The flux $\flux = \left[ q,  q^2/h + gh^2/2 \right]^\T$ where the gravitational acceleration $g = \SI{9.80665}{\meter\per\second}$.  The source term $\source = \left[ 0, -gh \: \dee z / \dee x \right]^\T$ where $z(x)$ is the bed elevation profile.
+where $\flow = \left[ h, q \right]^\T$ is the flow vector including water height $h$ ($\mathrm{L}$) and unit-width discharge $q = h\velocity$ ($\mathrm{L}^2/\mathrm{T}$) in which $\velocity$ represents the depth-averaged velocity ($\mathrm{L}/\mathrm{T}$), $\flux = \left[ q,  q^2/h + gh^2/2 \right]^\T$ is the flux vector in which $g$ represents the gravitational constant and $\source = \left[ 0, -gh \: \dee z / \dee x \right]^\T$ is the source term vector in which the gradient of the topography $z(x)$ is involved.
 
-\subsection{Deterministic Shallow Water Model Formulation}
-Equation~\eqref{eqn:swe} is discretised on a one-dimensional domain with $M$ elements and uniform mesh spacing $\Delta x$.
-Applying the first-order finite volume method and forward Euler time-stepping yields the evolution equation
-\begin{align}
-    \flow_i^{(n+1)} = \flow_i^{(n)} - \frac{\Delta t}{\Delta x}
-    \left( \riemannflux_{i+1/2}^{(n)} - \riemannflux_{i-1/2}^{(n)}
-    - \Delta x \source_i^{(n)} \right) \label{eqn:swe-discrete}
-\end{align}
-which evolves the flow on element $i = 1, \ldots, M$ from time level $(n)$ to time level $(n+1)$ with a time-step $\Delta t$.  
-The numerical flux $\riemannflux_{i+1/2}$ is calculated at interface $i+1/2$ using a Roe approximate Riemann solver with entropy correction\todo{citation}.
+\subsection{Deterministic model}
 
-To ensure well-balancing in the deterministic model, the bed slope source term $\source_i$ is discretised using the surface gradient method \citep{zhou2001},
+On a uniform 1D mesh with $M$ elements each of size $\Delta x$, the first-order finite volume method leads to the following discrete element-wise formulation of equation~\eqref{eqn:swe}:
 \begin{align}
-\source_i = \left[ 0, -g \hmodified_i \frac{\Delta \zmodified_i}{\Delta x} \right]^\T \label{eqn:source-h}
+    \flow_i^{(n+1)} = \flow_i^{(n)} - \Delta t
+    \left(
+    \frac{\riemannflux_{i+1/2}^{(n)} - \riemannflux_{i-1/2}^{(n)}}{\Delta x}
+    - \source_i^{(n)} \right) \label{eqn:swe-discrete}
 \end{align}
-where the modified water height $\hmodified_i$ is
-\begin{align}
-    \hmodified_i = \frac{h_{i-1/2}^+ + h_{i+1/2}^-}{2} \label{eqn:hbar}
-\end{align}
-and the modified water heights at the interfaces of element $i$ are $h_{i-1/2}^+ = \eta_{i-1/2}^+ - \zmodified_{i-1/2}$ and $h_{i+1/2}^- = \eta_{i+1/2}^- - \zmodified_{i+1/2}$ where the water elevation $\eta = h + z$.
-Since the first-order finite volume discretisation uses a piecewise-constant basis then $\eta_{i-1/2}^+ = \eta_{i+1/2}^- = h_i + z_i$.
-The change in bed elevation $\Delta \zmodified_i$ over element $i$ is
-\begin{align}
-    \Delta \zmodified_i = \zmodified_{i+1/2} - \zmodified_{i-1/2} \label{eqn:delta-z}
-\end{align}
-where the averaged bed elevation $\zmodified_{i+1/2}$ at interface $i+1/2$ is
-\begin{align}
-\zmodified_{i+1/2} = \frac{z_i + z_{i+1}}{2} \label{eqn:z-interface}
-\end{align}
-The numerical flux $\riemannflux_{i+1/2}$ is calculated based on the averaged bed elevation $\zmodified_{i+1/2}$ such that $\riemannflux_{i+1/2} = \riemannflux(\flow_{i+1/2}^-, \flow_{i+1/2}^+)$ where $\flow_{i+1/2}^- = [h_{i+1/2}^-, q_{i+1/2}^-]^\T$ and $\flow_{i-1/2}^+ = [h_{i+1/2}^+, q_{i+1/2}^+]^\T$.
-The discharges $q_{i-1/2}^+$ and $q_{i+1/2}^-$ are calculated using the velocity $u_i = q_i/h_i$ such that $q_{i-1/2}^+ = h_{i-1/2}^+ \, u_i$ and $q_{i+1/2}^- = h_{i+1/2}^- \, u_i$.
+in which $\flow_i^{(n)} = \left[ h_i^{(n)}, q_i^{(n)} \right]^\T$ is a piecewise-constant discretisation of the flow vector at element $i$ and time level $(n)$, and $\riemannflux_{i+1/2}^{(n)}$ is a numerical flux function for linking nonlinear discontinuities associated with the flow vector data at interface $i+1/2$ located between element $i$ and $i + 1$.
+Namely, $\riemannflux_{i+1/2}^{(n)} = \riemannflux(\flow_{i+1/2}^-, \flow_{i+1/2}^+)$ where $\flow_{i+1/2}^-$ is the limit of the solution from the side of element $i$, and $\flow_{i+1/2}^+$ is the limit of the solution from the side of element $i+1$.
+Within the scope of this work involving a first-order accurate solver, these limits become $\flow_{i+1/2}^- = \flow_i$ and $\flow_{i+1/2}^+ = \flow_{i+1}$ that are used in a numerical flux function based on the approximate Riemann solver of Roe \citep{roe-pike1984}.
 
-\subsection{Stochastic Galerkin Shallow Water Model Formulation}
-The stochastic Galerkin method introduces a stochastic dimension with coordinate $\xi$ such that the flow $\flow = \flow(x, t, \xi)$ and the bed elevation $z = z(x, \xi)$.
-The flow and bed elevation fields in the stochastic dimension are represented by a polynomial chaos expansion,
+The surface gradient method essentially reconstructs an averaged topography at interface $i+1/2$ that is shared by both elements $i$ and $i+1$, as $\zmodified_{i+1/2} = (z_i + z_{i+1})/2$.
+From the reconstructed topography $\zmodified_{i+1/2}$, consistent flow variable limits are accordingly reconstructed based on the actual free-surface elevation data, i.e. $\eta_{i+1/2}^- = h_i^{(n)} + z_i$ and $\eta_{i+1/2}^+ = h_{i+1}^{(n)} + z_{i+1}$, and velocity data, i.e. $\velocity_{i+1/2}^- = q_i^{(n)}/h_i^{(n)}$ and $\velocity_{i+1/2}^+ = q_{i+1}^{(n)} / h_{i+1}^{(n)}$, as: $\hKmodified_{i+1/2} = \eta_{i+1/2}^K - \zmodified_{i+1/2}$ and $\qKmodified_{i+1/2} = \hKmodified_{i+1/2} \velocity_{i+1/2}^K$ (where $K = + \text{ or } -$).
+For clarity of presentation, the time level denoted by superscript $(n)$ is omitted from all reconstructed variables.
+These reconstructions form new Riemann states $\flowKmodified_{i+1/2} = \left[ \hKmodified_{i+1/2}, \qKmodified_{i+1/2} \right]^\T$ for use to evaluate $\riemannflux_{i+1/2}^{(n)}$.
+By analogy, new Riemann limits $\flowKmodified_{i-1/2} = \left[ \hKmodified_{i-1/2}, \qKmodified_{i-1/2} \right]^\T$ at $i - 1/2$ are produced for use to evaluate $\riemannflux_{i-1/2}^{(n)}$.
+From the reconstructed limits, a well-balanced discretisation of the source term vector can be produced:
 \begin{align}
-    \flow(x, t, \xi) = \sum _{p=0}^P \flow_p(x, t) \pcbasis_p(\xi) \quad\text{,}\quad
-    z(x, \xi) = \sum _{p=0}^P z_p(x) \pcbasis_p(\xi)
-\end{align}\label{eqn:pc-expansion}%
-where $\pcbasisvect = \left[ \pcbasis_0, \ldots, \pcbasis_P \right]$ is the probabilists' Hermite polynomial basis having term $\pcbasis_p$ with degree $p$,
+	\source_i^{(n)} = \left[ 0, -g
+	\left( \frac{h^{+,\star}_{i-1/2} + h^{-,\star}_{i+1/2}}{2} \right)
+	\left( \frac{z^\star_{i+1/2} - z^\star_{i-1/2}}{\Delta x} \right)
+	\right]^\T
+	\label{eqn:source}
+\end{align}
+The well-balanced deterministic model presented in equations~\eqref{eqn:swe-discrete} and \eqref{eqn:source} is used for Monte Carlo simulations, and the deterministic model is also the starting point for a stochastic Galerkin reformulation.
+
+\subsection{Fundamental properties of the Polynomial Chaos basis}
+
+Before presenting the stochastic Galerkin reformulation, it is necessary to consider a single random variable $X(\theta)$ that maps from the random event $\theta$ to an arbitrary probability distribution with finite variance.
+This random variable can be approximated by a Wiener-Hermite Polynomial Chaos expansion \citep{xiu-karniadakis2002}.
+The expansion is based on a standard Gaussian random variable $\xi(\theta) \in [-\infty, +\infty]$ having zero mean and unit variance.
+The random variable of interest, $X(\theta)$, is then approximated as
+\begin{align}
+X(\theta) \approx \sum_{p=0}^P X_p \pcbasis_p(\xi(\theta))
+\end{align}
+where $\vect{X} = \left[ X_0, \ldots, X_P \right]^\T$ are the expansion coefficients and $\pcbasisvect = \left[ \pcbasis_0, \ldots, \pcbasis_P \right]^\T$ is the probabilists' Hermite polynomial basis having basis function $\pcbasis_p$ of degree $p$,
 \begin{align}
     \pcbasis_p(\xi) = \left( -1 \right)^p \exp \left(\frac{\xi^2}{2}\right)
     \frac{\dee^p}{\dee \xi^p} \exp \left(- \frac{\xi^2}{2} \right)
 \end{align}
 where $\pcbasis_0 = 1, \pcbasis_1 = \xi, \pcbasis_2 = \xi^2 - 1, \pcbasis_3 = \xi^3 - 3\xi$ and so on.
-The ensemble average $\Ensemble{\pcbasis_p \pcbasis_\palt}$ is 
-\begin{align}
-    \Ensemble{\pcbasis_p \pcbasis_\palt} = \int_{-\infty}^\infty \pcbasis_p \pcbasis_\palt W \diff \xi
-\end{align}
-where the Gaussian probability density function $W$ is
-\begin{align}
-    W = \frac{1}{\sqrt{2\pi}} \exp \left(-\frac{\xi^2}{2}\right)
-\end{align}
-Since the polynomial chaos basis is orthogonal then $\Ensemble{\pcbasis_p \pcbasis_\palt} = \Ensemble{\pcbasis_p^2} \delta_{p\palt}$ where $\delta_{p\palt}$ is the Kronecker delta.
+As the basis order $P$ is increased, the Wiener-Hermite Polynomial Chaos approximation converges on the true random variable $X(\theta)$ \citep{xiu-karniadakis2002}.
 
-The stochastic Galerkin shallow water model is formulated by making a polynomial chaos expansion of equation~\eqref{eqn:swe-discrete} then making a Galerkin projection onto the bases $\pcbasis_l, l = 0, \ldots, P$ to produce $P + 1$ decoupled equations,
+\subsubsection*{Basis orthogonality and commutativity}
+The Wiener-Hermite basis $\pcbasisvect$ is orthogonal such that
+\begin{align}
+	\Ensemble{\pcbasis_p \pcbasis_s} = \Ensemble{\pcbasis_p^2} \delta_{ps}
+\end{align}
+where $\Ensemble{\cdot}$ is the ensemble average operator and $\delta_{ps}$ is the Kronecker delta that is equal to one when $p = s$ and zero otherwise.
+The ensemble average operator is defined as the weighted integral over the standard Gaussian random variable $\xi$:
+\begin{align}
+	\Ensemble{\alpha(\xi)} = \int_{-\infty}^\infty \alpha(\xi) W(\xi) \diff \xi \label{eqn:ensemble-average}
+\end{align}
+where $\alpha(\xi)$ is an expression involving any combination of random variables or basis functions, and the weighting function $W(\xi)$ is the standard Gaussian probability density function
+\begin{align}
+	W(\xi) = \frac{1}{\sqrt{2\pi}} \exp \left(-\frac{\xi^2}{2}\right)
+\end{align}
+This weighting function ensures that, when $\alpha$ is independent of $\xi$, the ensemble average $\Ensemble{\alpha} = \alpha$.
+Finally, the ensemble average of a product of basis functions is commutative such that
+\begin{align}
+    \Ensemble{\pcbasis_p \pcbasis_s} = \Ensemble{\pcbasis_s \pcbasis_p}
+    \label{eqn:commutative}
+\end{align}
+The commutative property is needed later when verifying the well-balanced property with uncertain topography.
+
+\subsubsection*{Stochastic Galerkin projection of a random variable}
+Given the random variable $X(\theta) = \sum_{p=0}^P X_p \pcbasis_p(\xi(\theta))$, its Galerkin projection onto a basis function $\pcbasis_l$ with $l = 0, \ldots, P$ is achieved using the ensemble average operator such that, due to orthogonality,
+\begin{align}
+	\Ensemble{X(\theta) \pcbasis_l} = X_l \Ensemble{\pcbasis_l^2} \label{eqn:orthogonal}
+\end{align}
+where $X_l$ is the $l$\textsuperscript{th} order expansion coefficient.
+Also note that the Galerkin projection of a basis function $\pcbasis_l$ and two random variables, $X(\theta)$ and $Y(\theta)$, is distributive:
+\begin{align}
+	\Ensemble{\left(X(\theta) + Y(\theta)\right) \pcbasis_l}
+	=
+	\Ensemble{X(\theta) \pcbasis_l} + \Ensemble{Y(\theta) \pcbasis_l} \label{eqn:distributive}
+\end{align}
+
+\subsubsection*{Mean, variance and high-order moments}
+The mean, variance and high-order moments can be calculated for $X(\theta)$.
+The $m$\textsuperscript{th} moment $\mu_m[X]$ is defined as
+\begin{align}
+\mu_m[X] = \int_{-\infty}^\infty \left(X - \beta \right)^m W(\xi) \diff \xi
+    =
+    \Ensemble{\left( X - \beta \right)^m} \label{eqn:moment}
+\end{align}
+where $\beta = 0$ when $m = 1$ and $\beta = \mu_1[X]$ for higher-order moments.
+Therefore, the mean $\mu_1[X] = \Ensemble{X} = \sum_{p=0}^P X_p \Ensemble{\pcbasis_p}$.
+Since $\Ensemble{\pcbasis_0} = 1$ and $\Ensemble{\pcbasis_p} = 0$ for $p > 0$ then
+\begin{align}
+\mu_1[X] = X_0
+\label{eqn:mean}
+\end{align}
+The shorthand notation for the mean of $X$ is $\mean{X}$, also known as the expected value, $\E\left[X\right]$.
+
+The variance $\mu_2[X]$ can be derived using the fact that $\E\left[ \left( X - \E[X] \right)^2 \right] = \E[X^2] - \E^2[X]$, hence $\mu_2[X] = \left(\sum_{p=0}^P X_p^2 \Ensemble{\pcbasis_p^2}\right) - X_0^2 \Ensemble{\pcbasis_0}^2$.
+Since $\Ensemble{\pcbasis_0}^2 = \Ensemble{\pcbasis_0^2}$ then
+\begin{align}
+    \mu_2[X] &= \sum_{p=1}^P X^2_p \Ensemble{\pcbasis_p^2} \label{eqn:variance}
+\end{align}
+The shorthand notation for the variance of $X$ is $\sigma^2_X$ and the standard deviation of $X$ is $\sigma_X$.
+
+\subsubsection*{Reconstructing the probability density function}
+The probability density function $f_X(x)$ of a random variable $X$ is,
+\begin{subequations}
+\begin{align}
+        f_X(x) = \sum_{j=1}^J \Mag{ \sum_{p=0}^P X_p \frac{\dee \Phi_p}{\dee \xi}(\randomroot_j)}^{-1} W(\randomroot_j)
+%
+\intertext{where $\randomroot_j$, $j=1, \ldots, J$ are the real roots of the polynomial}
+%
+        x - \sum_{p=0}^P X_p \pcbasis_p(\xi) = 0
+\end{align}\label{eqn:pdf}%
+\end{subequations}
+which can be calculated numerically for a specific outcome $x$.
+Hence, the probability density function is computed by evaluating equation~\eqref{eqn:pdf} for a range of outcomes.
+
+\subsection{Stochastic Galerkin reformulation of the deterministic model}
+%In the deterministic 1D shallow water equations (equation~\ref{eqn:swe}), the flow vector is $\flow(x, t)$ and the topography is $z(x)$.
+The solution of the stochastic 1D shallow water equations is now random because it depends on uncertain initial conditions, uncertain boundary conditions and uncertain topography.
+Hence, the stochastic 1D shallow water equations depend not only upon space $x$ and time $t$, but additionally upon the random event $\theta$.
+The stochastic flow vector $\flow(x, t, \theta)$ becomes a general stochastic process having arbitrary probability distributions that vary in space and time.
+Similarly, the stochastic topography $z(x, \theta)$ has arbitrary probability distributions that vary in space.
+
+The stochastic Galerkin reformulation of the deterministic model involves three steps to (i) replace the deterministic variables, $\flow_i^{(n)}$ and $z_i$, with random variables $\flow_i^{(n)}(\theta)$ and $z_i(\theta)$, (ii) rewrite the deterministic formulation using these random variables, and (iii) make a stochastic Galerkin projection onto the Wiener-Hermite basis.
+
+\subsubsection*{Replacing deterministic variables with random variables}
+
+For all elements $i=1, \ldots, M$ across all time levels, every deterministic flow variable $\flow_i^{(n)} = \left[h_i^{(n)}, q_i^{(n)}\right]^\T$ and deterministic topography variable $z_i$ becomes a random variable approximated by a Wiener-Hermite Polynomial Chaos expansion:
+\begin{align}
+\flow_i^{(n)}(\theta) \approx \sum _{p=0}^P \flow_{i,p}^{(n)} \pcbasis_p(\xi(\theta))
+    \:\text{,}\quad
+z_i(\theta) \approx \sum_{p=0}^P z_{i,p} \pcbasis_p(\xi(\theta))
+\label{eqn:pc-expansion}%
+\end{align}
+where $\flow_{i,p}^{(n)} = \left[ h_{i,p}^{(n)}, q_{i,p}^{(n)} \right]^\T$ and $z_{i,p}$ are the $p$\textsuperscript{th} order expansion coefficients over element $i$ at time level $n$.
+
+The reconstructed topography and reconstructed limits become functions of random variables.
+The reconstructed topography at interface $i+1/2$ becomes
+\begin{align}
+	\sum_{p=0}^P z^\star_{i+1/2,p} \pcbasis_p
+	=
+	\frac{1}{2}
+	\left(
+	\sum_{p=0}^P z_{i,p} \pcbasis_p
+	+
+	\sum_{p=0}^P z_{i+1,p} \pcbasis_p
+	\right)
+\end{align}
+and so $z^\star_{i+1/2,p} = (z_{i,p} + z_{i+1,p})/2$ due to basis orthogonality.
+The reconstructed limits $\flow^{K,\star}_{i+1/2,p} = \left[ h^{K,\star}_{i+1/2,p}, q^{K,\star}_{i+1/2,p} \right]^\T$ (where $K = + \text{ or } -$) are calculated in a similar fashion.
+
+Random variables that are functions of other random variables can be calculated in the same way.
+In particular, water height can be expressed as a function of free-surface elevation and topography such that, due to basis orthogonality,
+\begin{align}
+h_{i,p}^{(n)} = \eta_{i,p}^{(n)} - z_{i,p}
+\label{eqn:h-eta-z}
+\end{align}
+which is used later for specifying initial conditions.
+
+\subsubsection*{Rewriting the deterministic formulation using random variables}
+
+The deterministic finite volume formulation given by equation~\eqref{eqn:swe-discrete} is rewritten in terms of the random variables in equation~\eqref{eqn:pc-expansion}.
+As a result, the numerical fluxes $\riemannflux_{i+1/2}^{(n)}$ and $\riemannflux_{i-1/2}^{(n)}$ and source term vector $\source_i^{(n)}$ become functions of random variables.
+The numerical flux $\riemannflux_{i+1/2}^{(n)}$ becomes
+\begin{align}
+	\riemannflux_{i+1/2}^{(n)} = \riemannflux \left(
+	\sum_{p=0}^P \flow^{-,\star}_{i+1/2,p} \pcbasis_p, 
+	\sum_{p=0}^P \flow^{+,\star}_{i+1/2,p} \pcbasis_p
+	\right)
+\end{align}
+and similarly for $\riemannflux_{i-1/2}^{(n)}$.
+The source term vector $\source_i^{(n)}$ in equation~\eqref{eqn:source} becomes
+\begin{align}
+	\source_i^{(n)} = \left[ 0, -\frac{g}{\Delta x}
+	\left\{
+	\sum_{p=0}^P \frac{h^{+,\star}_{i-1/2,p} + h^{-,\star}_{i+1/2,p}}{2} \pcbasis_p \right\}
+\left\{ \sum_{s=0}^P \left( z^\star_{i+1/2,s} - z^\star_{i-1/2,s} \right) \pcbasis_s \right\}
+	\right]^\T
+	\label{eqn:random-source}
+\end{align}
+Equation~\eqref{eqn:random-source} involves the product of two expressions, each delimited by braces.
+Since both expressions include Wiener-Hermite expansions then different indices, $p$ and $s$, are needed for the expansion coefficients in each expression.
+
+\subsubsection*{Stochastic Galerkin projection}
+
+Due to the orthogonal property (equation~\ref{eqn:orthogonal}) and distributive property (equation~\ref{eqn:distributive}) of the Wiener-Hermite basis, a Galerkin projection of equation~\eqref{eqn:swe-discrete} onto the basis functions $\pcbasis_l, l = 0, \ldots, P$ produces $P+1$ decoupled equations:
 \begin{align}
     \flow_{i,l}^{(n+1)} = \flow_{i,l}^{(n)}
-    - \frac{\Delta t}{\Delta x \Ensemble{\pcbasis_l}^2}
+    - \frac{\Delta t}{\Ensemble{\pcbasis_l^2}}
     \left(
+    \frac{
     \Ensemble{\riemannflux_{i+1/2}^{(n)} \pcbasis_l}
     -
     \Ensemble{\riemannflux_{i-1/2}^{(n)} \pcbasis_l}
-    - \Delta x \Ensemble{\source_i^{(n)} \pcbasis_l}
+    }{\Delta x}
+    - \Ensemble{\source_i^{(n)} \pcbasis_l}
     \right) \label{eqn:swe-pc}
 \end{align}
-where $\flow_{i,l}^{(n)}$ are the flow coefficients at time level $n$ over element $i$ in the physical dimension, $l$ in the stochastic dimension.
-The stochastic evolution equation~\eqref{eqn:swe-pc} involves ensemble averages of numerical fluxes and an ensemble average of the bed slope source term.
-Since the ensemble average of the numerical flux $\Ensemble{\riemannflux_{i+1/2} \pcbasis_l}$ is nonlinear, it is approximated by Gauss-Hermite quadrature,
+Equation~\eqref{eqn:swe-pc} involves ensemble averages of numerical fluxes, $\Ensemble{\riemannflux_{i+1/2}^{(n)} \pcbasis_l}$ and $\Ensemble{\riemannflux_{i-1/2}^{(n)} \pcbasis_l}$, and an ensemble average of the source term vector, $\Ensemble{\source_i^{(n)} \pcbasis_l}$.
+There is no straightforward method for calculating an ensemble average of the numerical flux because it is nonlinear.
+Instead, the integral in equation~\eqref{eqn:ensemble-average} is approximated by Gauss-Hermite quadrature,
 \begin{align}
-    \Ensemble{\riemannflux_{i+1/2} \pcbasis_l}
+    \Ensemble{\riemannflux_{i+1/2}^{(n)} \pcbasis_l}
     \approx
     \sum_{j=1}^{P+1} w_j
-    \riemannflux( \flow_{i+1/2}^-(\xi_j), \flow_{i+1/2}^+(\xi_j) )
+    \riemannflux\left(
+	\sum_{p=0}^P \flow_{i+1/2,p}^{-,\star} \pcbasis_p(\xi_j),
+	\sum_{p=0}^P \flow_{i+1/2,p}^{+,\star} \pcbasis_p(\xi_j)
+	\right)
     \pcbasis_l(\xi_j) W(\xi_j) \label{eqn:pc-flux}
 \end{align}
-where $w_j$ are the quadrature weights and $\xi_j$ are the quadrature points in the stochastic dimension.
-%The numerical flux $\riemannflux( \flow_{i+1/2}^-(\xi_j), \flow_{i+1/2}^+(\xi_j) )$ is calculated using the flow evaluated at the quadrature points $\xi_j$ such that
-%\begin{align}
-%    \flow_{i+1/2}^-(\xi_j) = \sum_{p=0}^P \flow_{i+1/2,p}^- \pcbasis_p(\xi_j)
-%\end{align}
-%and similarly for $\flow_{i+1/2}^+$.
-%\todo[inline]{
-%This is a minor point but took me a little time to work out.
-%It is straightforward to calculate the modified water heights at the interfaces since addition of polynomial chaos expansions is distributive: $\sum h_p \pcbasis_p + \sum z_p \pcbasis_p = \sum (h_p + z_p) \pcbasis_p$.
-%However, the modified discharges at the interfaces involve division ($u = q/h$) and multiplication $q^\pm = u*h^\pm$ which are not distributive operations.
-%Hence, the modified discharge must be evaluated for given quadrature points $\xi_j$, and cannot be precomputed using the coefficients alone.}
+where $w_j$ are the quadrature weights and $\xi_j$ are the quadrature points.
+The ensemble average $\Ensemble{\riemannflux_{i-1/2}^{(n)} \pcbasis_l}$ is calculated in the same way.
 
-The stochastic bed slope source term $\Ensemble{\source_i \pcbasis_l}$ in equation~\eqref{eqn:swe-pc} is derived from the deterministic bed slope source term (equation~\ref{eqn:source-h}) such that
+Unlike the nonlinear numerical flux, the ensemble average of the source term vector $\Ensemble{\source_i^{(n)} \pcbasis_l}$ is linear and can be derived directly from equation~\eqref{eqn:random-source}:
 \begin{align}
-    \Ensemble{\source_i \pcbasis_l} &= \left[ 0,
+\Ensemble{\source_i^{(n)} \pcbasis_l} &= \left[ 0,
     - \frac{g}{\Delta x}
-    \sum_{p=0}^P \sum_{\palt=0}^P
-    \hmodified_{i,p} \Delta \zmodified_{i,\palt}
-    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
+    \sum_{p=0}^P \sum_{s=0}^P
+\left(\frac{h^{+,\star}_{i-1/2,p} + h^{-,\star}_{i+1/2,p}}{2}\right)
+\left( z^\star_{i+1/2,s} - z^\star_{i-1/2,s} \right)
+    \Ensemble{\pcbasis_p \pcbasis_s \pcbasis_l}
     \right]^\T
-\label{eqn:pc-source-h}
+\label{eqn:pc-source}
 \end{align}
-The ensemble averages of polynomial chaos bases in equation~\eqref{eqn:pc-source-h}, and in the denominator of equation~\eqref{eqn:swe-pc}, can be calculated analytically or by Gauss-Hermite quadrature.
-
-\todo[inline]{Mention that only continuous functions are amenable to a stochastic Galerkin formulation.
-Show how a well-balancing method that uses min or max cannot be decoupled.
-Very quick sketch, say we need to calculate $\zmodified_i = \max(z_{i-1}, z_{i+1})$.
-Making a polynomial chaos expansion we have
-\begin{align}
-    \sum_{p=0}^P \zmodified_{i,p} \pcbasis_p
-    =
-    \max\left(\sum_{p=0}^P z_{i-1,p} \pcbasis_p, 
-    \sum_{p=0}^P z_{i+1,p} \pcbasis_p \right)
-%
-\intertext{A stochastic Galerkin projection gives}
-%
-\Ensemble{\zmodified_{i,l} \pcbasis_l^2}
-=
-    \Ensemble{\max\left(\sum_{p=0}^P z_{i-1,p} \pcbasis_p, 
-    \sum_{p=0}^P z_{i+1,p} \pcbasis_p \right)
-    \pcbasis_l}
-\end{align}
-and now we're stuck!  I wonder if we can integrate this by quadrature or something...}
+The ensemble averages $\Ensemble{\pcbasis_p \pcbasis_s \pcbasis_l}$ in equation~\eqref{eqn:pc-source} and $\Ensemble{\pcbasis_l^2}$ in equation~\eqref{eqn:swe-pc} can be calculated analytically or exactly by Gauss-Hermite quadrature.
+Since these calculations do not depend on the solution then they can be precomputed once and stored.

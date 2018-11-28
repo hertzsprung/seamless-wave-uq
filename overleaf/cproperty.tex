@@ -1,62 +1,141 @@
-\section{Analytic verification of the stochastic Galerkin conservative property}
+\subsection{Well-balanced Property with Uncertain Topography}
 
-Using a deterministic shallow water model formulation, the surface gradient method satisfies the exact \cproperty{} \citep{zhou2001} such that the deterministic model exactly preserves an initial, stationary solution over a sloping bed.
-In this section it is shown that the stochastic Galerkin model also satisfies the exact \cproperty.
+In this section it is shown that the stochastic Galerkin model satisfies the well-balanced property for a lake-at-rest with uncertain topography.
+Assuming a lake-at-rest, the mean free-surface elevation is constant and the mean discharge is zero.
+There is no uncertainty in the free-surface elevation or discharge.
+The bed elevation can have any spatial profile and stochastic profile.
 
-The initial mean water elevation $\eta_0 = h_0 + z_0 $ is constant and the initial mean discharge $q_0 = 0$.
-There is zero uncertainty in the initial water elevation and initial discharge.
-The bed elevation $z$ is arbitrary, having any spatial and stochastic profile.
-Since the water elevation is spatially uniform and the averaged bed elevation $\zmodified$ is continuous at interfaces then $h_{i+1/2}^- = h_{i+1/2}^+$ and the shorthand notation $h_{i+1/2}$ can be used.
-The mass conservation equation vanishes since $q = 0$.
-In order to preserve a stationary solution in element $i$ then $\partial q_i/\partial t = 0$ and the momentum equation becomes
+Since the free-surface elevation is constant and the averaged bed elevation is continuous at interfaces then $\eta_{i+1/2,p}^- - z^\star_{i+1/2,p} = \eta_{i+1/2,p}^+ - z^\star_{i+1/2,p}$, hence $h^{-,\star}_{i+1/2,p} = h^{+,\star}_{i+1/2,p}$ for all $i = 0, \ldots, M$ and $p = 0, \ldots, P$.
+Shorthand notation is introduced such that
+$\eta_p$ is the $p$\textsuperscript{th} expansion coefficient of the spatially uniform free-surface elevation, and
+$h^\star_{i+1/2,p} = h^{-,\star}_{i+1/2,p} = h^{+,\star}_{i+1/2,p}$.
+Since $h^\star_{i+1/2,p}$ is continuous at interfaces and the discharge is zero then the numerical flux is equal to the physical flux.
+
+In order to preserve a lake-at-rest solution in element $i$ then the ensemble average of the flux gradient must balance the ensemble average of the source term vector in equation~\eqref{eqn:swe-pc}.
+The balance of mass and momentum components can be considered separately.
+The mass continuity equation balances because the discharge is zero.
+For the momentum equation, the following equality must hold for all $l = 0, \ldots, P$:
 \begin{align}
-    \frac{\riemannfluxcomponent_{i+1/2} - \riemannfluxcomponent_{i-1/2}}{\Delta x} = S_i
-    \label{eqn:momentum-balance}
+\frac{\Ensemble{F_{i+1/2}^{(n)} \pcbasis_l} - \Ensemble{F_{i-1/2}^{(n)} \pcbasis_l}}{\Delta x}
+-
+\Ensemble{S_i^{(n)} \pcbasis_l}
+= 0
+\label{eqn:momentum-balance-separate}
 \end{align}
-where the numerical momentum flux $\riemannfluxcomponent_{i+1/2}$ and bed slope source term $S_i$ are
+where the ensemble average of the bed slope source term $\Ensemble{S_i^{(n)} \pcbasis_l}$ is given by equation~\eqref{eqn:pc-source} and the momentum flux $F_{i+1/2}^{(n)}$ is
 \begin{align}
-\riemannfluxcomponent_{i+1/2} = \frac{g}{2} h_{i+1/2}^2 \text{\quad,\quad}
-S_i = - \frac{g}{\Delta x} \hmodified_i \Delta \zmodified_i
+F_{i+1/2}^{(n)} = \frac{g}{2}
+\left\{\sum_{p=0}^P h^\star_{i+1/2,p} \pcbasis_p\right\}
+\left\{\sum_{s=0}^P h^\star_{i+1/2,s} \pcbasis_s\right\}
 \end{align}
-To show that the stochastic Galerkin model formulation satisfies the exact \cproperty{}, it is sufficient to show that the stochastic Galerkin projection of equation~\eqref{eqn:momentum-balance} is satisfied.
-The stochastic Galerkin projection of the source term $\Ensemble{S_i \pcbasis_l}$ is given by equation~\eqref{eqn:pc-source-h}.
-The stochastic Galerkin projection of the momentum flux is
+and similarly for $F_{i-1/2}^{(n)}$.
+Due to the distributive property of the basis (equation~\ref{eqn:distributive}), equation~\eqref{eqn:momentum-balance-separate} can be rewritten as
 \begin{align}
-    \Ensemble{\frac{\riemannfluxcomponent_{i+1/2} -
-    \riemannfluxcomponent_{i-1/2}}{\Delta x}
-    \pcbasis_l}
+\Ensemble{\frac{F_{i+1/2}^{(n)} 
+-
+F_{i-1/2}^{(n)}}{\Delta x} \pcbasis_l}
+=
+\Ensemble{ S_i^{(n)} \pcbasis_l}
+\label{eqn:momentum-balance}
+\end{align}
+The ensemble average of the momentum flux gradient is
+\begin{align}
+    \Ensemble{\frac{F_{i+1/2}^{(n)} 
+    -
+    F_{i-1/2}^{(n)}}{\Delta x} \pcbasis_l}
     &=
     \frac{g}{2 \Delta x}
     \sum_{p=0}^P \sum_{\palt=0}^P
-    h_{i+1/2,p} \, h_{i+1/2,\palt} - 
-    h_{i-1/2,p} \, h_{i-1/2,\palt} 
-    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \nonumber \\
+    \left( h^\star_{i+1/2,p} \, h^\star_{i+1/2,\palt} - 
+    h^\star_{i-1/2,p} \, h^\star_{i-1/2,\palt} \right)
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
+    \label{eqn:momentum-flux-unfactorised}
 %
-\intertext{Since $h_{i+1/2,p}$ and $h_{i+1/2,\palt}$ are interchangeable and similarly for $h_{i-1/2,p}$ and $h_{i-1/2,\palt}$ then}
+\intertext{To be able to factorise equation~\eqref{eqn:momentum-flux-unfactorised}, the first step is to add then subtract the term $h^\star_{i-1/2,p} h^\star_{i+1/2,s}$ to yield}
 %
+    \Ensemble{\frac{F_{i+1/2}^{(n)} 
+    -
+    F_{i-1/2}^{(n)}}{\Delta x} \pcbasis_l}
+    &=
+    \frac{g}{2 \Delta x}
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    \left( h^\star_{i+1/2,p} \, h^\star_{i+1/2,\palt} - 
+    h^\star_{i-1/2,p} \, h^\star_{i-1/2,\palt} + \right. \nonumber \\
+    &\left.
+    \hspace{6em}
+    h^\star_{i-1/2,p} \, h^\star_{i+1/2,s} -
+    h^\star_{i-1/2,p} \, h^\star_{i+1/2,s} \right)
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
+    \label{eqn:momentum-flux-4term}
+%
+\intertext{Using the distributive property of multiplication, and associativity of summation, equation~\eqref{eqn:momentum-flux-4term} can be rewritten as}
+%
+    \Ensemble{\frac{F_{i+1/2}^{(n)} 
+    -
+    F_{i-1/2}^{(n)}}{\Delta x} \pcbasis_l}
+    &=
+    \frac{g}{2 \Delta x}
+    \left[
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    \left( h^\star_{i+1/2,p} \, h^\star_{i+1/2,\palt} - 
+    h^\star_{i-1/2,p} \, h^\star_{i-1/2,\palt} + 
+    h^\star_{i-1/2,p} \, h^\star_{i+1/2,s}
+    \right)
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
+    \right.
+    \nonumber \\
+    &\left.
+    \hspace{2.5em}
+    - 
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    h^\star_{i-1/2,p} \, h^\star_{i+1/2,s}
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \right]
+    \label{eqn:momentum-flux-split}
+%
+\intertext{
+The final term in equation~\eqref{eqn:momentum-flux-split} can be rewritten as $\sum_{p=0}^P \sum_{s=0}^P h^\star_{i-1/2,s} \, h^\star_{i+1/2,p} \Ensemble{\pcbasis_p \pcbasis_s \pcbasis_l}$ due to commutativity of summation and product operators as well as the basis function (equation~\ref{eqn:commutative}).
+Then, by associativity of summation:
+}
+%
+    \Ensemble{\frac{F_{i+1/2}^{(n)} 
+    -
+    F_{i-1/2}^{(n)}}{\Delta x} \pcbasis_l}
+    &=
+    \frac{g}{2 \Delta x}
+    \sum_{p=0}^P \sum_{\palt=0}^P
+    \left( h^\star_{i+1/2,p} \, h^\star_{i+1/2,\palt} - 
+    h^\star_{i-1/2,p} \, h^\star_{i-1/2,\palt} + \right. \nonumber \\
+    &\left.
+    \hspace{6em}
+    h^\star_{i-1/2,p} \, h^\star_{i+1/2,s} -
+    h^\star_{i-1/2,s} \, h^\star_{i+1/2,p} \right)
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
+    \label{eqn:momentum-flux-4term-reordered}
+%
+\intertext{Finally, equation~\eqref{eqn:momentum-flux-4term-reordered} can be factorised as}
+%
+    \Ensemble{\frac{F_{i+1/2}^{(n)} 
+    -
+    F_{i-1/2}^{(n)}}{\Delta x} \pcbasis_l}
     &= 
     \frac{g}{2 \Delta x}
     \sum_{p=0}^P \sum_{\palt=0}^P
-    \left( h_{i+1/2,p} + h_{i-1/2,p} \right)
-    \left( h_{i+1/2,\palt} - h_{i-1/2,\palt} \right)
-    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \nonumber \\
+    \left( h^\star_{i-1/2,p} + h^\star_{i+1/2,p} \right)
+    \left( h^\star_{i+1/2,s} - h^\star_{i-1/2,s} \right)
+    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \\
 %
-\intertext{and, given that $h_{i+1/2,\palt} = \eta_\palt - \zmodified_{i+1/2,\palt}$ where the water elevation coefficient $\eta_\palt$ is spatially uniform, then}
+\intertext{and, given that $h^\star_{i+1/2,s} = \eta_s - \zmodified_{i+1/2,s}$ and $h^\star_{i-1/2,s} = \eta_s - \zmodified_{i-1/2,s}$, then}
+    \Ensemble{\frac{F_{i+1/2}^{(n)} 
+    -
+    F_{i-1/2}^{(n)}}{\Delta x} \pcbasis_l}
     &=
     -\frac{g}{\Delta x}
     \sum_{p=0}^P \sum_{\palt=0}^P
-    \frac{h_{i+1/2,p} + h_{i-1/2,p}}{2}
+    \left(
+    \frac{h^{+,\star}_{i-1/2,p} + h^{-,\star}_{i+1/2,p}}{2}
+    \right)
     \left( \zmodified_{i+1/2,\palt} - \zmodified_{i-1/2,\palt} \right)
-    \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l} \nonumber \\
-%
-    \Ensemble{\frac{\riemannfluxcomponent_{i+1/2} -
-    \riemannfluxcomponent_{i-1/2}}{\Delta x}
-    \pcbasis_l}
-    &=
-    - \frac{g}{\Delta x}
-    \sum_{p=0}^P \sum_{\palt=0}^P
-    \hmodified_{i,p} \Delta \zmodified_{i,\palt}
     \Ensemble{\pcbasis_p \pcbasis_\palt \pcbasis_l}
-    = \Ensemble{S_i \pcbasis_l}
+    \label{eqn:momentum-flux}
 \end{align}
-which satisfies equation~\eqref{eqn:momentum-balance} as required.
+Equation~\eqref{eqn:momentum-flux} is equal to the ensemble average of the bed slope source term $\Ensemble{S_i^{(n)} \pcbasis_l}$ given in equation~\eqref{eqn:pc-source}, hence discrete balance is preserved.

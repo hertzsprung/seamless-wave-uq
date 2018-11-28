@@ -1,0 +1,15 @@
+\section{Conclusions and outlook}
+
+This paper proposed a stochastic Galerkin shallow flow model using the surface gradient method to ensure well-balancing.
+The well-balancedness of the stochastic model was studied theoretically, and the model was validated using two numerical experiments, both using an idealised topography profile with Gaussian uncertainty.
+The first test verified that a lake-at-rest over an uncertain bed was preserved to machine precision.
+The second test challenged the stochastic Galerkin model using steady-state critical flow over an uncertain bed.
+The test was designed to provoke strongly nonlinear behaviour such that about 50\% of flows were subcritical and the other 50\% develop a transcritical shock.
+The resulting probability distributions were discontinuous and highly non-Gaussian.
+Without parallelisation, the stochastic Galerkin model was about 100 times faster than a Monte Carlo simulation.
+With parallelisation on commodity hardware, the computation time for the stochastic Galerkin model would be on par with a single iteration of the deterministic solver.
+Despite its relatively low-order Wiener-Hermite basis, stochastic Galerkin results compared favourably against the Monte Carlo reference solution.
+
+It is likely that a more sophisticated treatment using a multiresolution wavelet decomposition \citep{lemaitre2004a,pettersson2014} or multi-element discretisation of the stochastic dimension \citep{wan-karniadakis2006,li-stinis2015} would further improve the representation of highly non-Gaussian and discontinuous probability distributions.
+It is also likely that a decomposition or discretisation of stochastic space would simplify a stochastic reformulation of positivity preserving schemes involving nonlinear operators, so enabling the development of stochastic wetting-and-drying processes.
+Such improvements are the subject of future work.

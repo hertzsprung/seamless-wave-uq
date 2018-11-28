@@ -1,22 +1,51 @@
 \section{Numerical experiments}
-Two numerical experiments are performed to assess the well-balanced stochastic Galerkin shallow water model.
-The first test simulates a lake at rest over a bed with a region of uncertainty.
-This test verifies that the stochastic Galerkin model preserves the \cproperty.
-The second test simulates flow over a hump of uncertain amplitude.
-This test is designed to challenge the stochastic Galerkin model by generating a nonlinear response such that the steady-state solution may be subcritical or transcritical depending on the hump amplitude.
 
-For both tests, the one-dimensional domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements such that $\Delta x = \SI{0.5}{\meter}$.
-Both tests include a topographic hump centred at $x = \SI{0}{\meter}$.
-Following a similar approach to \citet{ge2008}, a bed elevation $z$ with a Gaussian probability distribution is defined as
+Two numerical experiments are performed to validate the well-balanced stochastic Galerkin model.
+The first test simulates a lake-at-rest over uncertain topography, to verify that the stochastic Galerkin model preserves well-balancing numerically.
+The second test simulates flow over a hump with an uncertain elevation.
+This test is designed to challenge the stochastic Galerkin model at representing discontinuous, non-Gaussian probability distributions by generating a steady-state solution that may be subcritical or transcritical depending on the hump elevation.
+
+\clearpage
+\subsection{Specification of the Experiments}
+The 1D domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements with no overlaps or gaps such that the mesh spacing is $\Delta x = \SI{1}{\meter}$.
+The timestep is $\Delta t = \SI{0.15}{\second}$ resulting in a maximum Courant number of about $0.8$.
+By choosing a fixed timestep, simulations of a given test complete in the same number of timesteps irrespective of the model configuration, and error accumulation due to timestepping errors will be the same across all models.
+
+Both tests include a topographic hump centred at $x = \SI{0}{\meter}$ with a region of Gaussian uncertainty.
+Following a similar approach to \citet{ge2008}, there are two representations for the same uncertain topography.
+The first representation enables smooth topography profiles to be randomly generated in Monte Carlo iterations.
+The topography $z$ is defined as
 \begin{align}
 z(x, a) = a \sech^2 \left( \frac{\pi x}{\lambda} \right) \label{eqn:bed}
 \end{align}
-where the uncertain hump amplitude $a$ has a mean value $\amean = \SI{0.6}{\meter}$ and standard deviation $\sigma_a = \SI{0.3}{\meter}$, and half-width $\lambda = \SI{10}{\meter}$.
-Before calculating the bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$, the uncertain bed elevation profile given by equation~\eqref{eqn:bed} must be expressed in terms of mean bed elevation $\zmean(x)$ and bed elevation variance $\sigma_z^2(x)$.
-The mean bed elevation is simply $\zmean(x) = z(x, \amean)$.
-The bed elevation variance $\sigma^2_z(x) = \E[z^2(x)] - \E^2[z(x)]$, which can be approximated by a Taylor series expansion about $\amean$,
+where the hump amplitude $a$ is a random variable with mean $\amean = \SI{0.6}{\meter}$ and standard deviation $\sigma_a = \SI{0.3}{\meter}$, and the half-width is $\lambda = \SI{10}{\meter}$.
+The second representation is used by the stochastic Galerkin model, with topography represented by expansion coefficients $z_{i,0}, \ldots, z_{i,P}$.
+To be able to calculate the topography expansion coefficients, equation~\eqref{eqn:bed} must be expressed in terms of mean topography $\zmean(x)$ and topographic variance $\sigma_z^2(x)$ without involving the random variable $a$.
+The mean topography $\zmean(x)$ is simply
 \begin{align}
-    \sigma_z^2(x) &\approx
+    \zmean(x) = z(x, \amean)
+    \label{eqn:bed-mean}
+\end{align}
+The topographic variance is
+\begin{align}
+    \sigma^2_z(x) = \E[z^2(x, a)] - \E^2[z(x, a)]
+    \label{eqn:bed-variance}
+\end{align}
+Equation~\eqref{eqn:bed-variance} can be rewritten using Taylor series expansions of the two terms $\E\left[z^2(x, a)\right]$ and $\E^2\left[z(x, a)\right]$.
+To illustrate the approach, a Taylor series expansion of $\E\left[ z(x, a) \right]$ about $\amean$ is 
+\begin{align}
+    \E\left[ z(x, a) \right] &= \E\left[ z(x, \amean + (a - \amean)) \right] \nonumber \\
+    &= \E\left[ z + \frac{\partial z}{\partial a} (a - \amean) + \frac{1}{2} \frac{\partial^2 z}{\partial a^2} \left(a - \amean\right)^2 + \mathcal{O}(a^3) \right]
+    \label{eqn:mean-taylor}
+%
+\intertext{where $z$ is shorthand for $z(x, \amean)$ and $\mathcal{O}(a^3)$ is the error term involving high-order derivatives $\partial^m z/\partial a^m$ with $m \geq 3$.
+Since $\E\left[ a - \amean \right] = 0$ and $\E\left[ \left(a-\amean\right)^2\right] = \sigma_a^2$ then equation~\eqref{eqn:mean-taylor} simplifies to}
+%
+    \E\left[ z(x, a) \right] &= z + \frac{1}{2}\frac{\partial^2 z}{\partial a^2} \sigma_a^2 + \mathcal{O}(a^3)
+\end{align}
+Applying this approach to equation~\eqref{eqn:bed-variance} gives:
+\begin{align}
+    \sigma_z^2(x) &=
     z^2 +
     \left[
     \left(\frac{\partial z}{\partial a}\right)^2
@@ -25,24 +54,15 @@ The bed elevation variance $\sigma^2_z(x) = \E[z^2(x)] - \E^2[z(x)]$, which can 
     \sigma^2_a
     -
     \left[
-    z + \frac{\partial^2 z}{\partial a^2} \frac{\sigma_a^2}{2}
-    \right]^2
+    z + \frac{1}{2} \frac{\partial^2 z}{\partial a^2} \sigma_a^2
+    \right]^2 + \mathcal{O}(a^3) \label{eqn:z-taylor}
 %
-\intertext{where $z = z(x, \amean)$.  Since $\sigma_a$ is small then high order terms can be neglected and the bed elevation variance becomes}
+\intertext{For the topographic profile given by equation~\eqref{eqn:bed}, it holds that $\partial^m z/\partial a^m = 0$ where $m \geq 2$, so the topographic variance simplifies to}
 %
-    \sigma_z^2(x) &\approx \left( \frac{\partial z(x, \amean)}{\partial a} \sigma_a \right)^2 \label{eqn:z-variance-continuous}
+    \sigma_z^2(x) &= \left( \frac{\partial z(x, \amean)}{\partial a} \sigma_a \right)^2 \label{eqn:z-variance-continuous}
 \end{align}
-The bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$ are defined in terms of mean bed elevation $\bar{z}$ and bed elevation variance $\sigma_z^2$ using the fact that the $m$-th moment $\mu_m[u]$ of the bed elevation $u = z(x, \xi)$ or a flow variable $u = h(x, t, \xi)$ or $u = q(x, t, \xi)$ is
-\begin{align}
-    \mu_m [u] = \int_{-\infty}^\infty \left(u - c\right)^m W \diff \xi
-\end{align}
-where $c = 0$ when $m = 1$ and $c = \mu_0[u]$ for higher moments.
-Hence, the mean $\mu_1[u] = u_0$ and the variance $\mu_2[u]$ is
-\begin{align}
-    \mu_2[u] &= \sum_{p=1}^P u^2_p \Ensemble{\pcbasis_p^2} \label{eqn:variance}
-\end{align}
-The topographic bump has a Gaussian probability distribution and so high order moments $\mu_3[z(x)], \ldots$ are zero.
-Hence, the bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$ are
+Equipped with analytic expressions for the mean topography $\zmean(x)$ (equation~\ref{eqn:bed-mean}) and topographic variance $\sigma_z^2(x)$ (equation~\ref{eqn:z-variance-continuous}), now the topography expansion coefficients $z_{i,0}, \ldots, z_{i,P}$ can be calculated.
+Since the topographic bump has a Gaussian probability distribution with $\mu_1[z(x)] = \zmean(x)$, $\mu_2[z(x)] = \sigma_z^2(x)$ and high-order moments $\mu_m[z(x)] = 0$ for $m \geq 3$ then, using equations~\eqref{eqn:moment}, \eqref{eqn:mean} and \eqref{eqn:variance}, the topography expansion coefficients are
 \begin{align}
     z_{i,p} = \begin{cases}
     \zmean(x_i) & \text{if $p=0$} \\
@@ -51,19 +71,11 @@ Hence, the bed elevation coefficients $z_{i,0}, \ldots, z_{i,P}$ are
     \end{cases}
     \label{eqn:z-pc-coeffs}
 \end{align}
-where $x_i$ is the centre of element $i$, and $z_{i,1}$ is calculated using equations~\eqref{eqn:z-variance-continuous} and \eqref{eqn:variance} with $\mu_2[z(x, \xi)] = \sigma_z^2(x)$.
+where values are calculated at the centre point $x_i$ for all elements $i=1,\ldots, M$.
+%and $z_{i,1}$ is calculated using equations~\eqref{eqn:z-variance-continuous} and \eqref{eqn:variance} with $\mu_2[z(x, \xi)] = \sigma_z^2(x)$.
 
-For both tests, the initial mean water elevation $\eta_{0} = \SI{1.5}{\meter}$ with zero initial uncertainty such that $\eta_p = 0$ with $p = 1, \ldots, P$.
-The initial water height coefficients $h_0, \ldots, h_P$ are given by the stochastic Galerkin projection of the polynomial chaos expansions.  Since $h = \eta - z$ then
-\begin{align}
-    \Ensemble{ h_{i,p} \pcbasis_p^2} = \Ensemble{\left(\eta_{i,p} - z_{i,p}\right) \pcbasis_p^2}
-\end{align}
-and so $h_{i,p} = \eta_{i,p} - z_{i,p}$.
-In the following tests, all polynomial chaos expansions are chosen to have a maximum degree $P = 3$.
-
-The timestep $\Delta t = \SI{0.15}{\second}$ resulting in a maximum Courant number of about $0.8$.  By choosing a fixed timestep, simulations of a given test complete in the same number of timesteps irrespective of the model formulation, and error accumulation due to timestepping errors will be the same across all model formulations.
-
-%\todo[inline]{Make data and code available on Zenodo.}
+The initial water height expansion coefficients $h_{i,0}^{(0)}, \ldots, h_{i,P}^{(0)}$ can be calculated in terms of free-surface elevation and topography using equation~\eqref{eqn:h-eta-z}.
+For both tests, the initial, spatially-uniform mean free-surface elevation is \SI{1.5}{\meter} with no initial uncertainty such that $\eta_{i,0}^{(0)} = \SI{1.5}{\meter}$ and $\eta_{i,p}^{(0)} = 0$ with $p = 1, \ldots, P$ and $i = 1, \ldots, M$.
 
 \input{lakeAtRest}
 \input{criticalSteadyState}

@@ -1,0 +1,37 @@
+\subsection{$\eta$-form (might not include)}
+The flow can be expressed in terms of water height $h$, or water elevation $\eta = h + z$ where $z$ is the bed elevation, resulting in two formulations called $h$-form and $\eta$-form.
+
+For the $\eta$-form model the flow, flux and source term are \citep{liang-borthwick2009}
+\begin{subequations}
+\begin{align}
+    \flow &= \left[ \eta, q \right]^\T \\
+    \flux &= \left[ q, \frac{q^2}{\eta - z} +
+            \frac{g}{2}\left(\eta^2 - 2\eta z \right) \right]^\T \\
+    \source &= \left[ 0, -g \eta \frac{\dee z}{\dee x} \right]^\T
+\end{align}
+\end{subequations}
+
+For the $\eta$-form model, the source term $\source_i$ is \citep{liang-borthwick2009}
+\begin{align}
+    \source_i = \left[ 0, -g \eta_i \frac{\Delta z_i}{\Delta x} \right]^\T \label{eqn:source-eta}
+\end{align}
+where $\Delta z_i$ is calculated based on the averaged bed elevation at interfaces.  The averaged bed elevation $z_{i+1/2}^\pm$ at interface $i+1/2$ is
+\begin{align}
+z_{i+1/2}^\pm = \frac{z_i + z_{i+1}}{2} \label{eqn:z-interface}
+\end{align}
+and the change in bed elevation $\Delta z_i$ over element $i$ is
+\begin{align}
+    \Delta z_i = z_{i+1/2}^\pm - z_{i-1/2}^\pm \label{eqn:delta-z}
+\end{align}
+
+The stochastic source term for the $\eta$-form model is derived from equation~\eqref{eqn:source-eta},
+\begin{align}
+    \Ensemble{\source_i \pcbasis_l} = \left[ 0,
+    -\frac{g}{\Delta x} \sum_{p=0}^P \sum_{q=0}^P \eta_{i,p}
+    \Delta z_{i,q}
+    \Ensemble{\pcbasis_p \pcbasis_q \pcbasis_l}
+    \right]^\T \label{eqn:pc-source-eta}
+\end{align}
+where $\Delta z_{i,q} = z_{i+1/2,q}^\pm - z_{i-1/2,q}^\pm$ and $z_{i+1/2,q}^\pm = (z_{i,q}+z_{i+1,q})/2$.
+The double summation in equation~\eqref{eqn:pc-source-eta} is a result of the tensor product that arises from the polynomial chaos expansions of water elevation $\eta$ and bed elevation $z$.
+

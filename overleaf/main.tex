@@ -1,4 +1,5 @@
-\documentclass[Journal,letterpaper,InsideFigs,SingleSpace,NoLineNumbers]{ascelike-new}
+%\documentclass[Journal,letterpaper,InsideFigs,SingleSpace,NoLineNumbers]{ascelike-new}
+\documentclass[Journal,letterpaper,InsideFigs]{ascelike-new}
 \usepackage[colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue,draft=false]{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -14,32 +15,42 @@
 \usepackage{newtxtext,newtxmath}
 \usepackage[round]{natbib}
 \usepackage{siunitx}
-\usepackage{todonotes}
+\usepackage{xcolor}
+\usepackage{fancyvrb}
+\usepackage{cprotect}
 
 \NameTag{Shaw, \today}
 
 \DeclareMathOperator{\E}{\mathbb{E}}
 \DeclareMathOperator{\sech}{sech}
-\newcommand{\amean}{\overline{a}}
-\newcommand{\cproperty}{$\mathcal{C}$-property}
+\newcommand{\amean}{\mean{a}}
+\newcommand{\anyvar}{\alpha}
 \newcommand{\dee}{\mathrm{d}}
+\newcommand{\Deltazhat}{\widehat{\Delta z}}
 \newcommand{\diff}{\:\dee}
 \newcommand{\Ensemble}[1]{\left\langle #1 \right\rangle}
-\newcommand{\etamean}{\overline{\eta}}
+\newcommand{\etamean}{\mean{\eta}}
 \newcommand{\flow}{\vect{U}}
+\newcommand{\floworbed}{u}
+\newcommand{\flowKmodified}{\flow^{K,\star}}
 \newcommand{\flux}{\vect{F}}
+\newcommand{\hhat}{\hat{h}}
 \newcommand{\hmodified}{h^\star}
+\newcommand{\hKmodified}{h^{K,\star}}
 \newcommand{\Mag}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\mean}[1]{\overline{#1}}
 \newcommand{\palt}{s}
 \newcommand{\pcbasis}{\Phi}
 \newcommand{\pcbasisvect}{\bm{\Phi}}
+\newcommand{\qKmodified}{q^{K,\star}}
 \newcommand{\randomroot}{\hat{\xi}}
 \newcommand{\riemannflux}{\vect{\tilde{F}}}
 \newcommand{\riemannfluxcomponent}{\tilde{F}}
 \newcommand{\source}{\vect{S}}
 \newcommand{\T}{\intercal}
 \newcommand{\vect}{\mathbf}
-\newcommand{\zmean}{\overline{z}}
+\newcommand{\velocity}{v}
+\newcommand{\zmean}{\mean{z}}
 \newcommand{\zmodified}{z^\star}
 \newcommand{\zrectbump}{\breve{z}}
 
@@ -47,54 +58,23 @@
 \author[2]{Georges Kesserwani, Ph.D}
 
 \affil[1]{Research Associate, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: js102@zepler.net}
-\affil[2]{Research Fellow Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K.}
+\affil[2]{Research Fellow, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: g.kesserwani@sheffield.ac.uk}
 
-\title{Well-balanced stochastic Galerkin shallow water flows over uncertain topography}
+\title{Well-balanced stochastic Galerkin shallow flow model with uncertain topography}
 
 \begin{document}
 
 \maketitle
 
-\begin{abstract}
-TODO
-\end{abstract}
-
-\section{Introduction}
-
-Two main points:
-\begin{enumerate}
-    \item Formulate a well-balanced stochastic Galerkin model
-    \item Study the ability of the stochastic Galerkin model to represent highly non-Gaussian distributions of
-    stochastic flows
-\end{enumerate}
-
-\begin{itemize}
-    \item Uncertainty in bed elevation has a strong effect on solutions of the shallow water equations \citep{bates2014,fisher-tate2006}
-    \item Review more traditional Monte Carlo approaches including an uncertain bed?
-    \item GLUE is popular, see references in \citep{teng2017,stephens-bates2015}
-    \item \citet{mishra2012} use some clever formulation of an uncertain bed in their multi-level Monte Carlo method for SWE
-    \item Polynomial chaos methods are popular because they converge faster than traditional Monte Carlo but, as far as the authors are aware, the only applications of polynomial chaos methods to stochastic shallow water modelling are \citet{ge2008} and \citet{ge2009}.
-\end{itemize}
-Polynomial chaos methods can be classified as intrusive (stochastic Galerkin) or non-intrusive (stochastic collocation).
-Contrast pros and cons of intrusive and non-intrusive methods:
-\begin{itemize}
-    \item Non-intrusive methods can be used without modifying existing deterministic models
-    \item It is sometimes difficult or impossible to formulate a stochastic Galerkin model \citep{xiu2009}.  For example, it is not clear how to obtain a stochastic Galerkin model from a deterministic formulation that includes discontinuous operators such as min or max.
-    \item \citet{jin2016} formulated a well-balanced stochastic Galerkin finite volume models of inviscid Burgers equation but the formulation was not extended to SWEs
-    \item \citet{jin2016} says well-balanced stochastic Galerkin could be superior to well-balanced stochastic collocation, need to understand this properly
-    \item Say why well-balancing is needed in deterministic shallow water models, cite the main formulations
-\end{itemize}
-
-We have some surprisingly good stochastic Galerkin results:
-\begin{itemize}
-    \item long time integration is not a problem in our tests (unlike others, need citations)
-    \item non-smooth PDFs can be well-represented by even low-order stochastic Galerkin with classical Hermite polynomial chaos (unlike citations)
-\end{itemize}
-
+\input{abstract}
+\input{intro}
 \input{method}
 \input{cproperty}
 \input{experiments}
-
+\input{conclusions}
+\appendix
+\input{software}
+\input{ack}
 \bibliography{references}
 
 \end{document}

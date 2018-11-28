@@ -1,76 +1,170 @@
 \subsection{Steady-State Critical Flow Over an Uncertain Bed}
 
-This test is designed to challenge the stochastic Galerkin model at representing highly non-Gaussian distributions of stochastic flow.
-The uncertain bed elevation profile and inflow boundary condition are chosen in order to produce a nonlinear response such that the steady-state solution may be subcritical or transcritical depending on the hump amplitude.
-Results of the stochastic Galerkin model are compared against a Monte Carlo simulation that serves as the reference solution.
+This test is designed to challenge the stochastic Galerkin model at representing highly non-Gaussian and discontinuous distributions of stochastic flow.
+The uncertain topography profile and inflow boundary condition are chosen in order to produce a nonlinear response such that the steady-state solution may be subcritical or transcritical depending on the bed elevation.
+Results of the stochastic Galerkin model are validated against a Monte Carlo simulation that serves as a reference solution.
 
-The uncertain bed elevation is the smooth hump given by equation~\eqref{eqn:z-pc-coeffs}.
-Subcritical boundary conditions are imposed such that the mean upstream discharge is \SI{1.65}{\meter\squared\per\second} and the mean downstream water elevation is \SI{1.5}{\meter}, with zero uncertainty on both upstream discharge and downstream water elevation.
-These boundary conditions are chosen such that the flow is critical over the mean hump amplitude $\amean = \SI{0.6}{\meter}$ at $x = \SI{0}{\meter}$.
+\subsubsection{Experiment Setup to Produce a Nonlinear Flow Response}
+The uncertain topography is the smooth hump given by equation~\eqref{eqn:z-pc-coeffs}.
+Subcritical boundary conditions are imposed such that the mean upstream discharge is \SI{1.65}{\meter\squared\per\second} and the mean downstream water height is \SI{1.5}{\meter}, with no uncertainty for the upstream discharge and downstream water height.
+Transmissive boundary conditions are used for the upstream water height and downstream discharge.
+These boundary conditions are chosen so that the flow is exactly critical for the mean hump amplitude $\amean = \SI{0.6}{\meter}$ at $x = \SI{0}{\meter}$.
 Since the hump amplitude is uncertain then the flow regime is also uncertain: if the hump amplitude is less than $\amean$ then the flow remains subcritical; if the hump amplitude is greater than $\amean$ then the flow regime becomes transcritical.
 
 \begin{figure}
     \centering
     \includegraphics{fig-criticalSteadyState-examples.pdf}
-    \caption{Well-balanced deterministic solutions using four hump amplitudes, $\amean - \sigma_a = \SI{0.3}{\meter}, \amean = \SI{0.6}{\meter}, \amean+\sigma_a = \SI{0.9}{\meter}$ and $\amean + 2\sigma_a = \SI{1.2}{\meter}$.
-    Water elevation is shown with thick lines and the bed elevation profile is shown with thin lines.}
+    \caption{Well-balanced deterministic solutions of steady-state flow at $t = \SI{500}{\second}$ using four hump amplitudes, $\amean - \sigma_a = \SI{0.3}{\meter}, \amean = \SI{0.6}{\meter}, \amean+\sigma_a = \SI{0.9}{\meter}$ and $\amean + 2\sigma_a = \SI{1.2}{\meter}$.
+    The free-surface elevation is shown with solid lines and the topography profile is shown with dashed lines.
+    Vertical dotted lines at $x = \SI{-37.5}{\meter}$ and $x = \SI{1.5}{\meter}$ mark the positions of the probability densities shown in figure~\ref{fig:criticalSteadyState-pdf}.}
     \label{fig:criticalSteadyState-examples}
 \end{figure}
 
-To illustrate this behaviour, figure~\ref{fig:criticalSteadyState-examples} shows four deterministic solutions using different hump amplitudes.
-Solutions from the well-balanced deterministic model are obtained at $t = \SI{500}{\second}$ when the water has converged on a steady state, with convergence measured by calculating the $\ell^2$ difference in water height between the current and previous timesteps.
-By $t = \SI{500}{\second}$ all four deterministic solutions have converged down to $10^{-4}$.
+To illustrate this change in flow regime, figure~\ref{fig:criticalSteadyState-examples} shows four deterministic solutions using four different hump amplitudes.
+Solutions from the well-balanced deterministic model are obtained at $t = \SI{500}{\second}$ when the water has converged on a steady state.
+Convergence is measured by calculating the $L^2$ difference in mean water height between the current and previous timesteps:
+\begin{align}
+    L^2 \text{ difference in mean water height} = \sqrt{\sum_{i=1}^M \left(h_{i,0}^{(n)} - h_{i,0}^{(n-1)}\right)^2}
+\end{align}
+By $t = \SI{500}{\second}$ all four deterministic solutions have converged down to $10^{-4}$ \si{\meter}.
 For a small hump with amplitude $\amean - \sigma_a = \SI{0.3}{\meter}$, the flow remains subcritical.
-A linear increase in hump amplitude produces a strongly nonlinear response in the steady-state water profile, as seen in figure~\ref{fig:criticalSteadyState-examples}, 
-The upstream boundary condition allows the upstream water elevation to increase nonlinearly, and a transcritical shock develops that increases in amplitude and moves further downstream with larger hump amplitudes.
-Downstream of the hump, the mean water elevation is \SI{1.5}{\meter} with zero uncertainty, with this profile having propagated upstream from the imposed downstream boundary.
+A linear increase in hump amplitude produces a strongly nonlinear response in the steady-state water profile, as seen in figure~\ref{fig:criticalSteadyState-examples}. 
+Two nonlinear responses are evident in particular: first, the upstream boundary condition allows the upstream water height to increase nonlinearly; second, a transcritical shock develops over the hump that increases in amplitude and moves further downstream with larger hump amplitudes.
+Downstream of the hump, the water height is \SI{1.5}{\meter} irrespective of the hump amplitude, with this profile having propagated upstream from the imposed downstream boundary.
 
-The stochastic Galerkin model is evaluated by comparing results against a Monte Carlo simulation that serves as a reference solution.
-For the Monte Carlo iterations, the topography is generated using a random hump amplitude drawn from the Gaussian distribution given by $(\amean, \sigma_a)$ and so the topography will always be smooth.
-If instead the topography was generated using $(\zmean(x), \sigma_z(x))$ then the topography would not be smooth and many more iterations would be needed to sample the stochastic solution space.
-The random hump amplitude $a$ is constrained such that $\SI{0}{\meter} \leq a \leq \SI{1.4}{\meter}$ to avoid negative water heights.
-2000 Monte Carlo iterations are performed so that the mean and standard deviation of water height are both converged statistically.
+\subsubsection{Configuration of the Monte Carlo Reference Simulation}
+The Monte Carlo reference simulation is performed using iterations of the well-balanced deterministic model.
+For each Monte Carlo iteration, the topography is randomly generated using a hump amplitude drawn from the Gaussian distribution given by $(\amean, \sigma_a)$ and so the topography will always be smooth.
+If instead the topography was randomly generated using $(\zmean(x), \sigma_z(x))$ then randomisation would be different in every element and the topography would not be smooth, so many more iterations would be needed to sample the stochastic solution space.
+For the Monte Carlo iterations, the hump amplitude $a$ is constrained such that $\SI{0}{\meter} \leq a \leq \SI{1.4}{\meter}$ to avoid negative water depths.
+Two thousand Monte Carlo iterations are performed so that the mean and standard deviation of water height are both converged statistically.
 Statistical convergence is determined qualitatively, with water height statistics measured at $x = \SI{1.5}{\meter}$ where the variance is large and the probability distribution is highly non-Gaussian.
 
-\subsubsection{Stochastic Galerkin and Monte Carlo solutions}
+\subsubsection{Spatial Profiles of the Uncertain Free-Surface Elevation}
 
 \begin{figure}
     \centering
     \includegraphics{fig-criticalSteadyState-flow.pdf}
-    \caption{Solutions of steady state critical flow over an uncertain hump at $t = \SI{500}{\second}$, comparing stochastic Galerkin and Monte Carlo profiles of mean water elevation $\etamean$ and standard deviation in water elevation $\sigma_\eta$.
-    Vertical dotted lines at $x = \SI{-37.5}{\meter}$ and $x = \SI{1.5}{\meter}$ mark the positions of the probability distributions shown in figure~\ref{fig:criticalSteadyState-pdf}.}
+    \caption{Solutions of steady state critical flow over an uncertain hump at $t = \SI{500}{\second}$, comparing stochastic Galerkin and Monte Carlo profiles of mean free-surface elevation $\etamean$ and standard deviation of free-surface elevation $\sigma_\eta$.
+    The stochastic Galerkin result is obtained using basis order $P = 3$.
+    Vertical dotted lines at $x = \SI{-37.5}{\meter}$ and $x = \SI{1.5}{\meter}$ mark the positions of the probability densities shown in figure~\ref{fig:criticalSteadyState-pdf}.
+    }
     \label{fig:criticalSteadyState-flow}
 \end{figure}
 
-In figure~\ref{fig:criticalSteadyState-flow}, spatial profiles of the water elevation statistics are obtained at $t = \SI{500}{\second}$ when the Monte Carlo iterations and stochastic Galerkin solution have converged down to $10^{-4}$.
-The stochastic Galerkin model successfully represents the Monte Carlo reference profiles of the mean and standard deviation in water elevation.
-Upstream of the hump, the stochastic Galerkin model produces a mean water elevation that is slightly too low, and a standard deviation that is slightly too small compared to the Monte Carlo reference solution.
+In figure~\ref{fig:criticalSteadyState-flow}, spatial profiles of the uncertain free-surface elevation are obtained at $t = \SI{500}{\second}$ when the Monte Carlo iterations and the stochastic Galerkin solution have converged down to $10^{-4}$ \si{\meter}.
+Using a Wiener-Hermite basis of order $P=3$, the stochastic Galerkin model accurately represents the Monte Carlo reference profiles of the mean and standard deviation of free-surface elevation.
+Upstream of the hump, the stochastic Galerkin model predicts a standard deviation that is slightly too small compared to the Monte Carlo reference solution.
+Small errors in the stochastic Galerkin free-surface elevation are also visible above the hump where the flow is most complex.
+Similar results are obtained using basis order $P=1$ or $P=2$, with stochastic Galerkin errors increasing slightly as the basis order is decreased (not shown).
 
+\subsubsection{Monte Carlo Histograms of Uncertain Free-Surface Elevation}
 The mean and standard deviation statistics are useful for summarising the spatial profile of uncertainty, but they are less meaningful for non-Gaussian probability distributions.
-Since figure~\ref{fig:criticalSteadyState-examples} demonstrated that the response to an uncertain bed is strongly nonlinear then highly non-Gaussian probability distributions are expected.
-Studying the probability distributions is particularly import for flood risk assessments that are concerned with extreme events that occur in the tails of the distributions.
-
-Using the stochastic Galerkin method, the probability density function $f(u)$ for a stochastic variable $u$ can be calculated for a given element $i$ and time level $n$,
-\begin{subequations}
-\begin{align}
-        f(u) = \sum_{k=1}^K \Mag{ \sum_{p=0}^P u_{i,p}^{(n)} \frac{\dee \Phi_p}{\dee \xi}(\randomroot_k)}^{-1} W(\randomroot_k)
-%
-\intertext{where $\randomroot_k$, $k=1, \ldots, K$ are the real roots of the polynomial}
-%
-        u - \sum_{p=0}^P u_{i,p}^{(n)} \Phi_p(\xi) = 0
-\end{align}
-\end{subequations}
-which can be calculated numerically for a given value of $u$.
+In such cases, it is more meaningful to study the complete probability distributions, which is also particularly important for flood risk assessments that are concerned with extreme events that occur in the tails of the distributions.
 
 \begin{figure}
     \centering
+    \begin{subfigure}{\textwidth}
+    \phantomsubcaption\label{fig:criticalSteadyState-pdf:upstream}
+    \phantomsubcaption\label{fig:criticalSteadyState-pdf:downstream}
+    \centering
     \includegraphics{fig-criticalSteadyState-pdf.pdf}
-    \caption{Probability distributions of water elevation at (a) $x = \SI{-37.5}{\meter}$ and (b) $x = \SI{1.5}{\meter}$ for steady state critical flow over an uncertain hump at $t = \SI{500}{\second}$.}
+    \end{subfigure}
+    \caption{Probability distributions of free-surface elevation, $f_\eta$, at (a) $x = \SI{-37.5}{\meter}$ and (b) $x = \SI{1.5}{\meter}$ for steady state critical flow over an uncertain hump at $t = \SI{500}{\second}$.
+    For the Monte Carlo reference simulation, probability distributions are estimated by histograms.
+    Continuous probability density functions are reconstructed from stochastic Galerkin (SG) results using basis orders $P=1$, $P=2$ and $P=3$.}
     \label{fig:criticalSteadyState-pdf}
 \end{figure}
 
-Probability distributions are calculated at $t = \SI{500}{\second}$ at $x = \SI{-37.5}{\meter}$ and $x = \SI{1.5}{\meter}$.
-The first point is far upstream of the hump where the water elevation is uncertain and spatially uniform.
-The second point is immediately downstream of the hump in the region where transcritical shocks develop if the hump amplitude is sufficiently large.
+Probability distributions of the free-surface elevation are sampled at two points at $t =
+\SI{500}{\second}$: the first at $x =
+\SI{-37.5}{\meter}$ and the second at $x
+= \SI{1.5}{\meter}$, with these positions marked by dotted lines in
+figure~\ref{fig:criticalSteadyState-examples} and
+figure~\ref{fig:criticalSteadyState-flow}.
+The first point is far upstream of the hump where the free-surface elevation is uncertain and spatially uniform.
+The second point is immediately downstream of the hump in the region where transcritical shocks can develop.
 
-%This test is designed to challenge stochastic Galerkin methods in representing a bimodal statistical distribution of water elevation
+Figure~\ref{fig:criticalSteadyState-pdf} shows histograms from the Monte Carlo reference simulation that estimate the true probability densities at the two points.
+Stochastic Galerkin results which appear on the same figure are discussed later.
+For each of the two points, water heights from the 2000 Monte Carlo iterations are binned into intervals of \SI{0.05}{\meter}, and the magnitude of each bin represents the probability that the water height is within the given interval.
+Since the histogram estimates the probability density then the total shaded area over all bins is equal to one.
+
+The Monte Carlo histogram at $x = \SI{-37.5}{\meter}$ is shown in figure~\ref{fig:criticalSteadyState-pdf:upstream} and is discussed first.
+For subcritical flows over small humps, the upstream water level remains at its initial height of \SI{1.5}{\meter}.
+For transcritical flows over larger humps, the upstream water level increases nonlinearly.
+Since the initial conditions and boundary conditions are chosen so that the mean flow is critical, then about 50\% of the flows are subcritical, resulting in a large peak in the
+probability distribution at $\eta = \SI{1.5}{\meter}$.
+The other 50\% of the flows are transcritical with elevated upstream water levels, resulting in a long tail in the distribution.
+
+The stochastic flow response immediately downstream of the hump at $x = \SI{1.5}{\meter}$ is more complex.
+For subcritical flows, the steady-state free-surface elevation at this point will be only slightly lower than the initial free-surface elevation of \SI{1.5}{\meter}.
+For transcritical flows, the steady-state free-surface elevation may be much lower since,  at $x = \SI{1.5}{\meter}$, the transcritical shock is close to its minimum depth.
+The subcritical and transcritical regimes appear as a bimodal distribution in the histogram in figure~\ref{fig:criticalSteadyState-pdf:downstream} with one peak around $\eta = \SI{1.0}{\meter}$ associated with transcritical flow and a second peak around $\eta = \SI{1.5}{\meter}$ associated with subcritical flow.
+
+\subsubsection{Stochastic Galerkin Free-Surface Elevation Probability Densities}
+Overlayed on the Monte Carlo histograms, figure~\ref{fig:criticalSteadyState-pdf} also shows probability density functions obtained from stochastic Galerkin simulations.
+Three stochastic Galerkin simulations are performed using Wiener-Hermite bases of order $P=1$, $P=2$ and $P=3$.
+Free-surface elevation expansion coefficients are calculated by rearranging equation~\eqref{eqn:h-eta-z}, from which probability density functions are reconstructed using equation~\eqref{eqn:pdf}.
+If a probability density function was in exact agreement with a Monte Carlo histogram then the line would pass through the top of every histogram bin, and so any deviation represents a numerical error associated with the stochastic Galerkin model.
+
+Using basis order $P=1$, the stochastic Galerkin model can only represent Gaussian distributions, with its two expansion coefficients representing the mean and standard deviation.
+While figure~\ref{fig:criticalSteadyState-flow} confirms that the mean and standard deviation statistics from the stochastic Galerkin model are accurate, the Monte Carlo histograms cannot be well-represented by Gaussian distributions.
+
+Increasing the basis order to $P=2$, the probability distribution of upstream water levels is in good agreement with the Monte Carlo histogram (figure~\ref{fig:criticalSteadyState-pdf:upstream}), though an error is noticeable at the discontinuity:
+the Monte Carlo histogram has a discontinuity at $\eta = \SI{1.5}{\meter}$ because the upstream water level can only rise above its initial height, so the probability that $\eta < \SI{1.5}{\meter}$ is zero.
+The stochastic Galerkin model with basis order $P = 2$ slightly underestimates this discontinuity, placing it at about $\eta = \SI{1.45}{\meter}$.
+The distribution in free-surface elevation at $x = \SI{1.5}{\meter}$ (figure~\ref{fig:criticalSteadyState-pdf:downstream}) is not improved using basis order $P=2$, with the distribution remaining close to Gaussian.
+
+Finally, the basis order is increased to $P=3$.
+The distribution of upstream water levels shifts slightly to the right in figure~\ref{fig:criticalSteadyState-pdf:upstream}, corresponding to slightly higher water levels.
+As a result, the discontinuity is closer to the true value of $\eta = \SI{1.5}{\meter}$, but this shift also produces slightly larger errors in the tail of the distribution.
+The most notable improvement is seen in the distribution at $x = \SI{1.5}{\meter}$ (figure~\ref{fig:criticalSteadyState-pdf:downstream}):
+the distribution from the stochastic Galerkin model now has a similar shape to the Monte Carlo histogram.
+The lower bound at $\eta = \SI{1.0}{\meter}$ is accurately represented, but the true upper bound around $\eta = \SI{1.5}{\meter}$ is overestimated by about \SI{0.1}{\meter}.
+The probability density function has singularities at the lower and upper bounds that appear as spikes in the plot.
+These two singularities occur because the probability density function is the derivative of the cumulative density function, which is discontinuous and non-differentiable at these points.
+
+While the stochastic Galerkin model with basis order $P=3$ adequately represented the true distribution bounds and distribution shapes, the probability density functions were not entirely accurate.
+Such inaccuracies are to be expected because low-order Wiener-Hermite bases cannot represent complex distributions.
+The basis order cannot be increased beyond $P=3$ because water depths are small near transcritical shocks, and the stochastic Galerkin model crashes for the same reason as discussed in the lake-at-rest test.
+Instead, results might be improved by choosing a more sophisticated method to discretise stochastic space.
+One candidate is the stochastic Galerkin multiwavelet approach by \citet{pettersson2014}, which is able to simulate stochastic gas dynamics with densities close to zero,  analogous to very small water depths in shallow water flows.
+
+\subsubsection{Storage Requirements and Computation Time}
+
+Since the stochastic Galerkin model is necessarily more complex than the deterministic model, associated increases in storage requirements and computation time are expected.
+Stochastic Galerkin storage requirements scale linearly with the chosen basis order $P$ because the model stores $P+1$ expansion coefficients per variable per element.
+The ensemble averages $\Ensemble{\pcbasis_p \pcbasis_s \pcbasis_l}$ in equation~\eqref{eqn:pc-source} and $\Ensemble{\pcbasis_l^2}$ in equation~\eqref{eqn:swe-pc} are constant values that can be precomputed once and stored.
+Due to the commutative property of the ensemble average of basis function products (equation~\ref{eqn:commutative}), the associated storage requirements are small.
+
+The expected increase in computation time can be estimated by examining the model formulation and assuming that calculations are performed without parallelisation.
+Choosing basis order $P$, the entire evolution equation (equation~\ref{eqn:swe-pc}) must be evaluated $P+1$ times for the basis functions $0, \ldots, P$.
+For each evaluation, the ensemble average of numerical fluxes is calculated by sampling the Riemann solver $P+1$ times using Gauss-Hermite quadrature (equation~\ref{eqn:pc-flux}).
+The computation time for the ensemble average of the source term vector (equation~\ref{eqn:pc-source}) can be neglected because its calculation is trivially fast compared to the Riemann solver. 
+Hence, by considering the total samples of the Riemann solver, it is expected that the stochastic Galerkin model will be at least $\left(P+1\right)^2$ times slower than the deterministic solver.
+
+Measuring the elapsed CPU time to simulate the steady-state test confirms this expectation: the stochastic Galerkin model with basis order $P=3$ is in fact about 20 times slower than the deterministic model, and the Riemann solver accounts for about 90\% of the stochastic Galerkin total computation time.
+Compared to the Monte Carlo simulation which uses \num{2000} deterministic iterations, the stochastic Galerkin model is about 100 times faster.
+Note that the deterministic model, stochastic Galerkin model and Monte Carlo simulation were implemented without parallelisation.
+
+The speed-up observed here compares favourably with numerical experiments performed by \citet{ge2008}.
+Their stochastic Galerkin model with basis order $P=5$ was about 200 times slower than their deterministic model.
+Their Monte Carlo simulation used \num{10000} iterations, making their stochastic Galerkin model about 50 times faster.
+A direct comparison of computation time is not attempted since \citet{ge2008} used a second-order finite volume formulation that is inherently more expensive than the first-order formulation presented here.
+
+\subsubsection{Opportunities for Parallel Computation}
+
+Computation time for Monte Carlo and stochastic Galerkin simulations could be reduced by exploiting opportunities for parallelism.
+Monte Carlo simulations are called `embarrassingly parallel' because, given sufficient processors, it is easy to perform iterations entirely in parallel.
+The stochastic Galerkin model is not embarrassingly parallel, but most operations can be parallelised nevertheless.
+Due to basis orthogonality, the evolution equation (equation~\ref{eqn:swe-pc}) can be evaluated in parallel over basis functions $\pcbasis_0, \ldots, \pcbasis_P$.
+Gauss-Hermite quadrature of numerical fluxes (equation~\ref{eqn:pc-flux}) can be parallelised, too.
+In this way, sampling the Riemann solver, which accounts for about 90\% of the total computational cost, could be fully parallelised.
+
+In theory, by fully exploiting parallelism, Monte Carlo and stochastic Galerkin simulations could be made to run almost as fast as a single iteration of the deterministic model, but this assumes access to sufficient processors.
+In practice, a fully parallelised Monte Carlo would require thousands of processors which are unavailable on typical hardware.
+In contrast, the stochastic Galerkin model with basis order $P=3$ could be fully parallelised with just 16 processors using current, commodity hardware.
+With more hardware, additional parallelism could be achieved using domain decomposition techniques.
+The stochastic Galerkin method imposes no barriers to domain decomposition because it preserves the local element-wise operations of the underlying deterministic formulation.
+Given these substantial reductions in computation time and hardware demands, a stochastic Galerkin shallow flow model could alleviate the computational constraints associated with conventional Monte Carlo simulations \citep{neal2013}, and allow probabilistic simulations to account for more sources of uncertainty.

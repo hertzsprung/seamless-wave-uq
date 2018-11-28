@@ -1,0 +1,52 @@
+\section{Instructions for running the shallow flow models}
+
+Python 3 software is available for download from Zenodo \citep{shaw-kesserwani2018b} which includes
+\begin{enumerate}
+    \item a one-dimensional shallow flow model which can operate as a stochastic Galerkin model or a deterministic model
+    \item code for running Monte Carlo iterations of the deterministic model
+    \item preconfigured lake-at-rest and steady-state critical flow test cases
+\end{enumerate}
+First ensure that Python 3, NumPy and SciPy are installed.
+Then, install the shallow flow model:
+\begin{verbatim}
+pip3 install --user --editable swepc.python
+\end{verbatim}
+
+\subsection{Running the Stochastic Galerkin Model}
+To run the stochastic Galerkin model:
+\begin{Verbatim}[commandchars=\\\{\}]
+swepc --degree \textit{<P>} \textit{<testCase>} \textit{<discretisation>} --output-dir \textit{<directory>}
+\end{Verbatim}
+where \Verb[commandchars=\\\{\}]+\textit{<testCase>}+ is either \Verb+lakeAtRest+ or \Verb+criticalSteadyState+,
+\Verb[commandchars=\\\{\}]+\textit{<discretisation>}+ is either \Verb+wellBalancedH+ for the well-balanced surface gradient method, or \Verb+centredDifferenceH+ for the centred difference method given by equations~\eqref{eqn:flux-centred} and \eqref{eqn:source-centred}.
+If \Verb[commandchars=\\\{\}]+--degree \textit{<P>}+ is omitted then the default basis order $P = 3$ is used.
+If \Verb[commandchars=\\\{\}]+--degree 0+ is specified then the model operates as a deterministic model.
+On running the model, the following text files are written to the specified output directory:
+\begin{description}
+\item[\Verb+coefficients.dat+]{Stochastic Galerkin expansion coefficients for topography $z$, water height $h$ and discharge $q$}
+\item[\Verb+statistics.dat+]{Mean, standard deviation, skew and kurtosis calculated using equations~\eqref{eqn:moment}, \eqref{eqn:mean} and \eqref{eqn:variance}}
+\item[\Verb+derived-statistics.dat+]{Statistics for the free-surface elevation, a derived quantity calculated from equation~\eqref{eqn:h-eta-z}}
+\end{description}
+Each file has one line per element with explanatory header rows prefixed by \Verb+#+.
+
+\subsection{Calculating Probability Density Functions}
+A probability density function for any variable can be calculated from the expansion coefficients for a given element:
+\begin{Verbatim}[commandchars=\\\{\}]
+sed -n \textit{<line>}p coefficients.dat
+   | swepdf --min \textit{<value>} --max \textit{<value>} \textit{<variable>} > pdf.dat
+\end{Verbatim}
+where \Verb[commandchars=\\\{\}]+\textit{<line>}+ is the line number in \Verb+coefficients.dat+ corresponding to the chosen element, and \Verb[commandchars=\\\{\}]+\textit{<variable>}+ is \Verb+z+ (topography), \Verb+water+ (water height), \Verb+q+ (discharge) or \Verb+derived-eta+ (free-surface elevation).
+The probability density function is calculated between the \Verb+--min+ and \Verb+--max+ values and written to \Verb+pdf.dat+. 
+
+\subsection{Running Monte Carlo Simulations}
+To run a Monte Carlo simulation:
+\begin{Verbatim}[commandchars=\\\{\}]
+swepc --monte-carlo --mc-iterations \textit{<value>}
+  criticalSteadyState \textit{<discretisation>} --output-dir \textit{<directory>}
+\end{Verbatim}
+which writes the following text files:
+\begin{description}
+\item[\Verb+statistics.dat+]{Mean, standard deviation, skew and kurtosis for topography, water height and discharge}
+\item[\Verb+derived-statistics.dat+]{Mean and standard deviation for free-surface elevation}
+\cprotect\item[\Verb[commandchars=\\\{\}]+sample\textit{<n>}.dat+]{Deterministic model data with one file per element (numbered $0, \ldots, M-1$), each having one line per Monte Carlo iteration}
+\end{description}

@@ -1,0 +1,17 @@
+\clearpage
+\begin{abstract}
+Stochastic Galerkin methods can quantify uncertainty at a fraction of the computational expense of conventional Monte Carlo techniques, but such methods have rarely been studied for modelling shallow water flows.
+Existing stochastic shallow flow models are not well-balanced and their assessment has been limited to stochastic flows with smooth probability distributions.
+This paper addresses these limitations by formulating a one-dimensional stochastic Galerkin shallow flow model using a low-order Wiener-Hermite Polynomial Chaos expansion with a finite volume Godunov-type approach, incorporating the surface gradient method to guarantee well-balancing.
+Preservation of a lake-at-rest over uncertain topography is verified analytically and numerically.
+The model is also assessed using flows with discontinuous and highly non-Gaussian probability distributions.
+Prescribing constant inflow over uncertain topography, the model converges on a steady-state flow that is subcritical or transcritical depending on the topography elevation.
+Using only four Wiener-Hermite basis functions, the model produces probability distributions comparable to those from a Monte Carlo reference simulation with 2000 iterations, while executing about 100 times faster.
+Accompanying model software and simulation data is openly available online.
+\end{abstract}
+
+\clearpage
+
+%This paper addresses these limitations by formulating a well-balanced one-dimensional stochastic Galerkin shallow flow model using a low-order Wiener-Hermite \rev{Polynomial Chaos} basis.
+%The model is based on a stochastic reformulation of a finite volume Godunov-type approach, incorporating the surface gradient method to guarantee well-balancing.
+%Despite its relatively low-order \rev{Wiener-Hermite} basis, the model produces probability distributions comparable to those from a Monte Carlo reference simulation, and executes about 100 times faster.
