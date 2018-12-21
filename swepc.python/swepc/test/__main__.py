@@ -104,7 +104,7 @@ def monteCarlo(args, testCase, solver, mesh):
     with open(os.path.join(args.output_dir, "convergence.dat"), 'w') as out:
         print("# Sampling at x =", mesh.C[args.mc_sample_index], file=out)
 
-        flows, stats = sim.simulate(testCase.ic, testCase.bc,
+        flows, stats, z_peaks = sim.simulate(testCase.ic, testCase.bc,
                 testCase.randomTopographyGenerator(args),
                 mesh.dx, args.dt, testCase.endTime,
                 iterations=args.mc_iterations,
@@ -122,11 +122,12 @@ def monteCarlo(args, testCase, solver, mesh):
                 'w') as out:
             print("# Sampling at x =", mesh.C[i], file=out)
 
-            print("# z " + solver.water + " q", file=out)
-            for flow in flows:
+            print("# z " + solver.water + " q z_peak", file=out)
+            for flow, z_peak in zip(flows, z_peaks):
                 print(flow.z[i,0], end=' ', file=out)
                 print(flow.water[i,0], end=' ', file=out)
                 print(flow.q[i,0], end=' ', file=out)
+                print(z_peak, end=' ', file=out)
                 print(file=out)
 
 def write(mesh, flow, solver, degree, file=sys.stdout):

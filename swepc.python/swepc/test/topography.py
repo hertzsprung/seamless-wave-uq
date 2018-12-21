@@ -46,4 +46,4 @@ class RandomSmoothBump:
             print("# rejecting a =", a, file=sys.stderr)
             a = np.random.normal(self.a_mean, self.a_stddev)
         bump = Bump(a, 0.0, self.halfWidth)
-        return [bump.z0(x) for x in self.C]
+        return [bump.z0(x) for x in self.C], a

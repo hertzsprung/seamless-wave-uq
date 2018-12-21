@@ -18,11 +18,14 @@ class MonteCarlo:
             topographyGenerator, dx, dt, endTime, iterations,
             sampleIndex, file=sys.stderr):
         flows = MonteCarloFlows(initialConditions)
+        z_peaks = []
 
         for i in range(iterations):
-            flow = self.__randomisedFlow(initialConditions, boundaryConditions,
-                    topographyGenerator)
+            print("Monte Carlo iteration", i)
+            flow, a = self.__randomisedFlow(initialConditions,
+                    boundaryConditions, topographyGenerator)
             flows.append(self.__simulateDeterministic(flow, dx, dt, endTime))
+            z_peaks.append(a)
             stats = MonteCarloFlowStatistics(flows)
             sampleStats = stats.water[sampleIndex,:]
 
@@ -34,14 +37,14 @@ class MonteCarlo:
                 print(len(flows), sampleStats[0], sampleStats[1], CVmeanStar,
                         file=file)
 
-        return flows, stats
+        return flows, stats, z_peaks
 
     def __randomisedFlow(self, initialConditions, boundaryConditions,
             topographyGenerator):
         ic = swepc.InitialConditions(initialConditions.elements,
                 degree=1)
 
-        ic.z[:,0] = topographyGenerator.sample()
+        ic.z[:,0], a = topographyGenerator.sample()
 
         # assume the deterministic model is h-form
         # assume eta = 1.5
@@ -53,7 +56,7 @@ class MonteCarlo:
                     initialConditions.q[i,1])
 
         return swepc.Flow(self.basis, ic, boundaryConditions,
-                self.flowValueClass)
+                self.flowValueClass), a
 
     def __simulateDeterministic(self, flow, dx, dt, endTime):
         t = 0.0
