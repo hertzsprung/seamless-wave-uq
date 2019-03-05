@@ -49,47 +49,23 @@ class RandomSmoothBump:
         return [bump.z0(x) for x in self.C], a
 
 class EDF:
+    def __init__(self):
+        self.xs = [0.0, 50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0,
+                425.0, 450.0, 470.0, 475.0, 500.0, 505.0, 530.0, 550.0, 565.0,
+                575.0, 600.0, 650.0, 700.0, 750.0, 800.0, 820.0, 900.0, 950.0,
+                1500.0]
+        self.zs = [0.0, 0.0, 2.5, 5.0, 5.0, 3.0, 5.0, 5.0, 7.5, 8.0, 9.0, 9.0,
+                9.1, 9.0, 9.0, 6.0, 5.5, 5.5, 5.0, 4.0, 3.0, 3.0, 2.3, 2.0,
+                1.2, 0.4, 0.0, 0.0]
+
     def z0(self, x):
-        if x <= 50.0:
-            return 0.0
-        elif x <= 100.0:
-            return 2.5
-        elif x <= 200.0:
-            return 5.0
-        elif x <= 250.0:
-            return 3.0
-        elif x <= 350.0:
-            return 5.0
-        elif x <= 400.0:
-            return 7.5
-        elif x <= 425.0:
-            return 8.0
-        elif x <= 470.0:
-            return 9.0
-        elif x <= 475.0:
-            return 9.1
-        elif x <= 505.0:
-            return 9.0
-        elif x <= 530.0:
-            return 6.0
-        elif x <= 565.0:
-            return 5.5
-        elif x <= 575.0:
-            return 5.0
-        elif x <= 600.0:
-            return 4.0
-        elif x <= 700.0:
-            return 3.0
-        elif x <= 750.0:
-            return 2.3
-        elif x <= 800.0:
-            return 2.0
-        elif x <= 820.0:
-            return 1.2
-        elif x <= 900.0:
-            return 0.4
-        else:
-            return 0.0
+        target_x = x
+        i1, x1 = [(i, x) for i, x in enumerate(self.xs) if x < target_x][-1]
+        i2, x2 = [(i, x) for i, x in enumerate(self.xs) if x >= target_x][0]
+        z1, z2 = self.zs[i1], self.zs[i2]
+        m = (z2 - z1)/(x2 - x1)
+        c = z1 - m*x1
+        return m*target_x + c
 
     def z1(self, x):
         return 0.0

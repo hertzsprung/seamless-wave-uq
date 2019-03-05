@@ -112,6 +112,8 @@ def stochasticGalerkin(args, testCase, solver, mesh):
     with open(os.path.join(args.output_dir, "derived-statistics.dat"), 'w') as out:
         solver.writeDerivedStochasticGalerkinStatistics(mesh, flow, file=out)
 
+    plt.show(block=True)
+
 def monteCarlo(args, testCase, solver, mesh):
     np.random.seed(0)
     sim = swepc.MonteCarlo(g, solver)
