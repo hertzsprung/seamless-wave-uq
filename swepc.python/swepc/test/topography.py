@@ -47,3 +47,49 @@ class RandomSmoothBump:
             a = np.random.normal(self.a_mean, self.a_stddev)
         bump = Bump(a, 0.0, self.halfWidth)
         return [bump.z0(x) for x in self.C], a
+
+class EDF:
+    def z0(self, x):
+        if x <= 50.0:
+            return 0.0
+        elif x <= 100.0:
+            return 2.5
+        elif x <= 200.0:
+            return 5.0
+        elif x <= 250.0:
+            return 3.0
+        elif x <= 350.0:
+            return 5.0
+        elif x <= 400.0:
+            return 7.5
+        elif x <= 425.0:
+            return 8.0
+        elif x <= 470.0:
+            return 9.0
+        elif x <= 475.0:
+            return 9.1
+        elif x <= 505.0:
+            return 9.0
+        elif x <= 530.0:
+            return 6.0
+        elif x <= 565.0:
+            return 5.5
+        elif x <= 575.0:
+            return 5.0
+        elif x <= 600.0:
+            return 4.0
+        elif x <= 700.0:
+            return 3.0
+        elif x <= 750.0:
+            return 2.3
+        elif x <= 800.0:
+            return 2.0
+        elif x <= 820.0:
+            return 1.2
+        elif x <= 900.0:
+            return 0.4
+        else:
+            return 0.0
+
+    def z1(self, x):
+        return 0.0

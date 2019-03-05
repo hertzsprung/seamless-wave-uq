@@ -4,6 +4,7 @@ import swepc
 import swepc.test
 import os
 import sys
+import matplotlib.pyplot as plt
 
 np.seterr(invalid='raise', divide='raise')
 g = 9.80665
@@ -14,7 +15,7 @@ def main():
         description="""Uncertainty quantification for
     1D shallow water flows over uncertain topography.""")
 
-    parser.add_argument("testCase", choices=["lakeAtRest", "criticalSteadyState"])
+    parser.add_argument("testCase", choices=["lakeAtRest", "criticalSteadyState", "edfSteadyState"])
     parser.add_argument("solver", choices=["wellBalancedH",
         "wellBalancedEta", "centredDifferenceH"])
     parser.add_argument("--monte-carlo", action="store_true")
@@ -38,6 +39,8 @@ def main():
         testCaseClass = swepc.test.LakeAtRest
     elif args.testCase == "criticalSteadyState":
         testCaseClass = swepc.test.CriticalSteadyState
+    elif args.testCase == "edfSteadyState":
+        testCaseClass = swepc.test.EDFSteadyState
 
     mesh = swepc.Mesh(testCaseClass.domain, args.elements)
 
@@ -75,6 +78,7 @@ def stochasticGalerkin(args, testCase, solver, mesh):
     with open(os.path.join(args.output_dir, "convergence.dat"), 'w') as out:
         print('# t l2(h)', file=out)
 
+        c = 0
         while t < testCase.endTime:
             t = t + dt
             if t > testCase.endTime:
@@ -82,6 +86,17 @@ def stochasticGalerkin(args, testCase, solver, mesh):
                 t = testCase.endTime
 
             sim.timestep(flow, mesh.dx, dt)
+
+            if c % 20 == 0:
+                cfl = 0.0
+                for i in range(flow.elements):
+                    U = flow.atElement(i).deterministic()
+                    cfl = max(cfl, dt/mesh.dx*np.abs(U.u())*np.sqrt(sim.g*U.h))
+                print(t, cfl)
+                plt.clf()
+                plt.plot(mesh.C, flow.water[:,0] + flow.z[:,0])
+                plt.pause(0.01)
+            c = c + 1
 
             if args.water_convergence:
                 print(t, convergence(flow), file=out)
