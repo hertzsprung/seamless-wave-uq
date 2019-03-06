@@ -5,7 +5,6 @@ The first test simulates a lake-at-rest over uncertain topography, to verify tha
 The second test simulates flow over a hump with an uncertain elevation.
 This test is designed to challenge the stochastic Galerkin model at representing discontinuous, non-Gaussian probability distributions by generating a steady-state solution that may be subcritical or transcritical depending on the hump elevation.
 
-\clearpage
 \subsection{Specification of the Experiments}
 The 1D domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements with no overlaps or gaps such that the mesh spacing is $\Delta x = \SI{1}{\meter}$.
 The timestep is $\Delta t = \SI{0.15}{\second}$ resulting in a maximum Courant number of about $0.8$.

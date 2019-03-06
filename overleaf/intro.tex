@@ -1,5 +1,5 @@
 \section{Introduction}
-Shallow water flows can be highly sensitive to uncertainties in input data: uncertainties in boundary forcing derived from stream gauge data, the choice of friction coefficient, and errors in digital elevation models can substantially alter simulated distributions of flood extent, water depth and flow velocity \citep{bates2014,jung-merwade2012}.
+Shallow water flows can be highly sensitive to uncertainties in input data: uncertainties in boundary forcing derived from stream gauge data, the choice of friction coefficient, and errors in digital elevation models can substantially alter simulated distributions of flood extent, water depth and flow velocity \citep{bates2014,kim-sanders2016,jung-merwade2012}.
 Conventional uncertainty quantification methods, including the Generalized Likelihood Uncertainty Estimation (GLUE) method \citep{beven-binley1992}, are based on Monte Carlo sampling with randomised inputs, making conventional methods computationally expensive and slow to converge on flow statistics.
 As a result, Monte Carlo simulations of flood events are severely constrained by available computing resources, and many sources of uncertainty must be neglected to make probabilistic simulations feasible \citep{neal2013}.
 Stochastic Galerkin methods offer a computationally efficient alternative: repeated sampling is eliminated, and convergence is typically far more rapid than Monte Carlo methods \citep{xiu2009,ge2008}.
@@ -9,11 +9,12 @@ Stochastic Galerkin methods offer a computationally efficient alternative: repea
 Polynomial Chaos methods work by introducing to the governing deterministic equations an additional, stochastic dimension, and approximating it with a Polynomial Chaos expansion.
 Polynomial Chaos methods can be classified as non-intrusive or intrusive.
 Non-intrusive methods repeatedly sample a deterministic model with different input values, using the outputs to construct a stochastic solution.
-While non-intrusive polynomial chaos methods involve repeated sampling, they require far fewer samples than Monte Carlo methods \citep{ge2008}.
+While non-intrusive polynomial chaos methods involve repeated sampling, they require far fewer samples than Monte Carlo methods \citep{ge2008,ge2011}.
 Intrusive methods reformulate a deterministic model to produce a stochastic formulation that must be implemented as a new stochastic solver.
 The stochastic Galerkin method is an intrusive method which makes a Galerkin projection in stochastic space to produce a decoupled system of equations that are solved in a single model run.
 Conventional stochastic Galerkin methods span the entire stochastic space using a single element with a basis chosen from the Askey scheme of orthogonal polynomials \citep{xiu-karniadakis2002}.
 When the stochastic flow is sufficiently smooth and the probability distributions are well-represented by the Polynomial Chaos basis, then Polynomial Chaos methods can achieve exponential convergence in the stochastic dimension \citep{xiu-karniadakis2003}.
+\citet{sattar-elbeltagy2017} applied a conventional stochastic Galerkin method to the one-dimensional water hammer equations, and their model was able to converge on solutions with smooth, Gaussian probability distributions using a first-order Polynomial Chaos basis with just two basis functions.
 
 Conventional stochastic Galerkin methods have two main shortcomings.
 First, strongly nonlinear flows produce steep gradients or discontinuities in stochastic space that are often poorly represented by global Polynomial Chaos bases using a single element \citep{pettersson2014}.
