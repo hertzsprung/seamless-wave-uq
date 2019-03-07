@@ -58,12 +58,16 @@ class HSolver:
     
     def writeDerivedMonteCarloStatistics(self, mesh, flows, stats, file):
         stddev_eta = np.std([flow.z[:,0] + flow.water[:,0] for flow in flows], axis=0)
+        mean_u = np.mean([flow.q[:,0]/flow.water[:,0] for flow in flows], axis=0)
+        stddev_u = np.std([flow.q[:,0]/flow.water[:,0] for flow in flows], axis=0)
 
-        print("# x mean_eta sigma_eta", file=file)
+        print("# x mean_eta sigma_eta mean_u sigma_u", file=file)
         for i in range(flows.elements):
             print(mesh.C[i], end=' ', file=file)
             print(stats.z[i,0] + stats.water[i,0], end=' ', file=file)
-            print(stddev_eta[i], file=file)
+            print(stddev_eta[i], end=' ', file=file)
+            print(mean_u[i], end=' ', file=file)
+            print(stddev_u[i], file=file)
 
 class WellBalancedHSolver(HSolver):
     def __init__(self, g):
