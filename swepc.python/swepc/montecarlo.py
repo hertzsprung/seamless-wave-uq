@@ -5,7 +5,8 @@ import collections
 import sys
 
 class MonteCarlo:
-    def __init__(self, g, solver):
+    def __init__(self, g, solver, eta):
+        self.eta = eta
         self.flowValueClass = solver.flowValueClass
         self.basis = swepc.GaussianHermiteBasis(degree=0)
         riemannSolver = swepc.Roe(solver.deterministicFlux, g)
@@ -47,8 +48,7 @@ class MonteCarlo:
         ic.z[:,0], a = topographyGenerator.sample()
 
         # assume the deterministic model is h-form
-        # assume eta = 1.5
-        ic.water[:,0] = 1.5 - ic.z[:,0]
+        ic.water[:,0] = self.eta - ic.z[:,0]
 
         for i in range(ic.elements):
             ic.q[i,0] = np.random.normal(

@@ -116,7 +116,7 @@ def stochasticGalerkin(args, testCase, solver, mesh):
 
 def monteCarlo(args, testCase, solver, mesh):
     np.random.seed(0)
-    sim = swepc.MonteCarlo(g, solver)
+    sim = swepc.MonteCarlo(g, solver, testCase.eta)
 
     with open(os.path.join(args.output_dir, "convergence.dat"), 'w') as out:
         print("# Sampling at x =", mesh.C[args.mc_sample_index], file=out)
