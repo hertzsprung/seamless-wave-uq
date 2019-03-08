@@ -33,8 +33,9 @@ set style line 3 lt 4 dt (2,2.5) lw 5
 set label 1 "(b)" at graph 0.02,0.92
 set xlabel "$x$ (\\si{\\meter})"
 set ylabel "Velocity (\\si{\\meter\\per\\second})" offset 1.3,0
-set yrange [-0.03:0.22]
+set yrange [0:*]
 set ytics auto
+set mytics 2
 set key noautotitle top right
 
 plot 'derived-statistics.dat' using 1:($4-$5):($4+$5) with filledcurves, \
