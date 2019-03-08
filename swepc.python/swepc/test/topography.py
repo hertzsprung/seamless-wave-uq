@@ -48,7 +48,7 @@ class RandomSmoothBump:
         bump = Bump(a, 0.0, self.halfWidth)
         return [bump.z0(x) for x in self.C], a
 
-class EDFTopography:
+class TsengTopography:
     def __init__(self, offset = 0.0):
         self.xs = [0.0, 50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0,
                 425.0, 450.0, 470.0, 475.0, 500.0, 505.0, 530.0, 550.0, 565.0,
@@ -71,12 +71,12 @@ class EDFTopography:
     def z1(self, x):
         return 0.0
 
-class RandomEDFTopography:
+class RandomTsengTopography:
     def __init__(self, mesh, stddev):
         self.C = mesh.C
         self.stddev = stddev 
 
     def sample(self):
         offset = np.random.normal(0.0, self.stddev)
-        deterministic = EDFTopography(offset)
+        deterministic = TsengTopography(offset)
         return [deterministic.z0(x) for x in self.C], offset

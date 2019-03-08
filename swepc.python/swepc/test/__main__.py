@@ -4,7 +4,6 @@ import swepc
 import swepc.test
 import os
 import sys
-import matplotlib.pyplot as plt
 
 np.seterr(invalid='raise', divide='raise')
 g = 9.80665
@@ -15,7 +14,7 @@ def main():
         description="""Uncertainty quantification for
     1D shallow water flows over uncertain topography.""")
 
-    parser.add_argument("testCase", choices=["lakeAtRest", "criticalSteadyState", "edfSteadyState"])
+    parser.add_argument("testCase", choices=["lakeAtRest", "criticalSteadyState", "tsengSteadyState"])
     parser.add_argument("solver", choices=["wellBalancedH",
         "wellBalancedEta", "centredDifferenceH"])
     parser.add_argument("--monte-carlo", action="store_true")
@@ -39,8 +38,8 @@ def main():
         testCaseClass = swepc.test.LakeAtRest
     elif args.testCase == "criticalSteadyState":
         testCaseClass = swepc.test.CriticalSteadyState
-    elif args.testCase == "edfSteadyState":
-        testCaseClass = swepc.test.EDFSteadyState
+    elif args.testCase == "tsengSteadyState":
+        testCaseClass = swepc.test.TsengSteadyState
 
     mesh = swepc.Mesh(testCaseClass.domain, args.elements)
 
@@ -93,9 +92,6 @@ def stochasticGalerkin(args, testCase, solver, mesh):
                     U = flow.atElement(i).deterministic()
                     cfl = max(cfl, dt/mesh.dx*np.abs(U.u())*np.sqrt(sim.g*U.h))
                 print(t, cfl)
-                plt.clf()
-                plt.plot(mesh.C, flow.water[:,0] + flow.z[:,0])
-                plt.pause(0.01)
             c = c + 1
 
             if args.water_convergence:
@@ -111,8 +107,6 @@ def stochasticGalerkin(args, testCase, solver, mesh):
 
     with open(os.path.join(args.output_dir, "derived-statistics.dat"), 'w') as out:
         solver.writeDerivedStochasticGalerkinStatistics(mesh, flow, file=out)
-
-    plt.show(block=True)
 
 def monteCarlo(args, testCase, solver, mesh):
     np.random.seed(0)

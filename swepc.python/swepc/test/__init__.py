@@ -1,5 +1,5 @@
 from .criticalsteadystate import CriticalSteadyState
-from .edfsteadystate import EDFSteadyState
+from .tsengsteadystate import TsengSteadyState
 from .lakeatrest import LakeAtRest
-from .topography import Bump, TwoBumps, RandomSmoothBump, EDFTopography, RandomEDFTopography
+from .topography import Bump, TwoBumps, RandomSmoothBump, TsengTopography, RandomTsengTopography
 

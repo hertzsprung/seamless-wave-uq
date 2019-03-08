@@ -6,13 +6,16 @@ import os
 
 build = Build([
     'generators/lakeAtRest.py',
-    'generators/criticalSteadyState.py'
+    'generators/criticalSteadyState.py',
+    'generators/tsengSteadyState.py'
 ])
 
-criticalSteadyState = generators.CriticalSteadyState(iterations=2000)
 lakeAtRest = generators.LakeAtRest()
+criticalSteadyState = generators.CriticalSteadyState(iterations=2000)
+tsengSteadyState = generators.TsengSteadyState()
 
-criticalSteadyState.addTo(build)
 lakeAtRest.addTo(build)
+criticalSteadyState.addTo(build)
+tsengSteadyState.addTo(build)
 
 build.write()
