@@ -20,11 +20,11 @@ set ytics 5
 set mytics 5
 set mxtics 2
 
-plot 'statistics.dat' using 1:($2-$5):($2+$5) with filledcurves, \
-     'statistics.dat' using 1:2 title 'Topography', \
-     'derived-statistics.dat' using 1:($2-$3):($2+$3) with filledcurves, \
-     'derived-statistics.dat' using 1:2 title 'FV1', \
-     'edf_exact.dat' using 1:($2+$3) title 'Analytic'
+plot "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/statistics.dat" using 1:($2-$5):($2+$5) with filledcurves, \
+     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/statistics.dat" using 1:2 title 'Topography', \
+     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/derived-statistics.dat" using 1:($2-$3):($2+$3) with filledcurves, \
+     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/derived-statistics.dat" using 1:2 title 'FV1', \
+     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/tseng_exact.dat" using 1:($2+$3) title 'Analytic'
 
 set style line 1 lc rgb '#9acae1'
 set style line 2 lc rgb '#2171b5' lw 5
@@ -38,6 +38,6 @@ set ytics auto
 set mytics 2
 set key noautotitle top right
 
-plot 'derived-statistics.dat' using 1:($4-$5):($4+$5) with filledcurves, \
-     'derived-statistics.dat' using 1:4 ls 2, \
-     'edf_exact.dat' using 1:(0.75/$3)
+plot "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/derived-statistics.dat" using 1:($4-$5):($4+$5) with filledcurves, \
+     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/derived-statistics.dat" using 1:4 ls 2, \
+     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/tseng_exact.dat" using 1:(0.75/$3)
