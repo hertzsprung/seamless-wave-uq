@@ -2,7 +2,7 @@ set term epslatex color colortext size 3.5,3.7
 
 set xrange [0:1500]
 set style data lines
-set key noautotitle center right
+set key noautotitle center right samplen 3
 set style increment userstyles
 
 set style line 1 lc rgb '#BBBBBB'
@@ -23,7 +23,7 @@ set mxtics 2
 plot "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/statistics.dat" using 1:($2-$5):($2+$5) with filledcurves, \
      "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/statistics.dat" using 1:2 title 'Topography', \
      "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/derived-statistics.dat" using 1:($2-$3):($2+$3) with filledcurves, \
-     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/derived-statistics.dat" using 1:2 title 'FV1', \
+     "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/derived-statistics.dat" using 1:2 title 'Stochastic Galerkin', \
      "`echo $uqdata_builddir`/uq/tsengSteadyState-wellBalancedH-3/tseng_exact.dat" using 1:($2+$3) title 'Analytic'
 
 set style line 1 lc rgb '#9acae1'
