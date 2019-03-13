@@ -21,9 +21,26 @@
 
 \NameTag{Shaw, \today}
 
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+     {\linenomath\csname old#1\endcsname}%
+     {\csname oldend#1\endcsname\endlinenomath}}% 
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
 \DeclareMathOperator{\E}{\mathbb{E}}
 \DeclareMathOperator{\sech}{sech}
-\newcommand{\amean}{\mean{a}}
 \newcommand{\anyvar}{\alpha}
 \newcommand{\dee}{\mathrm{d}}
 \newcommand{\Deltazhat}{\widehat{\Delta z}}
@@ -37,6 +54,8 @@
 \newcommand{\hhat}{\hat{h}}
 \newcommand{\hmodified}{h^\star}
 \newcommand{\hKmodified}{h^{K,\star}}
+\newcommand{\hump}{r}
+\newcommand{\humpmean}{\mean{r}}
 \newcommand{\Mag}[1]{\left\lvert #1 \right\rvert}
 \newcommand{\mean}[1]{\overline{#1}}
 \newcommand{\palt}{s}
@@ -54,13 +73,16 @@
 \newcommand{\zmodified}{z^\star}
 \newcommand{\zrectbump}{\breve{z}}
 
+\newcommand{\rev}[1]{\textcolor{orange}{\textbf{#1}}}
+%\newcommand{\TODO}[1]{\textcolor{purple}{\textit{TODO: #1}}}
+
 \author[1]{James Shaw, Ph.D}
 \author[2]{Georges Kesserwani, Ph.D}
 
 \affil[1]{Research Associate, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: js102@zepler.net}
 \affil[2]{Research Fellow, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: g.kesserwani@sheffield.ac.uk}
 
-\title{Well-balanced stochastic Galerkin shallow flow model with uncertain topography}
+\title{\rev{Stochastic Galerkin finite volume shallow flow model with well-balanced treatment of uncertain topography using the surface gradient method}}
 
 \begin{document}
 

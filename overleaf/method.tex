@@ -9,11 +9,12 @@ conservation principals, and is used in the following conservative form when sol
 \begin{align}
 \frac{\partial \flow(x, t)}{\partial t} + \frac{\partial \flux(\flow(x, t))}{\partial x} = \source(\flow(x, t), z(x)) \label{eqn:swe}
 \end{align}
-where $\flow = \left[ h, q \right]^\T$ is the flow vector including water height $h$ ($\mathrm{L}$) and unit-width discharge $q = h\velocity$ ($\mathrm{L}^2/\mathrm{T}$) in which $\velocity$ represents the depth-averaged velocity ($\mathrm{L}/\mathrm{T}$), $\flux = \left[ q,  q^2/h + gh^2/2 \right]^\T$ is the flux vector in which $g$ represents the gravitational constant and $\source = \left[ 0, -gh \: \dee z / \dee x \right]^\T$ is the source term vector in which the gradient of the topography $z(x)$ is involved.
+where $\flow = \left[ h, q \right]^\T$ is the flow vector including water \rev{depth} $h$ ($\mathrm{L}$) and unit-width discharge $q = h\velocity$ ($\mathrm{L}^2/\mathrm{T}$) in which $\velocity$ represents the depth-averaged velocity ($\mathrm{L}/\mathrm{T}$), $\flux = \left[ q,  q^2/h + gh^2/2 \right]^\T$ is the flux vector in which $g$ represents the gravitational constant and $\source = \left[ 0, -gh \: \dee z / \dee x \right]^\T$ is the source term vector in which the gradient of the topography $z(x)$ is involved.
+\rev{Equation~\eqref{eqn:swe} represents hydraulic flow in an idealised, frictionless channel with a rectangular cross-section.}
 
 \subsection{Deterministic model}
 
-On a uniform 1D mesh with $M$ elements each of size $\Delta x$, the first-order finite volume method leads to the following discrete element-wise formulation of equation~\eqref{eqn:swe}:
+On a uniform 1D mesh with $M$ elements each of size $\Delta x$, the first-order finite volume method leads to the following discrete element-wise formulation of \rev{the shallow water equations given by equation~\eqref{eqn:swe}}:
 \begin{align}
     \flow_i^{(n+1)} = \flow_i^{(n)} - \Delta t
     \left(
@@ -22,7 +23,8 @@ On a uniform 1D mesh with $M$ elements each of size $\Delta x$, the first-order 
 \end{align}
 in which $\flow_i^{(n)} = \left[ h_i^{(n)}, q_i^{(n)} \right]^\T$ is a piecewise-constant discretisation of the flow vector at element $i$ and time level $(n)$, and $\riemannflux_{i+1/2}^{(n)}$ is a numerical flux function for linking nonlinear discontinuities associated with the flow vector data at interface $i+1/2$ located between element $i$ and $i + 1$.
 Namely, $\riemannflux_{i+1/2}^{(n)} = \riemannflux(\flow_{i+1/2}^-, \flow_{i+1/2}^+)$ where $\flow_{i+1/2}^-$ is the limit of the solution from the side of element $i$, and $\flow_{i+1/2}^+$ is the limit of the solution from the side of element $i+1$.
-Within the scope of this work involving a first-order accurate solver, these limits become $\flow_{i+1/2}^- = \flow_i$ and $\flow_{i+1/2}^+ = \flow_{i+1}$ that are used in a numerical flux function based on the approximate Riemann solver of Roe \citep{roe-pike1984}.
+Within the scope of this work involving a first-order accurate solver, these limits become $\flow_{i+1/2}^- = \flow_i$ and $\flow_{i+1/2}^+ = \flow_{i+1}$ that are used in a numerical flux function based on the Roe approximate Riemann solver \citep{roe-pike1984}.
+\rev{Consequently, the deterministic model is able to simulate subcritical, supercritical and transcritical flows.}
 
 The surface gradient method essentially reconstructs an averaged topography at interface $i+1/2$ that is shared by both elements $i$ and $i+1$, as $\zmodified_{i+1/2} = (z_i + z_{i+1})/2$.
 From the reconstructed topography $\zmodified_{i+1/2}$, consistent flow variable limits are accordingly reconstructed based on the actual free-surface elevation data, i.e. $\eta_{i+1/2}^- = h_i^{(n)} + z_i$ and $\eta_{i+1/2}^+ = h_{i+1}^{(n)} + z_{i+1}$, and velocity data, i.e. $\velocity_{i+1/2}^- = q_i^{(n)}/h_i^{(n)}$ and $\velocity_{i+1/2}^+ = q_{i+1}^{(n)} / h_{i+1}^{(n)}$, as: $\hKmodified_{i+1/2} = \eta_{i+1/2}^K - \zmodified_{i+1/2}$ and $\qKmodified_{i+1/2} = \hKmodified_{i+1/2} \velocity_{i+1/2}^K$ (where $K = + \text{ or } -$).
@@ -41,20 +43,20 @@ The well-balanced deterministic model presented in equations~\eqref{eqn:swe-disc
 
 \subsection{Fundamental properties of the Polynomial Chaos basis}
 
-Before presenting the stochastic Galerkin reformulation, it is necessary to consider a single random variable $X(\theta)$ that maps from the random event $\theta$ to an arbitrary probability distribution with finite variance.
+Before presenting the stochastic Galerkin reformulation, it is necessary to consider a single random variable \rev{$A(\theta)$} that maps from the random event $\theta$ to an arbitrary probability distribution with finite variance.
 This random variable can be approximated by a Wiener-Hermite Polynomial Chaos expansion \citep{xiu-karniadakis2002}.
 The expansion is based on a standard Gaussian random variable $\xi(\theta) \in [-\infty, +\infty]$ having zero mean and unit variance.
-The random variable of interest, $X(\theta)$, is then approximated as
-\begin{align}
-X(\theta) \approx \sum_{p=0}^P X_p \pcbasis_p(\xi(\theta))
-\end{align}
-where $\vect{X} = \left[ X_0, \ldots, X_P \right]^\T$ are the expansion coefficients and $\pcbasisvect = \left[ \pcbasis_0, \ldots, \pcbasis_P \right]^\T$ is the probabilists' Hermite polynomial basis having basis function $\pcbasis_p$ of degree $p$,
+The random variable of interest, \rev{$A(\theta)$}, is then approximated as
+\rev{\begin{align}
+A(\theta) \approx \sum_{p=0}^P A_p \pcbasis_p(\xi(\theta))
+\end{align}}
+where \rev{$\vect{A} = \left[ A_0, \ldots, A_P \right]^\T$} are the expansion coefficients and $\pcbasisvect = \left[ \pcbasis_0, \ldots, \pcbasis_P \right]^\T$ is the probabilists' Hermite polynomial basis having basis function $\pcbasis_p$ of degree $p$,
 \begin{align}
     \pcbasis_p(\xi) = \left( -1 \right)^p \exp \left(\frac{\xi^2}{2}\right)
     \frac{\dee^p}{\dee \xi^p} \exp \left(- \frac{\xi^2}{2} \right)
 \end{align}
 where $\pcbasis_0 = 1, \pcbasis_1 = \xi, \pcbasis_2 = \xi^2 - 1, \pcbasis_3 = \xi^3 - 3\xi$ and so on.
-As the basis order $P$ is increased, the Wiener-Hermite Polynomial Chaos approximation converges on the true random variable $X(\theta)$ \citep{xiu-karniadakis2002}.
+As the basis order $P$ is increased, the Wiener-Hermite Polynomial Chaos approximation converges on the true random variable \rev{$A(\theta)$} \citep{xiu-karniadakis2002}.
 
 \subsubsection*{Basis orthogonality and commutativity}
 The Wiener-Hermite basis $\pcbasisvect$ is orthogonal such that
@@ -79,54 +81,55 @@ Finally, the ensemble average of a product of basis functions is commutative suc
 The commutative property is needed later when verifying the well-balanced property with uncertain topography.
 
 \subsubsection*{Stochastic Galerkin projection of a random variable}
-Given the random variable $X(\theta) = \sum_{p=0}^P X_p \pcbasis_p(\xi(\theta))$, its Galerkin projection onto a basis function $\pcbasis_l$ with $l = 0, \ldots, P$ is achieved using the ensemble average operator such that, due to orthogonality,
-\begin{align}
-	\Ensemble{X(\theta) \pcbasis_l} = X_l \Ensemble{\pcbasis_l^2} \label{eqn:orthogonal}
-\end{align}
-where $X_l$ is the $l$\textsuperscript{th} order expansion coefficient.
-Also note that the Galerkin projection of a basis function $\pcbasis_l$ and two random variables, $X(\theta)$ and $Y(\theta)$, is distributive:
-\begin{align}
-	\Ensemble{\left(X(\theta) + Y(\theta)\right) \pcbasis_l}
+Given the random variable \rev{$A(\theta) = \sum_{p=0}^P A_p \pcbasis_p(\xi(\theta))$}, its Galerkin projection onto a basis function $\pcbasis_l$ with $l = 0, \ldots, P$ is achieved using the ensemble average operator such that, due to orthogonality,
+\rev{\begin{align}
+	\Ensemble{A(\theta) \pcbasis_l} = A_l \Ensemble{\pcbasis_l^2} \label{eqn:orthogonal}
+\end{align}}
+where \rev{$A_l$} is the $l$\textsuperscript{th} order expansion coefficient.
+Also note that the Galerkin projection of a basis function $\pcbasis_l$ and two random variables, \rev{$A(\theta)$ and $B(\theta)$}, is distributive:
+\rev{\begin{align}
+	\Ensemble{\left(A(\theta) + B(\theta)\right) \pcbasis_l}
 	=
-	\Ensemble{X(\theta) \pcbasis_l} + \Ensemble{Y(\theta) \pcbasis_l} \label{eqn:distributive}
-\end{align}
+	\Ensemble{A(\theta) \pcbasis_l} + \Ensemble{B(\theta) \pcbasis_l} \label{eqn:distributive}
+\end{align}}
 
 \subsubsection*{Mean, variance and high-order moments}
-The mean, variance and high-order moments can be calculated for $X(\theta)$.
-The $m$\textsuperscript{th} moment $\mu_m[X]$ is defined as
-\begin{align}
-\mu_m[X] = \int_{-\infty}^\infty \left(X - \beta \right)^m W(\xi) \diff \xi
+The mean, variance and high-order moments can be calculated for \rev{$A(\theta)$}.
+The $m$\textsuperscript{th} moment \rev{$\mu_m[A]$} is defined as
+\rev{\begin{align}
+\mu_m[A] = \int_{-\infty}^\infty \left(A - \beta \right)^m W(\xi) \diff \xi
     =
-    \Ensemble{\left( X - \beta \right)^m} \label{eqn:moment}
-\end{align}
-where $\beta = 0$ when $m = 1$ and $\beta = \mu_1[X]$ for higher-order moments.
-Therefore, the mean $\mu_1[X] = \Ensemble{X} = \sum_{p=0}^P X_p \Ensemble{\pcbasis_p}$.
+    \Ensemble{\left( A - \beta \right)^m} \label{eqn:moment}
+\end{align}}
+where $\beta = 0$ when $m = 1$ and \rev{$\beta = \mu_1[A]$} for higher-order moments.
+Therefore, the mean \rev{$\mu_1[A] = \Ensemble{A} = \sum_{p=0}^P A_p \Ensemble{\pcbasis_p}$}.
 Since $\Ensemble{\pcbasis_0} = 1$ and $\Ensemble{\pcbasis_p} = 0$ for $p > 0$ then
-\begin{align}
-\mu_1[X] = X_0
+\rev{\begin{align}
+\mu_1[A] = A_0
 \label{eqn:mean}
-\end{align}
-The shorthand notation for the mean of $X$ is $\mean{X}$, also known as the expected value, $\E\left[X\right]$.
+\end{align}}
+The shorthand notation for the mean of \rev{$A$} is \rev{$\mean{A}$}, also known as the expected value, \rev{$\E\left[A\right]$}.
 
-The variance $\mu_2[X]$ can be derived using the fact that $\E\left[ \left( X - \E[X] \right)^2 \right] = \E[X^2] - \E^2[X]$, hence $\mu_2[X] = \left(\sum_{p=0}^P X_p^2 \Ensemble{\pcbasis_p^2}\right) - X_0^2 \Ensemble{\pcbasis_0}^2$.
+The variance \rev{$\mu_2[X]$} can be derived using the fact that \rev{$\E\left[ \left( A - \E[A] \right)^2 \right] = \E[A^2] - \E^2[A]$}, hence \rev{$\mu_2[A] = \left(\sum_{p=0}^P A_p^2 \Ensemble{\pcbasis_p^2}\right) - A_0^2 \Ensemble{\pcbasis_0}^2$}.
 Since $\Ensemble{\pcbasis_0}^2 = \Ensemble{\pcbasis_0^2}$ then
-\begin{align}
-    \mu_2[X] &= \sum_{p=1}^P X^2_p \Ensemble{\pcbasis_p^2} \label{eqn:variance}
-\end{align}
-The shorthand notation for the variance of $X$ is $\sigma^2_X$ and the standard deviation of $X$ is $\sigma_X$.
+\rev{\begin{align}
+    \mu_2[A] &= \sum_{p=1}^P A^2_p \Ensemble{\pcbasis_p^2} \label{eqn:variance}
+\end{align}}
+The shorthand notation for the variance of \rev{$A$} is \rev{$\sigma^2_A$} and the standard deviation of \rev{$A$} is \rev{$\sigma_A$}.
 
 \subsubsection*{Reconstructing the probability density function}
-The probability density function $f_X(x)$ of a random variable $X$ is,
+The probability density function \rev{$f_A(a)$} of a random variable \rev{$A$} is,
+\rev{
 \begin{subequations}
 \begin{align}
-        f_X(x) = \sum_{j=1}^J \Mag{ \sum_{p=0}^P X_p \frac{\dee \Phi_p}{\dee \xi}(\randomroot_j)}^{-1} W(\randomroot_j)
+        f_A(a) = \sum_{j=1}^J \Mag{ \sum_{p=0}^P A_p \frac{\dee \Phi_p}{\dee \xi}(\randomroot_j)}^{-1} W(\randomroot_j)
 %
 \intertext{where $\randomroot_j$, $j=1, \ldots, J$ are the real roots of the polynomial}
 %
-        x - \sum_{p=0}^P X_p \pcbasis_p(\xi) = 0
+        a - \sum_{p=0}^P A_p \pcbasis_p(\xi) = 0
 \end{align}\label{eqn:pdf}%
-\end{subequations}
-which can be calculated numerically for a specific outcome $x$.
+\end{subequations}}
+which can be calculated numerically for a specific \rev{realisation $a$}.
 Hence, the probability density function is computed by evaluating equation~\eqref{eqn:pdf} for a range of outcomes.
 
 \subsection{Stochastic Galerkin reformulation of the deterministic model}
@@ -165,7 +168,7 @@ and so $z^\star_{i+1/2,p} = (z_{i,p} + z_{i+1,p})/2$ due to basis orthogonality.
 The reconstructed limits $\flow^{K,\star}_{i+1/2,p} = \left[ h^{K,\star}_{i+1/2,p}, q^{K,\star}_{i+1/2,p} \right]^\T$ (where $K = + \text{ or } -$) are calculated in a similar fashion.
 
 Random variables that are functions of other random variables can be calculated in the same way.
-In particular, water height can be expressed as a function of free-surface elevation and topography such that, due to basis orthogonality,
+In particular, water \rev{depth} can be expressed as a function of free-surface elevation and topography such that, due to basis orthogonality,
 \begin{align}
 h_{i,p}^{(n)} = \eta_{i,p}^{(n)} - z_{i,p}
 \label{eqn:h-eta-z}
@@ -185,14 +188,14 @@ The numerical flux $\riemannflux_{i+1/2}^{(n)}$ becomes
 \end{align}
 and similarly for $\riemannflux_{i-1/2}^{(n)}$.
 The source term vector $\source_i^{(n)}$ in equation~\eqref{eqn:source} becomes
-\begin{align}
+\rev{\begin{align}
 	\source_i^{(n)} = \left[ 0, -\frac{g}{\Delta x}
 	\left\{
-	\sum_{p=0}^P \frac{h^{+,\star}_{i-1/2,p} + h^{-,\star}_{i+1/2,p}}{2} \pcbasis_p \right\}
+	\sum_{p=0}^P \left(\frac{h^{+,\star}_{i-1/2,p} + h^{-,\star}_{i+1/2,p}}{2} \right) \pcbasis_p \right\}
 \left\{ \sum_{s=0}^P \left( z^\star_{i+1/2,s} - z^\star_{i-1/2,s} \right) \pcbasis_s \right\}
 	\right]^\T
 	\label{eqn:random-source}
-\end{align}
+\end{align}}
 Equation~\eqref{eqn:random-source} involves the product of two expressions, each delimited by braces.
 Since both expressions include Wiener-Hermite expansions then different indices, $p$ and $s$, are needed for the expansion coefficients in each expression.
 

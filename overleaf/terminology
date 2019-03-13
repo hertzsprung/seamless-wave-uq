@@ -1,8 +1,9 @@
-a: hump amplitude
+A: any random variable
+B: any random variable
 b: ?
 c: wave speed (but unused)
 \mathscr{c}: central moment
-d: ?
+d: hump amplitude
 e: AVOID
 f: PDF
 F: flux
@@ -29,8 +30,6 @@ v: velocity
 w: quadrature weight
 W: weighting function
 x: space coordinate
-X: any random variable
-Y: any random variable
 y: ?
 z: topography
 
