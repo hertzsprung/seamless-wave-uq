@@ -4,7 +4,7 @@
 The first test simulates a lake-at-rest over \rev{idealised,} uncertain topography to verify that the stochastic Galerkin model preserves well-balancing numerically.
 The second test simulates flow over a hump with an uncertain elevation.
 This test is designed to challenge the stochastic Galerkin model at representing discontinuous, non-Gaussian probability distributions by generating a steady-state solution that may be subcritical or transcritical depending on the hump elevation.
-\rev{The third test verifies the accuracy of the stochastic Galerkin model for a steady flow over a highly irregular and uncertain bed that is more representative of real-world river hydraulics.}
+\rev{The third test verifies the robustness of the stochastic Galerkin model for a steady flow over a highly irregular and uncertain bed that is more representative of real-world river hydraulics.}
 
 \subsection{\rev{Specification of Tests 1 and 2}}
 \rev{For the first two tests,} the 1D domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements with no overlaps or gaps such that the mesh spacing is $\Delta x = \SI{1}{\meter}$.

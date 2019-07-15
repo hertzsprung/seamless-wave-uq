@@ -2,7 +2,7 @@
 
 This paper proposed a stochastic Galerkin shallow flow model using the surface gradient method to ensure well-balancing.
 The well-balancedness of the stochastic model was studied theoretically \rev{and verified in a series of idealised numerical tests, with a prescribed uncertainty that characterises topographic or bathymetric measurement errors.}
-\rev{These tests demonstrated that the stochastic Galerkin model preserves well-balancing to machine precision, and accurately simulates steady flow over highly irregular and uncertain topography.}
+\rev{These tests demonstrated that the stochastic Galerkin model preserves discrete balance between flux and topography gradients to machine precision, and accurately reproduces steady flow over highly irregular and uncertain topography.}
 \rev{Despite its relatively low-order Wiener-Hermite basis, the stochastic Galerkin model was able to simulate strongly nonlinear behaviour, producing discontinuous and highly non-Gaussian probability distributions that compared favourably against a Monte Carlo reference solution.}
 
 It is likely that a more sophisticated treatment using a multiresolution wavelet decomposition \citep{lemaitre2004a,pettersson2014} or multi-element discretisation of the stochastic dimension \citep{wan-karniadakis2006,li-stinis2015} would further improve the representation of highly non-Gaussian and discontinuous probability distributions.
@@ -10,7 +10,7 @@ It is also likely that a decomposition or discretisation of stochastic space wou
 Such improvements are the subject of future work.
 
 \rev{The one-dimensional stochastic Galerkin model presented here is ideally suited to river routing applications:
-using as few as two expansion coefficients per element, the stochastic model can account for river bed measurement errors to produce a probabilistic simulation of the transient flow that is accurate and computationally efficient.}
+using as few as two expansion coefficients per element, the stochastic model can account for river bed measurement errors to produce a probabilistic flow simulation that is accurate and computationally efficient.}
 Without parallelisation, the stochastic Galerkin model is \rev{at least} 100 times faster than a Monte Carlo simulation.
 With parallelisation on commodity hardware, the computation time for the stochastic Galerkin model would be on par with a single iteration of the deterministic solver.
 

@@ -10,7 +10,7 @@ conservation principals, and is used in the following conservative form when sol
 \frac{\partial \flow(x, t)}{\partial t} + \frac{\partial \flux(\flow(x, t))}{\partial x} = \source(\flow(x, t), z(x)) \label{eqn:swe}
 \end{align}
 where $\flow = \left[ h, q \right]^\T$ is the flow vector including water \rev{depth} $h$ ($\mathrm{L}$) and unit-width discharge $q = h\velocity$ ($\mathrm{L}^2/\mathrm{T}$) in which $\velocity$ represents the depth-averaged velocity ($\mathrm{L}/\mathrm{T}$), $\flux = \left[ q,  q^2/h + gh^2/2 \right]^\T$ is the flux vector in which $g$ represents the gravitational constant and $\source = \left[ 0, -gh \: \dee z / \dee x \right]^\T$ is the source term vector in which the gradient of the topography $z(x)$ is involved.
-\rev{Equation~\eqref{eqn:swe} represents hydraulic flow in an idealised, frictionless channel with a rectangular cross-section.}
+\rev{Equation~\eqref{eqn:swe} represents hydraulic flow in an idealised, frictionless channel with a rectangular cross-section of unit width.}
 
 \subsection{Deterministic model}
 
@@ -24,7 +24,7 @@ On a uniform 1D mesh with $M$ elements each of size $\Delta x$, the first-order 
 in which $\flow_i^{(n)} = \left[ h_i^{(n)}, q_i^{(n)} \right]^\T$ is a piecewise-constant discretisation of the flow vector at element $i$ and time level $(n)$, and $\riemannflux_{i+1/2}^{(n)}$ is a numerical flux function for linking nonlinear discontinuities associated with the flow vector data at interface $i+1/2$ located between element $i$ and $i + 1$.
 Namely, $\riemannflux_{i+1/2}^{(n)} = \riemannflux(\flow_{i+1/2}^-, \flow_{i+1/2}^+)$ where $\flow_{i+1/2}^-$ is the limit of the solution from the side of element $i$, and $\flow_{i+1/2}^+$ is the limit of the solution from the side of element $i+1$.
 Within the scope of this work involving a first-order accurate solver, these limits become $\flow_{i+1/2}^- = \flow_i$ and $\flow_{i+1/2}^+ = \flow_{i+1}$ that are used in a numerical flux function based on the Roe approximate Riemann solver \citep{roe-pike1984}.
-\rev{Consequently, the deterministic model is able to simulate subcritical, supercritical and transcritical flows.}
+\rev{Consequently, the deterministic model is able to capture the occurrence of shocks, and simulate subcritical, supercritical and transcritical flows.}
 
 The surface gradient method essentially reconstructs an averaged topography at interface $i+1/2$ that is shared by both elements $i$ and $i+1$, as $\zmodified_{i+1/2} = (z_i + z_{i+1})/2$.
 From the reconstructed topography $\zmodified_{i+1/2}$, consistent flow variable limits are accordingly reconstructed based on the actual free-surface elevation data, i.e. $\eta_{i+1/2}^- = h_i^{(n)} + z_i$ and $\eta_{i+1/2}^+ = h_{i+1}^{(n)} + z_{i+1}$, and velocity data, i.e. $\velocity_{i+1/2}^- = q_i^{(n)}/h_i^{(n)}$ and $\velocity_{i+1/2}^+ = q_{i+1}^{(n)} / h_{i+1}^{(n)}$, as: $\hKmodified_{i+1/2} = \eta_{i+1/2}^K - \zmodified_{i+1/2}$ and $\qKmodified_{i+1/2} = \hKmodified_{i+1/2} \velocity_{i+1/2}^K$ (where $K = + \text{ or } -$).

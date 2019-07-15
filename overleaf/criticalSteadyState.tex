@@ -28,7 +28,7 @@ Convergence is measured by calculating the $L^2$ difference in mean water \rev{d
 \begin{align}
     L^2 \text{ difference in mean water \rev{depth}} = \sqrt{\sum_{i=1}^M \left(h_{i,0}^{(n)} - h_{i,0}^{(n-1)}\right)^2} \label{eqn:convergence}
 \end{align}
-By $t = \SI{500}{\second}$ all four deterministic solutions have converged down to $10^{-4}$ \si{\meter}.
+By $t = \SI{500}{\second}$ all four deterministic solutions have converged down to \rev{a convergence error of} $10^{-4}$ \si{\meter}.
 For a small hump with amplitude \rev{$\humpmean - \sigma_\hump = \SI{0.3}{\meter}$}, the flow remains subcritical.
 A linear increase in hump amplitude produces a strongly nonlinear response in the steady-state water profile, as seen in figure~\ref{fig:criticalSteadyState-examples}. 
 Two nonlinear responses are evident in particular: first, the upstream boundary condition allows the upstream water \rev{depth} to increase nonlinearly; second, a transcritical shock develops over the hump that increases in amplitude and moves further downstream with larger hump amplitudes.
@@ -39,7 +39,7 @@ The Monte Carlo reference simulation is performed using iterations of the well-b
 \rev{It is necessary to perform a sufficient number of Monte Carlo iterations to ensure that the flow statistics are accurate, and more iterations are needed for more complex probability distributions.
 After each Monte Carlo iteration, the mean and standard deviation of water depth at $x = \SI{1.5}{\meter}$ are measured, where the probability distribution is most complex.
 The statistics are compared with those of the previous iteration, and the Monte Carlo simulation terminates once the statistics change negligibly between iterations, when statistical convergence is achieved.
-Guided by these measurements, two thousand Monte Carlo iterations are performed to achieve statistical convergence for this test.}
+Guided by these measurements, two thousand Monte Carlo iterations are needed to achieve statistical convergence for this test.}
 
 For each Monte Carlo iteration, the topography is randomly generated using a hump amplitude drawn from the Gaussian distribution given by \rev{$(\humpmean, \sigma_\hump)$} and so the topography will always be smooth.
 If instead the topography was randomly generated using $(\zmean(x), \sigma_z(x))$ then randomisation would be different in every element and the topography would not be smooth, so many more iterations would be needed to sample the stochastic solution space.

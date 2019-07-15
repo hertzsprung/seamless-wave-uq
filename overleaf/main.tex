@@ -1,6 +1,6 @@
-%\documentclass[Journal,letterpaper,InsideFigs,SingleSpace,NoLineNumbers]{ascelike-new}
-\documentclass[Journal,letterpaper]{ascelike-new}
-\usepackage[colorlinks,linkcolor=black,citecolor=black,urlcolor=black,draft=false]{hyperref}
+\documentclass[Journal,letterpaper,InsideFigs,SingleSpace,NoLineNumbers]{ascelike-new}
+%\documentclass[Journal,letterpaper]{ascelike-new}
+\usepackage[colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue,draft=false]{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -21,23 +21,23 @@
 
 \NameTag{Shaw, \today}
 
-\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
-  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
-  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
-  \renewenvironment{#1}%
-     {\linenomath\csname old#1\endcsname}%
-     {\csname oldend#1\endcsname\endlinenomath}}% 
-\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
-  \patchAmsMathEnvironmentForLineno{#1}%
-  \patchAmsMathEnvironmentForLineno{#1*}}%
-\AtBeginDocument{%
-\patchBothAmsMathEnvironmentsForLineno{equation}%
-\patchBothAmsMathEnvironmentsForLineno{align}%
-\patchBothAmsMathEnvironmentsForLineno{flalign}%
-\patchBothAmsMathEnvironmentsForLineno{alignat}%
-\patchBothAmsMathEnvironmentsForLineno{gather}%
-\patchBothAmsMathEnvironmentsForLineno{multline}%
-}
+%\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+%  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+%  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+%  \renewenvironment{#1}%
+%     {\linenomath\csname old#1\endcsname}%
+%     {\csname oldend#1\endcsname\endlinenomath}}% 
+%\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+%  \patchAmsMathEnvironmentForLineno{#1}%
+%  \patchAmsMathEnvironmentForLineno{#1*}}%
+%\AtBeginDocument{%
+%\patchBothAmsMathEnvironmentsForLineno{equation}%
+%\patchBothAmsMathEnvironmentsForLineno{align}%
+%\patchBothAmsMathEnvironmentsForLineno{flalign}%
+%\patchBothAmsMathEnvironmentsForLineno{alignat}%
+%\patchBothAmsMathEnvironmentsForLineno{gather}%
+%\patchBothAmsMathEnvironmentsForLineno{multline}%
+%}
 
 \DeclareMathOperator{\E}{\mathbb{E}}
 \DeclareMathOperator{\sech}{sech}
@@ -73,8 +73,9 @@
 \newcommand{\zmodified}{z^\star}
 \newcommand{\zrectbump}{\breve{z}}
 
-\newcommand{\rev}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\rev}[1]{#1}
 %\newcommand{\TODO}[1]{\textcolor{purple}{\textit{TODO: #1}}}
+%\newcommand*{\doi}[1]{\href{https://doi.org/#1}{doi: #1}}
 
 \author[1]{James Shaw, Ph.D}
 \author[2]{Georges Kesserwani, Ph.D}
@@ -82,7 +83,7 @@
 \affil[1]{Research Associate, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: js102@zepler.net}
 \affil[2]{Research Fellow, Department of Civil and Structural Engineering, The University of Sheffield, Western Bank, Sheffield S10 2TN, U.K. Email: g.kesserwani@sheffield.ac.uk}
 
-\title{\rev{Stochastic Galerkin finite volume shallow flow model with well-balanced treatment of uncertain topography using the surface gradient method}}
+\title{\rev{Stochastic Galerkin finite volume shallow flow model: well-balanced treatment over uncertain topography}}
 
 \begin{document}
 
