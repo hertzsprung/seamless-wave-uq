@@ -1,4 +1,4 @@
-\subsection{\rev{Test 2:} Steady-State Critical Flow Over an Uncertain Bed}
+\subsection{Test 2: Steady-State Critical Flow Over an Uncertain Bed}
 
 This test is designed to challenge the stochastic Galerkin model at representing highly non-Gaussian and discontinuous distributions of stochastic flow.
 The uncertain topography profile and inflow boundary condition are chosen in order to produce a nonlinear response such that the steady-state solution may be subcritical or transcritical depending on the bed elevation.
@@ -6,17 +6,17 @@ Results of the stochastic Galerkin model are validated against a Monte Carlo sim
 
 \subsubsection{Setup to Produce a Nonlinear Flow Response}
 The uncertain topography is the smooth hump given by equation~\eqref{eqn:z-pc-coeffs}.
-Subcritical boundary conditions are imposed such that the mean upstream discharge \rev{per unit-width} is \SI{1.65}{\meter\squared\per\second} and the mean downstream water \rev{depth} is \SI{1.5}{\meter}, with no uncertainty for the upstream discharge and downstream water \rev{depth}.
-Transmissive boundary conditions are used for the upstream water \rev{depth} and downstream discharge.
+Subcritical boundary conditions are imposed such that the mean upstream discharge per unit-width is \SI{1.65}{\meter\squared\per\second} and the mean downstream water depth is \SI{1.5}{\meter}, with no uncertainty for the upstream discharge and downstream water depth.
+Transmissive boundary conditions are used for the upstream water depth and downstream discharge.
 These boundary conditions are chosen so that the flow is exactly critical for the mean hump amplitude $\humpmean = \SI{0.6}{\meter}$ at $x = \SI{0}{\meter}$.
 Since the hump amplitude is uncertain then the flow regime is also uncertain: if the hump amplitude is less than $\humpmean$ then the flow remains subcritical; if the hump amplitude is greater than $\humpmean$ then the flow regime becomes transcritical.
-\rev{In the transcritical regime, the flow upstream of the hump is subcritical, transitioning to supercritical flow over the hump.
-A hydraulic jump occurs on the downstream side of the hump, where the flow becomes subcritical once more.}
+In the transcritical regime, the flow upstream of the hump is subcritical, transitioning to supercritical flow over the hump.
+A hydraulic jump occurs on the downstream side of the hump, where the flow becomes subcritical once more.
 
 \begin{figure}
     \centering
     \includegraphics{fig-criticalSteadyState-examples.pdf}
-    \caption{Well-balanced deterministic solutions of steady-state flow at $t = \SI{500}{\second}$ using four hump amplitudes, \rev{$\humpmean - \sigma_\hump = \SI{0.3}{\meter}, \humpmean = \SI{0.6}{\meter}, \humpmean+\sigma_a = \SI{0.9}{\meter}$ and $\humpmean + 2\sigma_\hump = \SI{1.2}{\meter}$}.
+    \caption{Well-balanced deterministic solutions of steady-state flow at $t = \SI{500}{\second}$ using four hump amplitudes, $\humpmean - \sigma_\hump = \SI{0.3}{\meter}, \humpmean = \SI{0.6}{\meter}, \humpmean+\sigma_a = \SI{0.9}{\meter}$ and $\humpmean + 2\sigma_\hump = \SI{1.2}{\meter}$.
     The free-surface elevation is shown with solid lines and the topography profile is shown with dashed lines.
     Vertical dotted lines at $x = \SI{-37.5}{\meter}$ and $x = \SI{1.5}{\meter}$ mark the positions of the probability densities shown in figure~\ref{fig:criticalSteadyState-pdf}.}
     \label{fig:criticalSteadyState-examples}
@@ -24,26 +24,26 @@ A hydraulic jump occurs on the downstream side of the hump, where the flow becom
 
 To illustrate this change in flow regime, figure~\ref{fig:criticalSteadyState-examples} shows four deterministic solutions using four different hump amplitudes.
 Solutions from the well-balanced deterministic model are obtained at $t = \SI{500}{\second}$ when the water has converged on a steady state.
-Convergence is measured by calculating the $L^2$ difference in mean water \rev{depth} between the current and previous timesteps:
+Convergence is measured by calculating the $L^2$ difference in mean water depth between the current and previous timesteps:
 \begin{align}
-    L^2 \text{ difference in mean water \rev{depth}} = \sqrt{\sum_{i=1}^M \left(h_{i,0}^{(n)} - h_{i,0}^{(n-1)}\right)^2} \label{eqn:convergence}
+    L^2 \text{ difference in mean water depth} = \sqrt{\sum_{i=1}^M \left(h_{i,0}^{(n)} - h_{i,0}^{(n-1)}\right)^2} \label{eqn:convergence}
 \end{align}
-By $t = \SI{500}{\second}$ all four deterministic solutions have converged down to \rev{a convergence error of} $10^{-4}$ \si{\meter}.
-For a small hump with amplitude \rev{$\humpmean - \sigma_\hump = \SI{0.3}{\meter}$}, the flow remains subcritical.
+By $t = \SI{500}{\second}$ all four deterministic solutions have converged down to a convergence error of $10^{-4}$ \si{\meter}.
+For a small hump with amplitude $\humpmean - \sigma_\hump = \SI{0.3}{\meter}$, the flow remains subcritical.
 A linear increase in hump amplitude produces a strongly nonlinear response in the steady-state water profile, as seen in figure~\ref{fig:criticalSteadyState-examples}. 
-Two nonlinear responses are evident in particular: first, the upstream boundary condition allows the upstream water \rev{depth} to increase nonlinearly; second, a transcritical shock develops over the hump that increases in amplitude and moves further downstream with larger hump amplitudes.
-Downstream of the hump, the water \rev{depth} is \SI{1.5}{\meter} irrespective of the hump amplitude, with this profile having propagated upstream from the imposed downstream boundary.
+Two nonlinear responses are evident in particular: first, the upstream boundary condition allows the upstream water depth to increase nonlinearly; second, a transcritical shock develops over the hump that increases in amplitude and moves further downstream with larger hump amplitudes.
+Downstream of the hump, the water depth is \SI{1.5}{\meter} irrespective of the hump amplitude, with this profile having propagated upstream from the imposed downstream boundary.
 
 \subsubsection{Configuration of the Monte Carlo Reference Simulation}
 The Monte Carlo reference simulation is performed using iterations of the well-balanced deterministic model.
-\rev{It is necessary to perform a sufficient number of Monte Carlo iterations to ensure that the flow statistics are accurate, and more iterations are needed for more complex probability distributions.
+It is necessary to perform a sufficient number of Monte Carlo iterations to ensure that the flow statistics are accurate, and more iterations are needed for more complex probability distributions.
 After each Monte Carlo iteration, the mean and standard deviation of water depth at $x = \SI{1.5}{\meter}$ are measured, where the probability distribution is most complex.
 The statistics are compared with those of the previous iteration, and the Monte Carlo simulation terminates once the statistics change negligibly between iterations, when statistical convergence is achieved.
-Guided by these measurements, two thousand Monte Carlo iterations are needed to achieve statistical convergence for this test.}
+Guided by these measurements, two thousand Monte Carlo iterations are needed to achieve statistical convergence for this test.
 
-For each Monte Carlo iteration, the topography is randomly generated using a hump amplitude drawn from the Gaussian distribution given by \rev{$(\humpmean, \sigma_\hump)$} and so the topography will always be smooth.
+For each Monte Carlo iteration, the topography is randomly generated using a hump amplitude drawn from the Gaussian distribution given by $(\humpmean, \sigma_\hump)$ and so the topography will always be smooth.
 If instead the topography was randomly generated using $(\zmean(x), \sigma_z(x))$ then randomisation would be different in every element and the topography would not be smooth, so many more iterations would be needed to sample the stochastic solution space.
-For the Monte Carlo iterations, the hump amplitude \rev{$\hump$} is constrained such that \rev{$\SI{0}{\meter} \leq \hump \leq \SI{1.4}{\meter}$} to avoid negative water depths.
+For the Monte Carlo iterations, the hump amplitude $\hump$ is constrained such that $\SI{0}{\meter} \leq \hump \leq \SI{1.4}{\meter}$ to avoid negative water depths.
 
 \subsubsection{Spatial Profiles of the Uncertain Free-Surface Elevation}
 
@@ -57,7 +57,7 @@ For the Monte Carlo iterations, the hump amplitude \rev{$\hump$} is constrained 
     \label{fig:criticalSteadyState-flow}
 \end{figure}
 
-In figure~\ref{fig:criticalSteadyState-flow}, spatial profiles of the uncertain free-surface elevation are obtained at $t = \SI{500}{\second}$ when \rev{the water depth profiles from the Monte Carlo and stochastic Galerkin simulations have converged down to $10^{-4}$ \si{\meter} as defined by equation~\eqref{eqn:convergence}}.
+In figure~\ref{fig:criticalSteadyState-flow}, spatial profiles of the uncertain free-surface elevation are obtained at $t = \SI{500}{\second}$ when the water depth profiles from the Monte Carlo and stochastic Galerkin simulations have converged down to $10^{-4}$ \si{\meter} as defined by equation~\eqref{eqn:convergence}.
 Using a Wiener-Hermite basis of order $P=3$, the stochastic Galerkin model accurately represents the Monte Carlo reference profiles of the mean and standard deviation of free-surface elevation.
 Upstream of the hump, the stochastic Galerkin model predicts a standard deviation that is slightly too small compared to the Monte Carlo reference solution.
 Small errors in the stochastic Galerkin free-surface elevation are also visible above the hump where the flow is most complex.
@@ -92,7 +92,7 @@ The second point is immediately downstream of the hump in the region where trans
 
 Figure~\ref{fig:criticalSteadyState-pdf} shows histograms from the Monte Carlo reference simulation that estimate the true probability densities at the two points.
 Stochastic Galerkin results which appear on the same figure are discussed later.
-For each of the two points, water \rev{depths} from the 2000 Monte Carlo iterations are binned into intervals of \SI{0.05}{\meter}, and the magnitude of each bin represents the probability that the water \rev{depth} is within the given interval.
+For each of the two points, water depths from the 2000 Monte Carlo iterations are binned into intervals of \SI{0.05}{\meter}, and the magnitude of each bin represents the probability that the water depth is within the given interval.
 Since the histogram estimates the probability density then the total shaded area over all bins is equal to one.
 
 The Monte Carlo histogram at $x = \SI{-37.5}{\meter}$ is shown in figure~\ref{fig:criticalSteadyState-pdf:upstream} and is discussed first.
@@ -153,7 +153,7 @@ Measuring the elapsed CPU time to simulate the steady-state test confirms this e
 Compared to the Monte Carlo simulation which uses \num{2000} deterministic iterations, the stochastic Galerkin model is about 100 times faster.
 Note that the deterministic model, stochastic Galerkin model and Monte Carlo simulation were implemented without parallelisation.
 
-The speed-up observed here compares favourably with numerical \rev{tests} performed by \citet{ge2008}.
+The speed-up observed here compares favourably with numerical tests performed by \citet{ge2008}.
 Their stochastic Galerkin model with basis order $P=5$ was about 200 times slower than their deterministic model.
 Their Monte Carlo simulation used \num{10000} iterations, making their stochastic Galerkin model about 50 times faster.
 A direct comparison of computation time is not attempted since \citet{ge2008} used a second-order finite volume formulation that is inherently more expensive than the first-order formulation presented here.

@@ -80,7 +80,6 @@ ENTRY
     url
     volume
     year
-    doi
   }
   {}
   { label.year label extra.label sort.label sort.year }
@@ -159,14 +158,6 @@ FUNCTION {output.year.check}
       after.sentence 'output.state :=
     }
   if$
-}
-
-FUNCTION {output.doi}
-{
-    doi empty$
-        { skip$ }
-        { "\texttt{\href{https://doi.org/" doi * "}{doi:" * doi * "}}" * output }
-    if$
 }
 
 FUNCTION {fin.entry}
@@ -801,8 +792,6 @@ FUNCTION {article}
       format.pages output
     }
   if$
-  new.block
-  output.doi
   new.block
   note empty$
     { }

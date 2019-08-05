@@ -4,7 +4,7 @@ Python 3 software is available for download from Zenodo \citep{shaw-kesserwani20
 \begin{enumerate}
     \item a one-dimensional shallow flow model which can operate as a stochastic Galerkin model or a deterministic model
     \item code for running Monte Carlo iterations of the deterministic model
-    \item preconfigured lake-at-rest, steady-state critical flow \rev{and steady-state flow over an irregular bed} test cases
+    \item preconfigured lake-at-rest, steady-state critical flow and steady-state flow over an irregular bed test cases
 \end{enumerate}
 First ensure that Python 3, NumPy and SciPy are installed.
 Then, install the shallow flow model:
@@ -17,15 +17,15 @@ To run the stochastic Galerkin model:
 \begin{Verbatim}[commandchars=\\\{\}]
 swepc --degree \textit{<P>} \textit{<testCase>} \textit{<discretisation>} --output-dir \textit{<directory>}
 \end{Verbatim}
-where \Verb[commandchars=\\\{\}]+\textit{<testCase>}+ is either \Verb+lakeAtRest+, \rev{\Verb+criticalSteadyState+ or \Verb+tsengSteadyState+},
+where \Verb[commandchars=\\\{\}]+\textit{<testCase>}+ is either \Verb+lakeAtRest+, \Verb+criticalSteadyState+ or \Verb+tsengSteadyState+,
 \Verb[commandchars=\\\{\}]+\textit{<discretisation>}+ is either \Verb+wellBalancedH+ for the well-balanced surface gradient method, or \Verb+centredDifferenceH+ for the centred difference method given by equations~\eqref{eqn:flux-centred} and \eqref{eqn:source-centred}.
 If \Verb[commandchars=\\\{\}]+--degree \textit{<P>}+ is omitted then the default basis order $P = 3$ is used.
 If \Verb[commandchars=\\\{\}]+--degree 0+ is specified then the model operates as a deterministic model.
 On running the model, the following text files are written to the specified output directory:
 \begin{description}
-\item[\Verb+coefficients.dat+]{Stochastic Galerkin expansion coefficients for topography $z$, water \rev{depth} $h$ and discharge $q$}
+\item[\Verb+coefficients.dat+]{Stochastic Galerkin expansion coefficients for topography $z$, water depth $h$ and discharge $q$}
 \item[\Verb+statistics.dat+]{Mean, standard deviation, skew and kurtosis calculated using equations~\eqref{eqn:moment}, \eqref{eqn:mean} and \eqref{eqn:variance}}
-\item[\Verb+derived-statistics.dat+]{Statistics for the \rev{depth-averaged velocity} and the free-surface elevation, a derived quantity calculated from equation~\eqref{eqn:h-eta-z}}
+\item[\Verb+derived-statistics.dat+]{Statistics for the depth-averaged velocity and the free-surface elevation, a derived quantity calculated from equation~\eqref{eqn:h-eta-z}}
 \end{description}
 Each file has one line per element with explanatory header rows prefixed by \Verb+#+.
 
@@ -35,7 +35,7 @@ A probability density function for any variable can be calculated from the expan
 sed -n \textit{<line>}p coefficients.dat
    | swepdf --min \textit{<value>} --max \textit{<value>} \textit{<variable>} > pdf.dat
 \end{Verbatim}
-where \Verb[commandchars=\\\{\}]+\textit{<line>}+ is the line number in \Verb+coefficients.dat+ corresponding to the chosen element, and \Verb[commandchars=\\\{\}]+\textit{<variable>}+ is \Verb+z+ (topography), \Verb+water+ (water \rev{depth}), \Verb+q+ (discharge) or \Verb+derived-eta+ (free-surface elevation).
+where \Verb[commandchars=\\\{\}]+\textit{<line>}+ is the line number in \Verb+coefficients.dat+ corresponding to the chosen element, and \Verb[commandchars=\\\{\}]+\textit{<variable>}+ is \Verb+z+ (topography), \Verb+water+ (water depth), \Verb+q+ (discharge) or \Verb+derived-eta+ (free-surface elevation).
 The probability density function is calculated between the \Verb+--min+ and \Verb+--max+ values and written to \Verb+pdf.dat+. 
 
 \subsection{Running Monte Carlo Simulations}
@@ -46,7 +46,7 @@ swepc --monte-carlo --mc-iterations \textit{<value>}
 \end{Verbatim}
 which writes the following text files:
 \begin{description}
-\item[\Verb+statistics.dat+]{Mean, standard deviation, skew and kurtosis for topography, water \rev{depth} and discharge}
-\item[\Verb+derived-statistics.dat+]{Mean and standard deviation for free-surface elevation \rev{and depth-averaged velocity}}
+\item[\Verb+statistics.dat+]{Mean, standard deviation, skew and kurtosis for topography, water depth and discharge}
+\item[\Verb+derived-statistics.dat+]{Mean and standard deviation for free-surface elevation and depth-averaged velocity}
 \cprotect\item[\Verb[commandchars=\\\{\}]+sample\textit{<n>}.dat+]{Deterministic model data with one file per element (numbered $0, \ldots, M-1$), each having one line per Monte Carlo iteration}
 \end{description}

@@ -1,13 +1,34 @@
-\section{\rev{Idealised numerical tests}}
+\section{Idealised numerical tests}
 
-\rev{Three} numerical \rev{tests} are performed to validate the well-balanced stochastic Galerkin model.
-The first test simulates a lake-at-rest over \rev{idealised,} uncertain topography to verify that the stochastic Galerkin model preserves well-balancing numerically.
+Three numerical tests are performed to validate the well-balanced stochastic Galerkin model.
+The first test simulates a lake-at-rest over idealised, uncertain topography to verify that the stochastic Galerkin model preserves well-balancing numerically.
 The second test simulates flow over a hump with an uncertain elevation.
 This test is designed to challenge the stochastic Galerkin model at representing discontinuous, non-Gaussian probability distributions by generating a steady-state solution that may be subcritical or transcritical depending on the hump elevation.
-\rev{The third test verifies the robustness of the stochastic Galerkin model for a steady flow over a highly irregular and uncertain bed that is more representative of real-world river hydraulics.}
+The third test verifies the robustness of the stochastic Galerkin model for a steady flow over a highly irregular and uncertain bed that is more representative of real-world river hydraulics.
+\rev{The configuration of these three tests is summarised in table~\ref{tab:results}.}
 
-\subsection{\rev{Specification of Tests 1 and 2}}
-\rev{For the first two tests,} the 1D domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements with no overlaps or gaps such that the mesh spacing is $\Delta x = \SI{1}{\meter}$.
+\begin{table}
+\centering
+\begin{tabular}{llll}
+\toprule
+    & 1: Lake-at-rest & 2: Steady-state critical flow & 3: Flow over an irregular bed \\
+%    Test case & Mesh & $\Delta x$ & $\Delta t$ & End time & Topography & Models compared & Key findings \\
+\midrule
+    Purpose & Verify well-balancedness & Nonlinear, non-Gaussian flow & Realistic topography \\
+    Mesh & $[ \SI{-50}{\meter}, \SI{50}{\meter} ]$ & $[ \SI{-50}{\meter}, \SI{50}{\meter} ]$ & $[ \SI{0}{\meter}, \SI{1500}{\meter} ]$ \\
+    $\Delta x$ & \SI{1}{\meter} & \SI{1}{\meter} & \SI{7.5}{\meter} \\
+    $\Delta t$ & \SI{0.15}{\second} & \SI{0.15}{\second} & \SI{0.5}{\second} \\
+    End time & \SI{100}{\second} & \SI{500}{\second} & \SI{100000}{\second} \\
+    Topography & Equation~\eqref{eqn:lakeAtRest:z} & Equation~\eqref{eqn:bed} & \citet{goutal-maurel1997} \\
+%    Models & Centred difference; Well-balanced & Well-balanced; Monte Carlo & Well-balanced only \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the three idealised numerical test cases.}
+\label{tab:results}
+\end{table}
+
+\subsection{Specification of Tests 1 and 2}
+For the first two tests, the 1D domain is [\SI{-50}{\meter}, \SI{50}{\meter}], tessellated by $M = 100$ elements with no overlaps or gaps such that the mesh spacing is $\Delta x = \SI{1}{\meter}$.
 The timestep is $\Delta t = \SI{0.15}{\second}$ resulting in a maximum Courant number of about $0.8$.
 By choosing a fixed timestep, simulations of a given test complete in the same number of timesteps irrespective of the model configuration, and error accumulation due to timestepping errors will be the same across all models.
 
@@ -15,33 +36,32 @@ Both tests include a topographic hump centred at $x = \SI{0}{\meter}$ with a reg
 Following a similar approach to \citet{ge2008}, there are two representations for the same uncertain topography.
 The first representation enables smooth topography profiles to be randomly generated in Monte Carlo iterations.
 The topography $z$ is defined as
-\rev{\begin{align}
+\begin{align}
 z(x, \hump) = \hump \sech^2 \left( \frac{\pi x}{\lambda} \right) \label{eqn:bed}
-\end{align}}
-where the hump amplitude \rev{$\hump$} is a random variable with mean \rev{$\humpmean = \SI{0.6}{\meter}$} and standard deviation \rev{$\sigma_\hump = \SI{0.3}{\meter}$}, and the half-width is $\lambda = \SI{10}{\meter}$.
-\rev{This topography profile is seen in figure~\ref{fig:criticalSteadyState-flow}.}
+\end{align}
+where the hump amplitude $\hump$ is a random variable with mean $\humpmean = \SI{0.6}{\meter}$ and standard deviation $\sigma_\hump = \SI{0.3}{\meter}$, and the half-width is $\lambda = \SI{10}{\meter}$.
+This topography profile is seen in figure~\ref{fig:criticalSteadyState-flow}.
 The second representation is used by the stochastic Galerkin model, with topography represented by expansion coefficients $z_{i,0}, \ldots, z_{i,P}$.
-To be able to calculate the topography expansion coefficients, equation~\eqref{eqn:bed} must be expressed in terms of mean topography $\zmean(x)$ and topographic variance $\sigma_z^2(x)$ without involving the random variable \rev{$\hump$}.
+To be able to calculate the topography expansion coefficients, equation~\eqref{eqn:bed} must be expressed in terms of mean topography $\zmean(x)$ and topographic variance $\sigma_z^2(x)$ without involving the random variable $\hump$.
 The mean topography $\zmean(x)$ is simply
-\rev{
 \begin{align}
     \zmean(x) = z(x, \humpmean)
     \label{eqn:bed-mean}
-\end{align}}
+\end{align}
 The topographic variance is
-\rev{\begin{align}
+\begin{align}
     \sigma^2_z(x) = \E[z^2(x, \hump)] - \E^2[z(x, \hump)]
     \label{eqn:bed-variance}
-\end{align}}
-Equation~\eqref{eqn:bed-variance} can be rewritten using Taylor series expansions of the two terms \rev{$\E\left[z^2(x, \hump)\right]$} and \rev{$\E^2\left[z(x, \hump)\right]$}.
-To illustrate the approach, a Taylor series expansion of \rev{$\E\left[ z(x, \hump) \right]$} about \rev{$\humpmean$} is 
+\end{align}
+Equation~\eqref{eqn:bed-variance} can be rewritten using Taylor series expansions of the two terms $\E\left[z^2(x, \hump)\right]$ and $\E^2\left[z(x, \hump)\right]$.
+To illustrate the approach, a Taylor series expansion of $\E\left[ z(x, \hump) \right]$ about $\humpmean$ is 
 \begin{align}
     \E\left[ z(x, \hump) \right] &= \E\left[ z(x, \humpmean + (\hump - \humpmean)) \right] \nonumber \\
     &= \E\left[ z + \frac{\partial z}{\partial \hump} (\hump - \humpmean) + \frac{1}{2} \frac{\partial^2 z}{\partial \hump^2} \left(\hump - \humpmean\right)^2 + \mathcal{O}(\hump^3) \right]
     \label{eqn:mean-taylor}
 %
-\intertext{where $z$ is shorthand for \rev{$z(x, \humpmean)$} and \rev{$\mathcal{O}(\hump^3)$} is the error term involving high-order derivatives \rev{$\partial^m z/\partial \hump^m$} with $m \geq 3$.
-Since \rev{$\E\left[ \hump - \humpmean \right] = 0$} and \rev{$\E\left[ \left(\hump-\humpmean\right)^2\right] = \sigma_\hump^2$} then equation~\eqref{eqn:mean-taylor} simplifies to}
+\intertext{where $z$ is shorthand for $z(x, \humpmean)$ and $\mathcal{O}(\hump^3)$ is the error term involving high-order derivatives $\partial^m z/\partial \hump^m$ with $m \geq 3$.
+Since $\E\left[ \hump - \humpmean \right] = 0$ and $\E\left[ \left(\hump-\humpmean\right)^2\right] = \sigma_\hump^2$ then equation~\eqref{eqn:mean-taylor} simplifies to}
 %
     \E\left[ z(x, \hump) \right] &= z + \frac{1}{2}\frac{\partial^2 z}{\partial \hump^2} \sigma_\hump^2 + \mathcal{O}(\hump^3)
 \end{align}
@@ -59,8 +79,8 @@ Applying this approach to equation~\eqref{eqn:bed-variance} gives:
     z + \frac{1}{2} \frac{\partial^2 z}{\partial \hump^2} \sigma_\hump^2
     \right]^2 + \mathcal{O}(\hump^3) \label{eqn:z-taylor}
 %
-\intertext{For the topographic profile given by equation~\eqref{eqn:bed}, it holds that \rev{$\partial^m z/\partial \hump^m = 0$} where $m \geq 2$, \rev{so the Taylor series approximation introduces no spurious oscillations in stochastic space.
-The topographic variance in equation~\eqref{eqn:z-taylor} then simplifies to}}
+\intertext{For the topographic profile given by equation~\eqref{eqn:bed}, it holds that $\partial^m z/\partial \hump^m = 0$ where $m \geq 2$, so the Taylor series approximation introduces no spurious oscillations in stochastic space.
+The topographic variance in equation~\eqref{eqn:z-taylor} then simplifies to}
 %
     \sigma_z^2(x) &= \left( \frac{\partial z(x, \humpmean)}{\partial \hump} \sigma_\hump \right)^2 \label{eqn:z-variance-continuous}
 \end{align}
@@ -78,7 +98,7 @@ where values are calculated at the centre point $x_i$ for all elements $i=1,\ldo
 
 %and $z_{i,1}$ is calculated using equations~\eqref{eqn:z-variance-continuous} and \eqref{eqn:variance} with $\mu_2[z(x, \xi)] = \sigma_z^2(x)$.
 
-The initial water \rev{depth} expansion coefficients $h_{i,0}^{(0)}, \ldots, h_{i,P}^{(0)}$ can be calculated in terms of free-surface elevation and topography using equation~\eqref{eqn:h-eta-z}.
+The initial water depth expansion coefficients $h_{i,0}^{(0)}, \ldots, h_{i,P}^{(0)}$ can be calculated in terms of free-surface elevation and topography using equation~\eqref{eqn:h-eta-z}.
 For both tests, the initial, spatially-uniform mean free-surface elevation is \SI{1.5}{\meter} with no initial uncertainty such that $\eta_{i,0}^{(0)} = \SI{1.5}{\meter}$ and $\eta_{i,p}^{(0)} = 0$ with $p = 1, \ldots, P$ and $i = 1, \ldots, M$.
 
 \input{lakeAtRest}
