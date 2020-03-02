@@ -18,7 +18,7 @@ class CriticalSteadyState:
             'criticalSteadyState-wellBalancedH-1-pdf12',
             output='uq/criticalSteadyState-wellBalancedH-1/pdf12',
             coefficientsFile='uq/criticalSteadyState-wellBalancedH-1/coefficients.dat',
-            variable='derived-eta',
+            variable='water',
             sampleIndex=12,
             min=0.0,
             max=2.5,
@@ -28,10 +28,10 @@ class CriticalSteadyState:
             'criticalSteadyState-wellBalancedH-1-pdf51',
             output='uq/criticalSteadyState-wellBalancedH-1/pdf51',
             coefficientsFile='uq/criticalSteadyState-wellBalancedH-1/coefficients.dat',
-            variable='derived-eta',
+            variable='water',
             sampleIndex=51,
-            min=0.0,
-            max=2.5,
+            min=-0.5,
+            max=1.8,
             samples=500)
 
         self.wellBalancedH_degree2 = SWEPC(
@@ -48,7 +48,7 @@ class CriticalSteadyState:
             'criticalSteadyState-wellBalancedH-2-pdf12',
             output='uq/criticalSteadyState-wellBalancedH-2/pdf12',
             coefficientsFile='uq/criticalSteadyState-wellBalancedH-2/coefficients.dat',
-            variable='derived-eta',
+            variable='water',
             sampleIndex=12,
             min=0.0,
             max=2.5,
@@ -58,10 +58,10 @@ class CriticalSteadyState:
             'criticalSteadyState-wellBalancedH-2-pdf51',
             output='uq/criticalSteadyState-wellBalancedH-2/pdf51',
             coefficientsFile='uq/criticalSteadyState-wellBalancedH-2/coefficients.dat',
-            variable='derived-eta',
+            variable='water',
             sampleIndex=51,
-            min=0.0,
-            max=2.5,
+            min=-0.5,
+            max=1.8,
             samples=500)
 
         self.wellBalancedH_degree3 = SWEPC(
@@ -78,7 +78,7 @@ class CriticalSteadyState:
             'criticalSteadyState-wellBalancedH-3-pdf12',
             output='uq/criticalSteadyState-wellBalancedH-3/pdf12',
             coefficientsFile='uq/criticalSteadyState-wellBalancedH-3/coefficients.dat',
-            variable='derived-eta',
+            variable='water',
             sampleIndex=12,
             min=0.0,
             max=2.5,
@@ -88,10 +88,10 @@ class CriticalSteadyState:
             'criticalSteadyState-wellBalancedH-3-pdf51',
             output='uq/criticalSteadyState-wellBalancedH-3/pdf51',
             coefficientsFile='uq/criticalSteadyState-wellBalancedH-3/coefficients.dat',
-            variable='derived-eta',
+            variable='water',
             sampleIndex=51,
-            min=0.0,
-            max=2.5,
+            min=-0.5,
+            max=1.8,
             samples=500)
 
         self.monteCarlo = SWEMonteCarlo(

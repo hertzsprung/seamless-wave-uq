@@ -7,6 +7,8 @@
 \usepackage{graphicx}
 \usepackage{siunitx}
 \usepackage{color}
+\usepackage{fontspec}
+\usepackage[bitstream-charter]{mathdesign}
 
 \graphicspath{{src/uq/}{build/}}
 \makeatletter
@@ -15,6 +17,8 @@
 
 \setlength{\parindent}{0pt}
 
+\setmainfont{Gulliver}
+\sisetup{detect-weight,detect-mode}
 \begin{document}
 \input{criticalSteadyState-flow.tex}
 \end{document}
